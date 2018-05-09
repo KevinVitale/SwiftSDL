@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Clibsdl2",
+        "repositoryURL": "/Users/kevin/Developer/GameProg/Clibsdl2",
+        "state": {
+          "branch": null,
+          "revision": "1f79933b2733937b8b9ae2003eb71b32560da7e9",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
