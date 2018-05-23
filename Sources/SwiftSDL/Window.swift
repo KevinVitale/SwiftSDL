@@ -1,8 +1,16 @@
 import Clibsdl2
 
-struct Window {
-    let pointer: OpaquePointer;
+class Window {
+    private let pointer: OpaquePointer;
     
+    required init(pointer: OpaquePointer) {
+        self.pointer = pointer
+    }
+
+    deinit {
+        SDL_DestroyWindow(pointer)
+    }
+
     func has(flags mask: UInt32) -> Bool{
         return (SDL_GetWindowFlags(pointer) & mask) != 0
     }
@@ -28,7 +36,9 @@ struct Window {
     }
     
     var title: String {
-        get { return String(cString: SDL_GetWindowTitle(pointer)!) }
+        get {
+            return String(cString: SDL_GetWindowTitle(pointer)!)
+        }
         set {
             newValue.withCString { bytes in
                 SDL_SetWindowTitle(pointer, bytes)

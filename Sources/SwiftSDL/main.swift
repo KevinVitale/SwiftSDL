@@ -1,12 +1,10 @@
 import Clibsdl2
 import Dispatch
 
-
-
 class App {
     func run() {
-        var (window, renderer) = initialize();
-        defer { cleanup(window: window, renderer: renderer) }
+        let (window, renderer) = initialize();
+        defer { SDL_Quit() }
         
         window.title = "Owen's Robo-cutioner"
         window.resizable = true
@@ -28,7 +26,7 @@ class App {
             update()
 
             /* Render Graphics */
-            render(&renderer)
+            render(renderer)
         }
     }
     
@@ -53,16 +51,10 @@ class App {
     private func update() {
     }
     
-    private func render(_ renderer: inout Renderer, time: Double = 0) {
+    private func render(_ renderer: Renderer, time: Double = 0) {
         renderer.drawColor = .random()
         renderer.clear()
         renderer.present()
-    }
-    
-    private func cleanup(window: Window, renderer: Renderer) {
-        SDL_DestroyRenderer(renderer.pointer)
-        SDL_DestroyWindow(window.pointer)
-        SDL_Quit()
     }
 }
 

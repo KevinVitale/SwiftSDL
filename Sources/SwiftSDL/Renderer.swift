@@ -1,7 +1,15 @@
 import Clibsdl2
 
-struct Renderer {
-    let pointer: OpaquePointer
+class Renderer {
+    private let pointer: OpaquePointer
+    
+    required init(pointer: OpaquePointer) {
+        self.pointer = pointer
+    }
+    
+    deinit {
+        SDL_DestroyRenderer(pointer)
+    }
     
     var drawColor: SDL_Color {
         get {
@@ -21,4 +29,3 @@ struct Renderer {
         SDL_RenderPresent(pointer)
     }
 }
-
