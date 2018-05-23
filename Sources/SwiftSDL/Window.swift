@@ -6,6 +6,28 @@ class Window {
     required init(pointer: OpaquePointer) {
         self.pointer = pointer
     }
+    
+    convenience init?(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: SDL_WindowFlags...) {
+        let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
+        guard let pointer = title.withCString({ SDL_CreateWindow($0, x, y, width, height, flags_) }) else {
+            return nil
+        }
+        self.init(pointer: pointer)
+    }
+    
+    /* TODO: Support `SDL_Error`, and `throw` instead. */
+    convenience init?(renderer: inout Renderer!, width: Int32, height: Int32, flags: SDL_WindowFlags...) {
+        let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
+        
+        var rendererPtr: OpaquePointer? = nil
+        var windowPtr: OpaquePointer? = nil
+        guard SDL_CreateWindowAndRenderer(width, height, flags_, &windowPtr, &rendererPtr) >= 0 else {
+            return nil
+        }
+        
+        renderer = Renderer(pointer: rendererPtr!)
+        self.init(pointer: windowPtr!)
+    }
 
     deinit {
         SDL_DestroyWindow(pointer)
@@ -44,5 +66,9 @@ class Window {
                 SDL_SetWindowTitle(pointer, bytes)
             }
         }
+    }
+    
+    var surface: SDL_Surface? {
+        return SDL_GetWindowSurface(pointer)?.pointee
     }
 }

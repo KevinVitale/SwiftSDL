@@ -1,11 +1,16 @@
 import Clibsdl2
-import Dispatch
+
+@discardableResult
+func Initialize(flags: UInt32...) -> Int32 {
+    return SDL_Init(flags.reduce(0) { $0 | $1 })
+}
 
 class App {
     func run() {
-        let (window, renderer) = initialize();
         defer { SDL_Quit() }
-        
+
+        var renderer: Renderer! = nil
+        let window = Window(renderer: &renderer, width: 480, height: 640)!
         window.title = "Owen's Robo-cutioner"
         window.resizable = true
 
@@ -30,21 +35,6 @@ class App {
         }
     }
     
-    private func initialize() -> (window: Window, renderer: Renderer) {
-        guard SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) >= 0 else {
-            fatalError()
-        }
-        
-        var renderer: OpaquePointer? = nil
-        var window: OpaquePointer? = nil
-        
-        guard SDL_CreateWindowAndRenderer(480, 640, SDL_WINDOW_SHOWN.rawValue, &window, &renderer) >= 0 else {
-            fatalError("\(SDL_GetError())")
-        }
-        
-        return (window: Window(pointer: window!), renderer: Renderer(pointer: renderer!))
-    }
-    
     private func handle(event: SDL_Event) {
     }
     
@@ -57,6 +47,8 @@ class App {
         renderer.present()
     }
 }
+
+Initialize(flags: SDL_INIT_VIDEO, SDL_INIT_TIMER)
 
 let app = App()
 app.run()
