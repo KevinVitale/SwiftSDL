@@ -1,19 +1,6 @@
 import Clibsdl2
 
-class Window {
-    /// Pointer returned by SDL2.
-    private let pointer: OpaquePointer;
-    
-    /**
-     Create a new `Window`.
-     
-     - parameter pointer: A pointer returned by SDL2.
-     - returns: An instance of `Window`.
-     */
-    required init(pointer: OpaquePointer) {
-        self.pointer = pointer
-    }
-    
+class Window: WrappedPointer {
     /**
      Create a new `Window`.
      
