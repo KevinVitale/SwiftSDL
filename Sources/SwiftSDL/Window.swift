@@ -1,12 +1,31 @@
 import Clibsdl2
 
 class Window {
+    /// Pointer returned by SDL2.
     private let pointer: OpaquePointer;
     
+    /**
+     Create a new `Window`.
+     
+     - parameter pointer: A pointer returned by SDL2.
+     - returns: An instance of `Window`.
+     */
     required init(pointer: OpaquePointer) {
         self.pointer = pointer
     }
     
+    /**
+     Create a new `Window`.
+     
+     - parameter title: The title.
+     - parameter x: The `x` position, in screen space.
+     - parameter y: The `y` position, in screen space.
+     - parameter width: The horizontal size.
+     - parameter height: The vertical size.
+     - parameter flags: Additional properties used when creating the window. See: `SDL_WindowFlags`.
+     
+     - returns: A new `Window`, or `nil`, if creating the window fails.
+     */
     convenience init?(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: SDL_WindowFlags...) {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         guard let pointer = title.withCString({ SDL_CreateWindow($0, x, y, width, height, flags_) }) else {
@@ -33,15 +52,30 @@ class Window {
         SDL_DestroyWindow(pointer)
     }
 
-    func has(flags mask: UInt32) -> Bool{
+    /**
+     - parameter flags: A list of flags to be checked.
+     - returns: Evaluates if the receiver contains `flags` in its own list of flags.
+     */
+    func has(flags: SDL_WindowFlags...) -> Bool{
+        let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (SDL_GetWindowFlags(pointer) & mask) != 0
     }
     
+    /**
+     Set the user-resizable state of a window.
+     
+     This will add or remove the window's `SDL_WINDOW_RESIZABLE` flag and
+     allow/disallow user resizing of the window. This is a no-op if the window's
+     resizable state already matches the requested state.
+     
+     - note: You can't change the resizable state of a fullscreen window.
+     */
     var resizable: Bool {
-        get { return has(flags: SDL_WINDOW_RESIZABLE.rawValue) }
+        get { return has(flags: SDL_WINDOW_RESIZABLE) }
         set { SDL_SetWindowResizable(pointer, .init(booleanLiteral: newValue)) }
     }
     
+    /// Get the numeric ID of a window, for logging purposes.
     var id: UInt32 {
         return SDL_GetWindowID(pointer)
     }
