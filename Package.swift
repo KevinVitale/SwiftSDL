@@ -10,7 +10,7 @@ let package = Package(
             targets: ["SwiftSDL"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/KevinVitale/Clibsdl2.git", from: "1.0.0"),
+        .package(url: "https://github.com/KevinVitale/Clibsdl2.git", .revision("master")),
     ],
     targets: [
         .target(
