@@ -95,6 +95,7 @@ extension Renderer {
     }
 
     /**
+     Get the output size in pixels of a rendering context.
      */
     var outputtedSize: (width: Int32, height: Int32) {
         var w: Int32 = 0
