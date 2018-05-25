@@ -114,6 +114,7 @@ extension Renderer {
     }
     
     /**
+     Update the screen with rendering performed.
      */
     func present() {
         SDL_RenderPresent(pointer)
