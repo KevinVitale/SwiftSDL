@@ -5,52 +5,47 @@ func Initialize(flags: UInt32...) -> Int32 {
     return SDL_Init(flags.reduce(0) { $0 | $1 })
 }
 
-class App {
-    func run() {
-        defer { SDL_Quit() }
-
-        var renderer: Renderer! = nil
-        let window = Window(renderer: &renderer, width: 480, height: 640)!
-        window.title = "Owen's Robo-cutioner"
-        window.resizable = true
-
-        var running     = true
-        var event       = SDL_Event()
-
-        while running {
-            /* Process Input */
-            while SDL_PollEvent(&event) != 0 {
-                handle(event: event)
-                guard event.type != SDL_QUIT.rawValue else {
-                    running = false
-                    break
-                }
+func Run(renderer: Renderer, while handler: (SDL_Event) throws -> Bool) rethrows -> Never {
+    var running = true
+    var event   = SDL_Event()
+    while running {
+        while SDL_PollEvent(&event) != 0 {
+            guard try handler(event) else {
+                running = false
+                break;
             }
-
-            /* Update Logic */
-            update()
-
-            /* Render Graphics */
-            render(renderer)
         }
-    }
-    
-    private func handle(event: SDL_Event) {
-    }
-    
-    private func update() {
-    }
-    
-    private func render(_ renderer: Renderer, time: Double = 0) {
-        renderer.drawColor = .random()
+        
+        renderer.drawingColor = .random()
         renderer.clear()
         renderer.present()
     }
+    
+    SDL_Quit()
+    exit(0)
 }
 
-Initialize(flags: SDL_INIT_VIDEO, SDL_INIT_TIMER)
+func Drivers() -> [SDL_RendererInfo] {
+    return (0..<Renderer.driverCount).compactMap { Renderer.driverInfo($0) }
+}
 
-let app = App()
-app.run()
+/* Initialize */
+Initialize(flags: SDL_INIT_VIDEO)
 
+Drivers().forEach {
+    let name = String(cString: $0.name).uppercased()
+    print("\(name)", terminator: "\n\t")
+    print("Accl:\t\t \($0.has(flags: SDL_RENDERER_ACCELERATED))", terminator: "\n\t")
+    print("Software:\t \($0.has(flags: SDL_RENDERER_SOFTWARE))", terminator: "\n\t")
+    print("Texture:\t \($0.has(flags: SDL_RENDERER_TARGETTEXTURE))", terminator: "\n\t")
+    print("VSync:\t\t \($0.has(flags: SDL_RENDERER_PRESENTVSYNC))", terminator: "\n\t")
+    print("\n")
+}
+
+let window = Window(title: "Swift SDL", width: 480, height: 640, flags: SDL_WINDOW_SHOWN)!
+let render = Renderer(window: window, flags: SDL_RENDERER_PRESENTVSYNC)!
+
+Run(renderer: render) {
+    $0.type != SDL_QUIT.rawValue
+}
 
