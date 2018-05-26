@@ -11,16 +11,19 @@ extension SDL_RendererInfo {
     }
 }
 
+/**
+ [Official Documentation](https://wiki.libsdl.org/CategoryRender)
+ */
 class Renderer: WrappedPointer {
     /**
-     */
-    override func destroy(pointer: OpaquePointer) {
-        SDL_DestroyRenderer(pointer)
-    }
-}
-
-extension Renderer {
-    /**
+     Create a 2D rendering context for a window.
+     
+     - parameter window: The window where rendering is displayed.
+     - parameter index:  The index of the rendering driver to initialize, or -1
+                         to initialize the first one supporting the requested
+                         flags.
+     - parameter flags:   Flags specifying attributes of the newly created
+                         renderer.
      */
     convenience init?(window: Window, driver index: Int = 0, flags: SDL_RendererFlags...) {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
@@ -29,6 +32,26 @@ extension Renderer {
         }
         self.init(pointer: pointer)
     }
+    
+    /**
+     Create a 2D software rendering context for a surface.
+     
+     - parameter surface: The surface where rendering is done.
+     - returns: A valid rendering software context.
+     */
+    convenience init(surface: UnsafeMutablePointer<SDL_Surface>!) throws {
+        guard let pointer = SDL_CreateSoftwareRenderer(surface) else {
+            throw Error.error
+        }
+        self.init(pointer: pointer)
+    }
+    
+    /**
+     */
+    override func destroy(pointer: OpaquePointer) {
+        SDL_DestroyRenderer(pointer)
+    }
+    
 }
 
 extension Renderer {
@@ -103,7 +126,9 @@ extension Renderer {
         SDL_GetRendererOutputSize(pointer, &w, &h)
         return (width: w, height: h)
     }
+}
 
+extension Renderer {
     /**
      Clear the current rendering target with the drawing color
      
@@ -119,9 +144,5 @@ extension Renderer {
      */
     func present() {
         SDL_RenderPresent(pointer)
-    }
-    
-    func texture(access: SDL_TextureAccess = SDL_TEXTUREACCESS_STATIC, width: Int32, height: Int32) -> OpaquePointer! {
-        return SDL_CreateTexture(pointer, UInt32(SDL_PIXELFORMAT_RGBA8888), Int32(access.rawValue), width, height)
     }
 }

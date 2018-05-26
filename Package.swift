@@ -3,18 +3,18 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftSDL",
+    name: "SwiftSDL2",
     products: [
         .library(
-            name: "SwiftSDL",
-            targets: ["SwiftSDL"]),
+            name: "SwiftSDL2",
+            targets: ["SwiftSDL2"]),
     ],
     dependencies: [
         .package(url: "https://github.com/KevinVitale/Clibsdl2.git", .revision("master")),
     ],
     targets: [
         .target(
-            name: "SwiftSDL",
+            name: "SwiftSDL2",
             dependencies: ["Clibsdl2"])
     ]
 )
