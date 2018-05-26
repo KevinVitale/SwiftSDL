@@ -89,7 +89,15 @@ class Window: WrappedPointer {
         }
     }
     
-    var surface: SDL_Surface? {
-        return SDL_GetWindowSurface(pointer)?.pointee
+    /**
+     Get the SDL surface associated with the window.
+     
+     A new surface will be created with the optimal format for the window, if
+     necessary. This surface will be freed when the window is destroyed.
+     
+     - note: You may not combine this with 3D or the rendering API on this window.
+     */
+    var surface: UnsafeMutablePointer<SDL_Surface>! {
+        return SDL_GetWindowSurface(pointer)
     }
 }

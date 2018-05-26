@@ -1,6 +1,10 @@
 import Clibsdl2
 
 extension SDL_RendererInfo {
+    public var label: String {
+        return String(cString: name)
+    }
+    
     /**
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
@@ -94,6 +98,41 @@ extension Renderer {
 }
 
 extension Renderer {
+    var blendingMode: SDL_BlendMode {
+        get {
+            var blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
+            SDL_GetRenderDrawBlendMode(pointer, &blendMode)
+            return blendMode
+        } set {
+            SDL_SetRenderDrawBlendMode(pointer, blendingMode)
+        }
+    }
+    
+    /**
+     Get the current render target or NULL for the default render target.
+     
+     - note: When setting the targeted texture, the texture must be created with
+             the `SDL_TEXTUREACCESS_TARGET` flag, or be `nil` for the default
+             render target
+     */
+    var target: Texture? {
+        get {
+            guard let pointer = SDL_GetRenderTarget(pointer) else {
+                return nil
+            }
+            return Texture(pointer: pointer)
+        }
+        set {
+            guard driverInfo.has(flags: SDL_RENDERER_TARGETTEXTURE) else {
+                return
+            }
+            SDL_SetRenderTarget(pointer, newValue?.pointer)
+        }
+    }
+    
+    /**
+     Get information about a rendering context.
+     */
     var driverInfo: SDL_RendererInfo {
         var info = SDL_RendererInfo()
         SDL_GetRendererInfo(pointer, &info)
