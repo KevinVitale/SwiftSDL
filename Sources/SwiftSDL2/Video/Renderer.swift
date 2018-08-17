@@ -167,7 +167,39 @@ extension Renderer {
     }
 }
 
+import QuartzCore
 extension Renderer {
+    @available(OSX 10.11, *)
+    var metalLayer: UnsafeMutableRawPointer? {
+        let rawPointer = SDL_RenderGetMetalLayer(pointer)
+        return rawPointer
+    }
+}
+
+extension Renderer {
+    enum Draw {
+        case point(SDL_Point)
+        case points([SDL_Point])
+        case line
+        
+        fileprivate func render(_ renderer: Renderer) {
+            switch self {
+            case .point(let point):
+                return Draw.points([point]).render(renderer)
+            case .points(let points):
+                SDL_RenderDrawPoints(renderer.pointer, points, Int32(points.count))
+            default: ()
+            }
+        }
+    }
+    
+    func draw(_ draw: Draw, color: SDL_Color = SDL_Color()) {
+        let previousColor = drawingColor
+        drawingColor = color
+        draw.render(self)
+        drawingColor = previousColor
+    }
+    
     /**
      Clear the current rendering target with the drawing color
      

@@ -15,7 +15,9 @@ class Window: WrappedPointer {
      */
     convenience init?(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: SDL_WindowFlags...) {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
-        guard let pointer = title.withCString({ SDL_CreateWindow($0, x, y, width, height, flags_) }) else {
+        guard let pointer = title.withCString({
+            SDL_CreateWindow($0, x, y, width, height, flags_)
+        }) else {
             return nil
         }
         self.init(pointer: pointer)

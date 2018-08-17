@@ -45,33 +45,43 @@ class Texture: WrappedPointer {
         self.init(pointer: SDL_CreateTextureFromSurface(renderer.pointer, surface))
     }
     
-    private func query() -> (format: UInt32, access: SDL_TextureAccess, width: Int, height: Int) {
+    private func query() -> (format: UInt32, formatName: String, access: SDL_TextureAccess, width: Int, height: Int) {
         var format: UInt32 = UInt32(SDL_PIXELTYPE_UNKNOWN)
         var access: Int32  = 0
         var width:  Int32  = 0
         var height: Int32  = 0
         SDL_QueryTexture(pointer ,&format ,&access ,&width ,&height)
+        let formatName: String = String(cString: SDL_GetPixelFormatName(format))
         return (
             format: format
+          , formatName: formatName
           , access: SDL_TextureAccess(rawValue: UInt32(access))
           , width: Int(width)
           , height: Int(height)
         )
     }
     
+    var attributes: (format: UInt32, formatName: String, access: SDL_TextureAccess, width: Int, height: Int) {
+        return query()
+    }
+    
     var format: UInt32 {
-        return query().format
+        return attributes.format
+    }
+    
+    var formatName: String {
+        return attributes.formatName
     }
     
     var access: SDL_TextureAccess {
-        return query().access
+        return attributes.access
     }
     
     var width: Int {
-        return query().width
+        return attributes.width
     }
     
     var height: Int {
-        return query().height
+        return attributes.height
     }
 }
