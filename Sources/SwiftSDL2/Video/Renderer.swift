@@ -1,6 +1,7 @@
 import Clibsdl2
 
-extension SDL_RendererInfo {
+extension SDL_RendererInfo
+{
     public var label: String {
         return String(cString: name)
     }
@@ -18,7 +19,8 @@ extension SDL_RendererInfo {
 /**
  [Official Documentation](https://wiki.libsdl.org/CategoryRender)
  */
-class Renderer: WrappedPointer {
+class Renderer: WrappedPointer
+{
     /**
      Create a 2D rendering context for a window.
      
@@ -58,7 +60,8 @@ class Renderer: WrappedPointer {
     
 }
 
-extension Renderer {
+extension Renderer
+{
     /**
      Get the number of 2D rendering drivers available for the current display.
      
@@ -97,7 +100,8 @@ extension Renderer {
     }
 }
 
-extension Renderer {
+extension Renderer
+{
     var blendingMode: SDL_BlendMode {
         get {
             var blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
@@ -167,8 +171,8 @@ extension Renderer {
     }
 }
 
-import QuartzCore
-extension Renderer {
+extension Renderer
+{
     @available(OSX 10.11, *)
     var metalLayer: UnsafeMutableRawPointer? {
         let rawPointer = SDL_RenderGetMetalLayer(pointer)
@@ -176,7 +180,8 @@ extension Renderer {
     }
 }
 
-extension Renderer {
+extension Renderer
+{
     enum Draw {
         case point(SDL_Point)
         case points([SDL_Point])

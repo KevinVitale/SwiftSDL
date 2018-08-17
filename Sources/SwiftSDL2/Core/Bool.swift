@@ -1,6 +1,7 @@
 import Clibsdl2
 
-extension SDL_bool: ExpressibleByBooleanLiteral {
+extension SDL_bool: ExpressibleByBooleanLiteral
+{
     public init(booleanLiteral value: Bool) {
         switch value {
         case true: self = SDL_TRUE

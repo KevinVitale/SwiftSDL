@@ -1,6 +1,7 @@
 import Clibsdl2
 
-class Texture: WrappedPointer {
+class Texture: WrappedPointer
+{
     /**
      Destroy the specified texture.
      */

@@ -1,6 +1,7 @@
 import Clibsdl2
 
-class WrappedPointer {
+class WrappedPointer
+{
     deinit {
         destroy(pointer: pointer)
     }

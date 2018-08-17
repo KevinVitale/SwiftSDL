@@ -1,6 +1,7 @@
 import Clibsdl2
 
-enum Error: Swift.Error, CustomStringConvertible {
+enum Error: Swift.Error, CustomStringConvertible
+{
     case error
     
     var description: String {

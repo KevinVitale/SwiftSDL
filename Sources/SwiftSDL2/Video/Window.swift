@@ -1,6 +1,7 @@
 import Clibsdl2
 
-class Window: WrappedPointer {
+class Window: WrappedPointer
+{
     /**
      Create a new `Window`.
      
