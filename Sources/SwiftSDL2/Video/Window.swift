@@ -38,7 +38,7 @@ class Window: WrappedPointer
         self.init(pointer: windowPtr!)
     }
 
-    deinit {
+    override func destroy(pointer: OpaquePointer) {
         SDL_DestroyWindow(pointer)
     }
 
