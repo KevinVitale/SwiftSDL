@@ -103,7 +103,7 @@ Drivers().forEach { driver in
 }
 
 let window = Window(title: "Swift SDL", width: 480, height: 640)!
-let render = Renderer(window: window)!
+let render = Renderer(window: window, driver: 2)!
 
 Run(renderer: render) {
     if $0.type == SDL_KEYDOWN.rawValue {
