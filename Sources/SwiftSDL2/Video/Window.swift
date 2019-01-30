@@ -1,7 +1,20 @@
 import Clibsdl2
 
+/**
+ [Official Documentation](https://wiki.libsdl.org/CategoryVideo#Functions)
+ */
 class Window: WrappedPointer
 {
+    // MARK: - Destory
+    override func destroy(pointer: OpaquePointer) {
+        SDL_DestroyWindow(pointer)
+    }
+}
+
+// MARK: -
+extension Window
+{
+    // MARK: - Create
     /**
      Create a new `Window`.
      
@@ -24,7 +37,7 @@ class Window: WrappedPointer
         self.init(pointer: pointer)
     }
     
-    /* TODO: Support `SDL_Error`, and `throw` instead. */
+    /** TODO: Support `SDL_Error`, and `throw` instead. */
     convenience init?(renderer: inout Renderer!, width: Int32, height: Int32, flags: SDL_WindowFlags...) {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         
@@ -37,20 +50,83 @@ class Window: WrappedPointer
         renderer = Renderer(pointer: rendererPtr!)
         self.init(pointer: windowPtr!)
     }
+}
 
-    override func destroy(pointer: OpaquePointer) {
-        SDL_DestroyWindow(pointer)
+// MARK: -
+extension Window
+{
+    static func glWindow() throws -> Window {
+        guard let pointer = SDL_GL_GetCurrentWindow() else {
+            throw SDL2Error.error
+        }
+        
+        return .init(pointer: pointer)
     }
+    
+    func glSwap() {
+        SDL_GL_SwapWindow(pointer)
+    }
+    
+    var glContext: SDL_GLContext! {
+        get { return SDL_GL_GetCurrentContext() }
+        set { SDL_GL_MakeCurrent(pointer, newValue) }
+    }
+}
 
+// MARK: -
+extension Window
+{
     /**
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    func has(flags: SDL_WindowFlags...) -> Bool{
+    func has(flags: SDL_WindowFlags...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (SDL_GetWindowFlags(pointer) & mask) != 0
     }
+}
+
+// MARK: -
+extension Window
+{
+    /*
+    var gamma: Float {
+        get { return SDL_GetWindowBrightness(pointer) }
+        set { SDL_SetWindowBrightness(pointer, newValue) }
+    }
+     */
     
+    /// Get the window's display mode.
+    var displayMode: SDL_DisplayMode {
+        var displayMode = SDL_DisplayMode()
+        SDL_GetWindowDisplayMode(pointer, &displayMode)
+        return displayMode
+    }
+    
+    /*
+    var grabbed: Bool {
+        get { return SDL_GetWindowGrab(pointer).boolValue }
+        set { SDL_SetWindowGrab(pointer, .init(booleanLiteral: newValue))}
+    }
+     */
+
+    /// Get the numeric ID of a window, for logging purposes.
+    var id: UInt32 {
+        return SDL_GetWindowID(pointer)
+    }
+    
+    //
+    var position: (x: Int32, y: Int32) {
+        get {
+            var x: Int32 = 0, y: Int32 = 0
+            SDL_GetWindowPosition(pointer, &x, &y)
+            return (x, y)
+        }
+        set {
+           SDL_SetWindowPosition(pointer, newValue.x, newValue.y)
+        }
+    }
+
     /**
      Set the user-resizable state of a window.
      
@@ -65,11 +141,7 @@ class Window: WrappedPointer
         set { SDL_SetWindowResizable(pointer, .init(booleanLiteral: newValue)) }
     }
     
-    /// Get the numeric ID of a window, for logging purposes.
-    var id: UInt32 {
-        return SDL_GetWindowID(pointer)
-    }
-    
+    //
     var size: (width: Int32, height: Int32) {
         get {
             var w: Int32 = 0, h: Int32 = 0
@@ -103,4 +175,18 @@ class Window: WrappedPointer
     var surface: UnsafeMutablePointer<SDL_Surface>! {
         return SDL_GetWindowSurface(pointer)
     }
+}
+
+// MARK: -
+extension Window
+{
+    /*
+    static func grabbed() -> Window? {
+        guard let pointer = SDL_GetGrabbedWindow() else {
+            return nil
+        }
+        
+        return .init(pointer: pointer)
+    }
+     */
 }

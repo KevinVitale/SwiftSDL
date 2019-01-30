@@ -1,25 +1,19 @@
 import Clibsdl2
 
-extension SDL_RendererInfo
-{
-    public var label: String {
-        return String(cString: name)
-    }
-    
-    /**
-     - parameter flags: A list of flags to be checked.
-     - returns: Evaluates if the receiver contains `flags` in its own list of flags.
-     */
-    func has(flags: SDL_RendererFlags...) -> Bool{
-        let mask = flags.reduce(0) { $0 | $1.rawValue }
-        return (self.flags & mask) != 0
-    }
-}
-
 /**
  [Official Documentation](https://wiki.libsdl.org/CategoryRender)
  */
 class Renderer: WrappedPointer
+{
+    /**
+     */
+    override func destroy(pointer: OpaquePointer) {
+        SDL_DestroyRenderer(pointer)
+    }
+}
+
+// MARK: -
+extension Renderer
 {
     /**
      Create a 2D rendering context for a window.
@@ -47,19 +41,14 @@ class Renderer: WrappedPointer
      */
     convenience init(surface: UnsafeMutablePointer<SDL_Surface>!) throws {
         guard let pointer = SDL_CreateSoftwareRenderer(surface) else {
-            throw Error.error
+            throw SDL2Error.error
         }
         self.init(pointer: pointer)
     }
-    
-    /**
-     */
-    override func destroy(pointer: OpaquePointer) {
-        SDL_DestroyRenderer(pointer)
-    }
-    
+
 }
 
+// MARK: -
 extension Renderer
 {
     /**
@@ -171,12 +160,12 @@ extension Renderer
     }
 }
 
+import QuartzCore
 extension Renderer
 {
     @available(OSX 10.11, *)
-    var metalLayer: UnsafeMutableRawPointer? {
-        let rawPointer = SDL_RenderGetMetalLayer(pointer)
-        return rawPointer
+    var metalLayer: CAMetalLayer? {
+        return nil
     }
 }
 
@@ -185,14 +174,20 @@ extension Renderer
     enum Draw {
         case point(SDL_Point)
         case points([SDL_Point])
-        case line
-        
+        case line(start: SDL_Point, end: SDL_Point)
+        case lines(points: [SDL_Point])
+        case rect
+
         fileprivate func render(_ renderer: Renderer) {
             switch self {
             case .point(let point):
                 return Draw.points([point]).render(renderer)
             case .points(let points):
                 SDL_RenderDrawPoints(renderer.pointer, points, Int32(points.count))
+            case .line(let line):
+                SDL_RenderDrawLine(renderer.pointer, line.start.x, line.start.y, line.end.x, line.end.y)
+            case .lines(let points):
+                SDL_RenderDrawLines(renderer.pointer, points, Int32(points.count))
             default: ()
             }
         }

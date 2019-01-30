@@ -1,22 +1,38 @@
 import Clibsdl2
-
+import Foundation
+import Quartz
 
 // InitializeSDL(flags: SDL_INIT_VIDEO)
 // InitializeImage(flags: IMG_INIT_PNG)
-
 
 var yPos = 0
 var xPos = 0
 var flip = false
 
+/* Hack cause this is CLI program. Needs fixin' */
+guard let path = CommandLine.arguments.last
+    , let url = URL(string: path) else {
+        fatalError()
+}
+
+
+
+var version: SDL_version = SDL_version()
+SDL_GetVersion(&version)
+print(version)
+
 func Run(renderer: Renderer, while handler: (SDL_Event) throws -> Bool) rethrows -> Never {
     var running = true
     var event   = SDL_Event()
-
-    let image = Texture(renderer: renderer, file: "/Users/kevin/Desktop/characters_7.png")!
+    
+    guard let image = Texture(renderer: renderer, file: url.appendingPathComponent("characters_7.png").absoluteString) else {
+        fatalError("Missing texture")
+    }
     let texture = image.pointer
     
-    let atlas = Texture(renderer: renderer, file: "/Users/kevin/Desktop/spritesheet.png")!
+    guard let atlas = Texture(renderer: renderer, file: url.appendingPathComponent("spritesheet.png").absoluteString) else {
+        fatalError("Missing texture")
+    }
     let spirtes = atlas.pointer
 
     
@@ -36,29 +52,10 @@ func Run(renderer: Renderer, while handler: (SDL_Event) throws -> Bool) rethrows
         renderer.drawingColor = SDL_Color(r: 255, g: 255, b: 255, a: 255)
         renderer.clear()
         SDL_SetTextureColorMod(texture, renderer.drawingColor.r, renderer.drawingColor.g, renderer.drawingColor.b)
-        
-        renderer.draw(.point(.init(x: 100, y: 100)))
-        
-        /*
-        let color = SDL_Color.random()
-        SDL_SetTextureColorMod(texture, color.r, color.g, color.b)
-         */
-        
-        /*
-        var srcrect = SDL_Rect(x: Int32(xPos), y: Int32(yPos), w: 32, h: 32)
-        var dstrect = SDL_Rect(x: Int32(xPos), y: Int32(yPos), w: 32, h: 32)
-        _ = SDL_RenderCopyEx(renderer.pointer, texture, &srcrect, &dstrect, 0, nil, SDL_FLIP_NONE)
-        
-        if xPos > renderer.outputtedSize.width {
-            xPos = -32
-        }
-        if yPos > renderer.outputtedSize.height {
-            yPos = -32
-        }
-         */
-        
+
         let k = Int32(16)
-        var srcrect = SDL_Rect(x: Int32(index * 32), y: 32, w: k * 2, h: k * 2)
+        let row: Int32 = 3
+        var srcrect = SDL_Rect(x: Int32(index * 32), y: 32 * row, w: k * 2, h: k * 2)
         var dstrect = SDL_Rect(x: Int32(xPos), y: Int32(yPos), w: k * 4, h: k * 4)
         
         var doFlip = SDL_FLIP_NONE
@@ -90,17 +87,10 @@ func Run(renderer: Renderer, while handler: (SDL_Event) throws -> Bool) rethrows
 
     exit(0)
 }
-//------------------------------------------------------------------------------
-
-func Drivers() -> [SDL_RendererInfo] {
-    return (0..<Renderer.driverCount).compactMap { Renderer.driverInfo($0) }
-}
-//------------------------------------------------------------------------------
 
 func Load(image path: String) -> UnsafeMutablePointer<SDL_Surface>! {
     return path.withCString { IMG_Load($0) }
 }
-//------------------------------------------------------------------------------
 
 Drivers().forEach { driver in
     let name = String(cString: driver.name).uppercased()
