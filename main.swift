@@ -15,8 +15,6 @@ guard let path = CommandLine.arguments.last
         fatalError()
 }
 
-
-
 var version: SDL_version = SDL_version()
 SDL_GetVersion(&version)
 print(version)
@@ -82,12 +80,7 @@ func Run(renderer: Renderer, while handler: (SDL_Event) throws -> Bool) rethrows
         }
 
         renderer.present()
-        // SDL_Delay(100)
-        
-        if let metalLayer = renderer.metalLayer
-            , let device = metalLayer.device {
-            print(device.name)
-        }
+        SDL_Delay(100)
     }
 
     exit(0)
@@ -107,9 +100,13 @@ Drivers().forEach { driver in
     print("\n")
 }
 
-let window = Window(title: "Swift SDL", width: 480, height: 640)!
-let render = Renderer(window: window, driver: 0)!
+let window = try Window(title: "Swift SDL", width: 480, height: 640)
+let render = try Renderer(window: window)
 
+if let metalLayer = render.metalLayer, let device = metalLayer.device
+{
+    print(device.name)
+}
 
 Run(renderer: render) {
     if $0.type == SDL_KEYDOWN.rawValue {

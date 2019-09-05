@@ -1,4 +1,5 @@
 import Clibsdl2
+import Foundation.NSThread
 
 class Texture: WrappedPointer
 {
@@ -26,7 +27,7 @@ class Texture: WrappedPointer
      */
     convenience init(renderer: Renderer, format: Int, access: SDL_TextureAccess, width: Int, height: Int) throws {
         guard let pointer = SDL_CreateTexture(renderer.pointer, UInt32(format), Int32(access.rawValue), Int32(width), Int32(height)) else {
-            throw SDL2Error.error
+            throw Error.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }

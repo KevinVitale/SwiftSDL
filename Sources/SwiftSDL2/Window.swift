@@ -1,4 +1,5 @@
 import Clibsdl2
+import Foundation.NSThread
 
 /**
  [Official Documentation](https://wiki.libsdl.org/CategoryVideo#Functions)
@@ -8,6 +9,34 @@ class Window: WrappedPointer
     // MARK: - Destory
     override func destroy(pointer: OpaquePointer) {
         SDL_DestroyWindow(pointer)
+    }
+}
+
+extension Window {
+    struct Flags: OptionSet {
+        var rawValue: SDL_WindowFlags.RawValue
+        
+        static let fullscreen           = Flags(rawValue: SDL_WINDOW_FULLSCREEN.rawValue)
+        static let openGL               = Flags(rawValue: SDL_WINDOW_OPENGL.rawValue)
+        static let shown                = Flags(rawValue: SDL_WINDOW_SHOWN.rawValue)
+        static let hidden               = Flags(rawValue: SDL_WINDOW_HIDDEN.rawValue)
+        static let borderless           = Flags(rawValue: SDL_WINDOW_BORDERLESS.rawValue)
+        static let resizable            = Flags(rawValue: SDL_WINDOW_RESIZABLE.rawValue)
+        static let minimized            = Flags(rawValue: SDL_WINDOW_MINIMIZED.rawValue)
+        static let maximized            = Flags(rawValue: SDL_WINDOW_MAXIMIZED.rawValue)
+        static let inputGrabbed         = Flags(rawValue: SDL_WINDOW_INPUT_GRABBED.rawValue)
+        static let inputFocus           = Flags(rawValue: SDL_WINDOW_INPUT_FOCUS.rawValue)
+        static let mouseFocus           = Flags(rawValue: SDL_WINDOW_MOUSE_FOCUS.rawValue)
+        static let fullscreenDesktop    = Flags(rawValue: SDL_WINDOW_FULLSCREEN_DESKTOP.rawValue)
+        static let foreign              = Flags(rawValue: SDL_WINDOW_FOREIGN.rawValue)
+        static let allowHighDPI         = Flags(rawValue: SDL_WINDOW_ALLOW_HIGHDPI.rawValue)
+        static let mouseCapture         = Flags(rawValue: SDL_WINDOW_MOUSE_CAPTURE.rawValue)
+        static let alwaysOnTop          = Flags(rawValue: SDL_WINDOW_ALWAYS_ON_TOP.rawValue)
+        static let skipTaskbar          = Flags(rawValue: SDL_WINDOW_SKIP_TASKBAR.rawValue)
+        static let utility              = Flags(rawValue: SDL_WINDOW_UTILITY.rawValue)
+        static let tooltop              = Flags(rawValue: SDL_WINDOW_TOOLTIP.rawValue)
+        static let popUpMenu            = Flags(rawValue: SDL_WINDOW_POPUP_MENU.rawValue)
+        static let vulkan               = Flags(rawValue: SDL_WINDOW_VULKAN.rawValue)
     }
 }
 
@@ -27,24 +56,22 @@ extension Window
      
      - returns: A new `Window`, or `nil`, if creating the window fails.
      */
-    convenience init?(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: SDL_WindowFlags...) {
+    convenience init(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: Flags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
-        guard let pointer = title.withCString({
-            SDL_CreateWindow($0, x, y, width, height, flags_)
-        }) else {
-            return nil
+        let title_ = title.cString(using: .utf8) ?? []
+        guard let pointer = SDL_CreateWindow(title_, x, y, width, height, flags_) else {
+            throw Error.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
     
     /** TODO: Support `SDL_Error`, and `throw` instead. */
-    convenience init?(renderer: inout Renderer!, width: Int32, height: Int32, flags: SDL_WindowFlags...) {
+    convenience init(renderer: inout Renderer!, width: Int32, height: Int32, flags: Flags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
-        
         var rendererPtr: OpaquePointer? = nil
         var windowPtr: OpaquePointer? = nil
         guard SDL_CreateWindowAndRenderer(width, height, flags_, &windowPtr, &rendererPtr) >= 0 else {
-            return nil
+            throw Error.error(Thread.callStackSymbols)
         }
         
         renderer = Renderer(pointer: rendererPtr!)
@@ -57,7 +84,7 @@ extension Window
 {
     static func glWindow() throws -> Window {
         guard let pointer = SDL_GL_GetCurrentWindow() else {
-            throw SDL2Error.error
+            throw Error.error(Thread.callStackSymbols)
         }
         
         return .init(pointer: pointer)
@@ -138,7 +165,10 @@ extension Window
      */
     var resizable: Bool {
         get { return has(flags: SDL_WINDOW_RESIZABLE) }
-        set { SDL_SetWindowResizable(pointer, .init(booleanLiteral: newValue)) }
+        set {
+            SDL_SetWindowResizable(pointer, newValue.toSDL)
+            
+        }
     }
     
     //
@@ -190,3 +220,5 @@ extension Window
     }
      */
 }
+
+

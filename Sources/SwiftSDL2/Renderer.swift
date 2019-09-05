@@ -12,6 +12,17 @@ class Renderer: WrappedPointer
     }
 }
 
+extension Renderer {
+    struct Flags: OptionSet {
+        var rawValue: SDL_RendererFlags.RawValue
+        
+        static let hardwareAcceleration = Flags(rawValue: SDL_RENDERER_ACCELERATED.rawValue)
+        static let softwareRendering    = Flags(rawValue: SDL_RENDERER_SOFTWARE.rawValue)
+        static let targetTexturing      = Flags(rawValue: SDL_RENDERER_TARGETTEXTURE.rawValue)
+        static let verticalSync         = Flags(rawValue: SDL_RENDERER_PRESENTVSYNC.rawValue)
+    }
+}
+
 // MARK: -
 extension Renderer
 {
@@ -25,10 +36,10 @@ extension Renderer
      - parameter flags:   Flags specifying attributes of the newly created
                          renderer.
      */
-    convenience init?(window: Window, driver index: Int = 0, flags: SDL_RendererFlags...) {
+    convenience init(window: Window, driver index: Int = 0, flags: Flags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         guard let pointer = SDL_CreateRenderer(window.pointer, Int32(index), flags_) else {
-            return nil
+            throw Error.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
@@ -41,7 +52,7 @@ extension Renderer
      */
     convenience init(surface: UnsafeMutablePointer<SDL_Surface>!) throws {
         guard let pointer = SDL_CreateSoftwareRenderer(surface) else {
-            throw SDL2Error.error
+            throw Error.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
@@ -87,6 +98,7 @@ extension Renderer
         }
         return info
     }
+    
 }
 
 extension Renderer
@@ -97,7 +109,7 @@ extension Renderer
             SDL_GetRenderDrawBlendMode(pointer, &blendMode)
             return blendMode
         } set {
-            SDL_SetRenderDrawBlendMode(pointer, blendingMode)
+            SDL_SetRenderDrawBlendMode(pointer, newValue)
         }
     }
     
@@ -152,7 +164,7 @@ extension Renderer
     /**
      Get the output size in pixels of a rendering context.
      */
-    var outputtedSize: (width: Int32, height: Int32) {
+    var outputSize: (width: Int32, height: Int32) {
         var w: Int32 = 0
           , h: Int32 = 0
         SDL_GetRendererOutputSize(pointer, &w, &h)
@@ -172,10 +184,14 @@ extension Renderer
         
         let typedMutablePtr = untypedMutablePtr.assumingMemoryBound(to: CAMetalLayer.self)
         let typedPtr = UnsafeRawPointer(typedMutablePtr)
-
+        
         return Unmanaged
             .fromOpaque(typedPtr)
             .takeUnretainedValue()
+    }
+    
+    var context: SDL_GLContext? {
+        return SDL_GL_GetCurrentContext()
     }
 }
 
