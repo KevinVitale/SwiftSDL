@@ -160,12 +160,22 @@ extension Renderer
     }
 }
 
-import QuartzCore
+import QuartzCore.CAMetalLayer
+import Metal
 extension Renderer
 {
     @available(OSX 10.11, *)
     var metalLayer: CAMetalLayer? {
-        return nil
+        guard let untypedMutablePtr = SDL_RenderGetMetalLayer(self.pointer) else {
+            return nil
+        }
+        
+        let typedMutablePtr = untypedMutablePtr.assumingMemoryBound(to: CAMetalLayer.self)
+        let typedPtr = UnsafeRawPointer(typedMutablePtr)
+
+        return Unmanaged
+            .fromOpaque(typedPtr)
+            .takeUnretainedValue()
     }
 }
 

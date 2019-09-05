@@ -82,7 +82,12 @@ func Run(renderer: Renderer, while handler: (SDL_Event) throws -> Bool) rethrows
         }
 
         renderer.present()
-        SDL_Delay(100)
+        // SDL_Delay(100)
+        
+        if let metalLayer = renderer.metalLayer
+            , let device = metalLayer.device {
+            print(device.name)
+        }
     }
 
     exit(0)
@@ -103,7 +108,8 @@ Drivers().forEach { driver in
 }
 
 let window = Window(title: "Swift SDL", width: 480, height: 640)!
-let render = Renderer(window: window, driver: 2)!
+let render = Renderer(window: window, driver: 0)!
+
 
 Run(renderer: render) {
     if $0.type == SDL_KEYDOWN.rawValue {
