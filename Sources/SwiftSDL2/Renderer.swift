@@ -79,7 +79,7 @@ public extension SDLPointer where T == SDLRenderer {
         return info
     }
 
-    init(window: Window, driver index: Int = 0, flags renderFlags: RenderFlags...) throws {
+    init(window: Window, driver index: Int = -1, flags renderFlags: RenderFlags...) throws {
         let flags: UInt32 = renderFlags.reduce(0) { $0 | $1.rawValue }
         guard let pointer = SDL_CreateRenderer(window._pointer, Int32(index), flags) else {
             throw SDLError.error(Thread.callStackSymbols)
