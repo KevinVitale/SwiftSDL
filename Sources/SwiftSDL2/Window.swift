@@ -1,5 +1,5 @@
 import Foundation
-import Clibsdl2
+import CSDL2
 
 public struct SDLWindow: SDLType {
     public static func destroy(pointer: OpaquePointer) {
@@ -12,7 +12,6 @@ public typealias Window = SDLPointer<SDLWindow>
 public extension SDLPointer where T == SDLWindow {
     typealias DisplayMode = SDL_DisplayMode
     typealias GLContext   = SDL_GLContext
-    typealias Surface     = UnsafeMutablePointer<SDL_Surface>
 
     struct WindowFlags: OptionSet {
         public init(rawValue: SDL_WindowFlags.RawValue) {
@@ -60,31 +59,32 @@ public extension SDLPointer where T == SDLWindow {
     init(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: WindowFlags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         let title_ = title.cString(using: .utf8) ?? []
+        
         guard let pointer = SDL_CreateWindow(title_, x, y, width, height, flags_) else {
-            throw Error.error(Thread.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
     
-    /** TODO: Support `SDL_Error`, and `throw` instead. */
-    init(renderer: inout SDLPointer<SDLRenderer>!, width: Int32, height: Int32, flags: WindowFlags...) throws {
+    init(renderer: inout Renderer!, width: Int32, height: Int32, flags: WindowFlags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         var rendererPtr: OpaquePointer? = nil
         var windowPtr: OpaquePointer? = nil
+        
         guard SDL_CreateWindowAndRenderer(width, height, flags_, &windowPtr, &rendererPtr) >= 0 else {
-            throw Error.error(Thread.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
         
-        renderer = SDLPointer<SDLRenderer>(pointer: rendererPtr!)
+        renderer = Renderer(pointer: rendererPtr!)
         self.init(pointer: windowPtr!)
     }
     
-    static func glWindow() throws -> SDLPointer<SDLWindow> {
+    static func glWindow() throws -> Window {
         guard let pointer = SDL_GL_GetCurrentWindow() else {
-            throw Error.error(Thread.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
         
-        return SDLPointer<SDLWindow>(pointer: pointer)
+        return Window(pointer: pointer)
     }
     
     func glSwap() {
@@ -112,8 +112,8 @@ public extension SDLPointer where T == SDLWindow {
         return displayMode
     }
     
-    var surface: Surface? {
-        return SDL_GetWindowSurface(_pointer)
+    var surface: Result<Surface, Error> {
+        return Surface.surface(forWindow: self)
     }
 
     var title: String {

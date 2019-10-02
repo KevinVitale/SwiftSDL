@@ -1,12 +1,11 @@
 import Foundation.NSThread
-import Clibsdl2
+import CSDL2
 import QuartzCore.CAMetalLayer
 
 public struct SDLRenderer: SDLType {
     public static func destroy(pointer: OpaquePointer) {
         SDL_DestroyRenderer(pointer)
     }
-    
 }
 
 public typealias Renderer = SDLPointer<SDLRenderer>
@@ -80,10 +79,10 @@ public extension SDLPointer where T == SDLRenderer {
         return info
     }
 
-    init(window: SDLPointer<SDLWindow>, driver index: Int = 0, flags renderFlags: RenderFlags...) throws {
+    init(window: Window, driver index: Int = 0, flags renderFlags: RenderFlags...) throws {
         let flags: UInt32 = renderFlags.reduce(0) { $0 | $1.rawValue }
         guard let pointer = SDL_CreateRenderer(window._pointer, Int32(index), flags) else {
-            throw Error.error(Thread.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
@@ -92,21 +91,24 @@ public extension SDLPointer where T == SDLRenderer {
      Create a
      */
     init(withSurfaceFromWindow window: Window) throws {
-        guard let surface = window.surface, let pointer = SDL_CreateSoftwareRenderer(surface) else {
-            throw Error.error(Thread.callStackSymbols)
+        let surface = try window.surface.get()._pointer
+        
+        guard let pointer = SDL_CreateSoftwareRenderer(surface) else {
+            throw SDLError.error(Thread.callStackSymbols)
         }
+        
         self.init(pointer: pointer)
     }
     
-    func getDrawingColor() -> Result<SDL_Color, Error> {
+    func drawingColor() -> Result<SDL_Color, Error> {
         var r: UInt8 = 0
-        , g: UInt8 = 0
-        , b: UInt8 = 0
-        , a: UInt8 = 0
+          , g: UInt8 = 0
+          , b: UInt8 = 0
+          , a: UInt8 = 0
         
         switch SDL_GetRenderDrawColor(_pointer, &r, &g, &b, &a) {
         case -1:
-            return .failure(Error.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(Thread.callStackSymbols))
         default:
             return .success(SDL_Color(r: r, g: g, b: b, a: a))
         }
@@ -116,14 +118,14 @@ public extension SDLPointer where T == SDLRenderer {
     func setDrawingColor(with colorMod: SDL_Color) -> Result<(), Error> {
         switch SDL_SetRenderDrawColor(_pointer, colorMod.r, colorMod.g, colorMod.b, colorMod.a) {
         case -1:
-            return .failure(Error.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(Thread.callStackSymbols))
         default:
             return .success(())
         }
     }
     
     @discardableResult
-    func copy(from texture: SDLPointer<SDLTexture>, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
+    func copy(from texture: Texture, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil
@@ -145,7 +147,7 @@ public extension SDLPointer where T == SDLRenderer {
 
         switch SDL_RenderCopyEx(_pointer, texture._pointer, sourceRect, destRect, angle, centerPoint, SDL_RendererFlip(rawValue: flip.rawValue)) {
         case -1:
-            return .failure(Error.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(Thread.callStackSymbols))
         default:
             return .success(())
         }
@@ -184,7 +186,7 @@ public extension SDLPointer where T == SDLRenderer {
     func clear() -> Result<(), Error> {
         switch SDL_RenderClear(_pointer) {
         case -1:
-            return .failure(Error.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(Thread.callStackSymbols))
         default:
             return .success(())
         }
@@ -198,9 +200,8 @@ public extension SDLPointer where T == SDLRenderer {
     }
 }
 
-extension SDL_RendererInfo
-{
-    public var label: String {
+public extension SDL_RendererInfo {
+    var label: String {
         return String(cString: name)
     }
     
@@ -208,7 +209,7 @@ extension SDL_RendererInfo
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    func has(flags: SDL_RendererFlags...) -> Bool{
+    func has(flags: Renderer.RenderFlags...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (self.flags & mask) != 0
     }

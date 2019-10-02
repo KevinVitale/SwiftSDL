@@ -1,5 +1,5 @@
 import Foundation.NSThread
-import Clibsdl2
+import CSDL2
 
 public struct SDLTexture: SDLType {
     public static func destroy(pointer: OpaquePointer) {
@@ -25,14 +25,14 @@ public extension SDLPointer where T == SDLTexture {
      
      - note: The contents of the texture are not defined at creation.
      */
-    init(renderer: SDLPointer<SDLRenderer>, format: Int, access: SDL_TextureAccess, width: Int, height: Int) throws {
+    init(renderer: Renderer, format: Int, access: SDL_TextureAccess, width: Int, height: Int) throws {
         guard let pointer = SDL_CreateTexture(renderer._pointer, UInt32(format), Int32(access.rawValue), Int32(width), Int32(height)) else {
-            throw Error.error(Thread.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
     
-    init?(renderer: SDLPointer<SDLRenderer>, pathURL url: URL) throws {
+    init(renderer: Renderer, pathURL url: URL) throws {
         let surface = url.path.withCString { IMG_Load($0) }
         
         defer {
@@ -42,14 +42,14 @@ public extension SDLPointer where T == SDLTexture {
         }
         
         guard let pointer = SDL_CreateTextureFromSurface(renderer._pointer, surface) else {
-            throw Error.error(Thread.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
         
         self.init(pointer: pointer)
     }
     
-    init?(renderer: SDLPointer<SDLRenderer>, surface: Surface!) {
-        guard let pointer = SDL_CreateTextureFromSurface(renderer._pointer, surface) else {
+    init?(renderer: Renderer, surface: Surface!) {
+        guard let pointer = SDL_CreateTextureFromSurface(renderer._pointer, surface._pointer) else {
             return nil
         }
         self.init(pointer: pointer)
@@ -99,7 +99,7 @@ public extension SDLPointer where T == SDLTexture {
         var r: UInt8 = 0, g: UInt8 = 0, b: UInt8 = 0
         switch SDL_GetTextureColorMod(_pointer, &r, &g, &b) {
         case -1:
-            return .failure(Error.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(Thread.callStackSymbols))
         default:
             return .success(SDL_Color(r: r, g: g, b: b, a: .max))
         }
@@ -109,7 +109,7 @@ public extension SDLPointer where T == SDLTexture {
     func setColorMod(with colorMod: SDL_Color) -> Result<(), Error> {
         switch SDL_SetTextureColorMod(_pointer, colorMod.r, colorMod.g, colorMod.b) {
         case -1:
-            return .failure(Error.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(Thread.callStackSymbols))
         default:
             return .success(())
         }

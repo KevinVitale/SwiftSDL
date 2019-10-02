@@ -1,10 +1,8 @@
-import Clibsdl2
-import Foundation
-import Quartz
-import SpriteKit
+import Foundation.NSBundle
+import CSDL2
+import SwiftSDL2
 
-// InitializeSDL(flags: SDL_INIT_VIDEO)
-// InitializeImage(flags: IMG_INIT_PNG)
+try SDL.initialize(subSystems: .everything)
 
 var characterIndex: Int32 = 1
 var turnOnBlinking = false // either can be  'true' or 'false'
@@ -13,19 +11,18 @@ var turnOnBlinking = false // either can be  'true' or 'false'
 var yPos = 0
 var xPos = 0
 var flip = false
+var angle: Double = 0
 
 /* Hack cause this is CLI program. Needs fixin' */
-guard let projectPath = CommandLine.arguments.last
-    , let projectURL = URL(string: "file://\(projectPath)/") else {
-        fatalError()
+guard let projectURL = Bundle.main.resourceURL else {
+    fatalError()
 }
+
 
 var characterSprites: Texture! = nil
 var itemSprites: Texture! = nil
 
-var version: SDL_version = SDL_version()
-SDL_GetVersion(&version)
-print(version)
+print(SDL.Version.current)
 
 func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) rethrows -> Never {
     var running = true
@@ -33,10 +30,8 @@ func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) re
     
     if characterSprites == nil {
         switch Result(catching: { try Texture(renderer: renderer, pathURL: URL(fileURLWithPath: "characters_7.png", relativeTo: projectURL)) }) {
-        case .success(let texture?):
+        case .success(let texture):
             characterSprites = texture
-        case .success(.none):
-            fatalError("Missing texture")
         case .failure(let error):
             fatalError("Missing texture: \(error)")
         }
@@ -44,10 +39,8 @@ func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) re
     
     if itemSprites == nil {
         switch Result(catching: { try Texture(renderer: renderer, pathURL: URL(fileURLWithPath: "spritesheet.png", relativeTo: projectURL)) }) {
-        case .success(let texture?):
+        case .success(let texture):
             itemSprites = texture
-        case .success(.none):
-            fatalError("Missing texture")
         case .failure(let error):
             fatalError("Missing texture: \(error)")
         }
@@ -85,8 +78,8 @@ func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) re
         if flip {
             doFlip = .horizontal
         }
-        renderer.copy(from: characterSprites, from: srcrect, to: dstrect, flipped: doFlip)
-        
+        renderer.copy(from: characterSprites, from: srcrect, to: dstrect, rotatedBy: angle, flipped: doFlip)
+
         index += 1
         if index >= frames + offset {
             index = offset
@@ -108,26 +101,24 @@ func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) re
         SDL_Delay(100)
     }
 
+    SDL.quit(subSystem: .everything)
     exit(0)
-}
-
-func Load(image path: String) -> UnsafeMutablePointer<SDL_Surface>! {
-    return path.withCString { IMG_Load($0) }
 }
 
 Renderer.availableRenderers.forEach { driver in
     let name = String(cString: driver.name).uppercased()
     print("\(name)", terminator: "\n\t")
-    print("Accl:\t\t \(driver.has(flags: SDL_RENDERER_ACCELERATED))", terminator: "\n\t")
-    print("Software:\t \(driver.has(flags: SDL_RENDERER_SOFTWARE))", terminator: "\n\t")
-    print("Texture:\t \(driver.has(flags: SDL_RENDERER_TARGETTEXTURE))", terminator: "\n\t")
-    print("VSync:\t\t \(driver.has(flags: SDL_RENDERER_PRESENTVSYNC))", terminator: "\n\t")
+    print("Accl:\t\t \(driver.has(flags: .hardwareAcceleration))", terminator: "\n\t")
+    print("Software:\t \(driver.has(flags: .softwareRendering))", terminator: "\n\t")
+    print("Texture:\t \(driver.has(flags: .targetTexturing))", terminator: "\n\t")
+    print("VSync:\t\t \(driver.has(flags: .verticalSync))", terminator: "\n\t")
     print("\n")
 }
 
 let window = try Window(title: "Swift SDL", width: 480, height: 640)
-var render = try Renderer(window: window)
+var render = try Renderer(window: window, driver: 3, flags: .softwareRendering)
 
+print(try window.surface.get())
 
 if let metalLayer = render.metalLayer, let device = metalLayer.device
 {

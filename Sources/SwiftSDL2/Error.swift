@@ -1,6 +1,6 @@
-import Clibsdl2
+import CSDL2
 
-public enum Error: Swift.Error, CustomStringConvertible
+public enum SDLError: Error, CustomStringConvertible
 {
     case error(_ callStackSymbols: [String]?)
     

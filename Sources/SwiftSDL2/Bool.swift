@@ -1,7 +1,7 @@
-import Clibsdl2
+import CSDL2
 
 extension Bool {
-    var toSDL: SDL_bool {
+    var SDLBool: SDL_bool {
         return self == true ? SDL_TRUE : SDL_FALSE
     }
 }
