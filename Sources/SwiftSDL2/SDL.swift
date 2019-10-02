@@ -2,19 +2,20 @@ import CSDL2
 import Foundation.NSThread
 
 public struct SDL {
-    public static func initialize(subSystems: SubSystem...) throws {
-        guard SDL_InitSubSystem(subSystems.reduce(0) { $0 | $1.rawValue }) == 0 else {
+    public static func Init(subSystems: SubSystem...) throws {
+        let subsystems = subSystems.reduce(0) { $0 | $1.rawValue }
+        guard SDL_InitSubSystem(subsystems) == 0 else {
             throw SDLError.error(Thread.callStackSymbols)
         }
     }
     
     @inline(__always)
-    public static func quit() {
+    public static func Quit() {
         SDL_Quit()
     }
     
     @inline(__always)
-    public static func quit(subSystem subSystems: SubSystem...) {
+    public static func Quit(subSystems: SubSystem...) {
         let flags: UInt32 = subSystems.reduce(0) { $0 | $1.rawValue }
         SDL_QuitSubSystem(flags)
     }
