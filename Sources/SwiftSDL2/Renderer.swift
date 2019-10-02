@@ -206,6 +206,25 @@ public extension SDL_RendererInfo {
         return String(cString: name).uppercased()
     }
     
+    public var textureFormats: [UInt32] {
+        var tmp = texture_formats
+        return withUnsafePointer(to: &tmp.0) {
+            [UInt32](UnsafeBufferPointer(start: $0, count: Int(num_texture_formats)))
+        }
+    }
+    
+    public var textureFormatNames: [String] {
+        textureFormats
+            .compactMap(SDL_GetPixelFormatName)
+            .map(String.init)
+    }
+    
+    public func copyTextureFormats() -> [SDL.PixelFormat] {
+        textureFormats
+            .compactMap(SDL_AllocFormat)
+            .map(SDL.PixelFormat.init)
+    }
+
     /**
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
