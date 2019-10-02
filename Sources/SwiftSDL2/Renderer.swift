@@ -202,8 +202,8 @@ public extension SDLPointer where T == SDLRenderer {
 }
 
 public extension SDL_RendererInfo {
-    var label: String {
-        return String(cString: name)
+    public var label: String {
+        return String(cString: name).uppercased()
     }
     
     /**
