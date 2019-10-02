@@ -201,7 +201,7 @@ public extension SDLPointer where T == SDLRenderer {
     }
 }
 
-public extension SDL_RendererInfo {
+extension SDL_RendererInfo: CustomDebugStringConvertible {
     public var label: String {
         return String(cString: name).uppercased()
     }
@@ -232,5 +232,18 @@ public extension SDL_RendererInfo {
     public func has(flags: SDL.Renderer.RenderFlags...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (self.flags & mask) != 0
+    }
+    
+    public var debugDescription: String {
+        """
+        Driver Name: \(label)
+          Hardware Acceleration: \(has(flags: .hardwareAcceleration))
+          Software Rendering:    \(has(flags: .softwareRendering))
+          Target Texturing:      \(has(flags: .targetTexturing))
+          Veritical Sync:        \(has(flags: .verticalSync))
+          Pixel Format Count:    \(num_texture_formats)
+          Pixel Format Enums:
+          \t- \(textureFormatNames.joined(separator: "\n\t- "))
+        """
     }
 }

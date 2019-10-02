@@ -109,15 +109,12 @@ func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) re
     exit(0)
 }
 
-Renderer.availableRenderers.forEach { driver in
-    let name = String(cString: driver.name).uppercased()
-    print("\(name)", terminator: "\n\t")
-    print("Accl:\t\t \(driver.has(flags: .hardwareAcceleration))", terminator: "\n\t")
-    print("Software:\t \(driver.has(flags: .softwareRendering))", terminator: "\n\t")
-    print("Texture:\t \(driver.has(flags: .targetTexturing))", terminator: "\n\t")
-    print("VSync:\t\t \(driver.has(flags: .verticalSync))", terminator: "\n\t")
-    print("\n")
+SDL.Renderer.availableRenderers.forEach { driver in
+    print("------------------------------------------------------------|")
+    print(driver.debugDescription)
+    _ = driver.copyTextureFormats()
 }
+print("------------------------------------------------------------|")
 
 let window = try Window(title: "Swift SDL", width: 480, height: 640)
 var render = try Renderer(window: window, driver: 3)
