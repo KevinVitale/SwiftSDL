@@ -7,7 +7,7 @@ public struct SDLTexture: SDLType {
     }
 }
 
-public typealias Texture = SDLPointer<SDLTexture>
+public extension SDL { typealias Texture = SDLPointer<SDLTexture> }
 
 public extension SDLPointer where T == SDLTexture {
     /**
@@ -25,14 +25,14 @@ public extension SDLPointer where T == SDLTexture {
      
      - note: The contents of the texture are not defined at creation.
      */
-    init(renderer: Renderer, format: Int, access: SDL_TextureAccess, width: Int, height: Int) throws {
+    convenience init(renderer: SDL.Renderer, format: Int, access: SDL_TextureAccess, width: Int, height: Int) throws {
         guard let pointer = SDL_CreateTexture(renderer._pointer, UInt32(format), Int32(access.rawValue), Int32(width), Int32(height)) else {
             throw SDLError.error(Thread.callStackSymbols)
         }
         self.init(pointer: pointer)
     }
     
-    init(renderer: Renderer, pathURL url: URL) throws {
+    convenience init(renderer: SDL.Renderer, pathURL url: URL) throws {
         let surface = url.path.withCString { IMG_Load($0) }
         
         defer {
@@ -48,7 +48,7 @@ public extension SDLPointer where T == SDLTexture {
         self.init(pointer: pointer)
     }
     
-    init?(renderer: Renderer, surface: Surface!) {
+    convenience init?(renderer: SDL.Renderer, surface: Surface!) {
         guard let pointer = SDL_CreateTextureFromSurface(renderer._pointer, surface._pointer) else {
             return nil
         }

@@ -7,7 +7,7 @@ public struct SDLWindow: SDLType {
     }
 }
 
-public typealias Window = SDLPointer<SDLWindow>
+public extension SDL { typealias Window = SDLPointer<SDLWindow> }
 
 public extension SDLPointer where T == SDLWindow {
     typealias DisplayMode = SDL_DisplayMode
@@ -56,7 +56,7 @@ public extension SDLPointer where T == SDLWindow {
      
      - returns: A new `Window`, or `nil`, if creating the window fails.
      */
-    init(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: WindowFlags...) throws {
+    convenience init(title: String = "", x: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), y: Int32 = Int32(SDL_WINDOWPOS_UNDEFINED_MASK), width: Int32, height: Int32, flags: WindowFlags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         let title_ = title.cString(using: .utf8) ?? []
         
@@ -66,7 +66,7 @@ public extension SDLPointer where T == SDLWindow {
         self.init(pointer: pointer)
     }
     
-    init(renderer: inout Renderer!, width: Int32, height: Int32, flags: WindowFlags...) throws {
+    convenience init(renderer: inout SDL.Renderer!, width: Int32, height: Int32, flags: WindowFlags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         var rendererPtr: OpaquePointer? = nil
         var windowPtr: OpaquePointer? = nil
@@ -75,16 +75,16 @@ public extension SDLPointer where T == SDLWindow {
             throw SDLError.error(Thread.callStackSymbols)
         }
         
-        renderer = Renderer(pointer: rendererPtr!)
+        renderer = SDL.Renderer(pointer: rendererPtr!)
         self.init(pointer: windowPtr!)
     }
     
-    static func glWindow() throws -> Window {
+    static func glWindow() throws -> SDL.Window {
         guard let pointer = SDL_GL_GetCurrentWindow() else {
             throw SDLError.error(Thread.callStackSymbols)
         }
         
-        return Window(pointer: pointer)
+        return SDL.Window(pointer: pointer)
     }
     
     func glSwap() {

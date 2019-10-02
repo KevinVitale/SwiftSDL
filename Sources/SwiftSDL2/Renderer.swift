@@ -8,7 +8,8 @@ public struct SDLRenderer: SDLType {
     }
 }
 
-public typealias Renderer = SDLPointer<SDLRenderer>
+
+public extension SDL { typealias Renderer = SDLPointer<SDLRenderer> }
 
 public extension SDLPointer where T == SDLRenderer {
     typealias RendererInfo = SDL_RendererInfo
@@ -71,7 +72,7 @@ public extension SDLPointer where T == SDLRenderer {
      
      - parameter index: The index of the driver being queried.
      */
-    static func rendererInfo(_ index: Int) -> SDL_RendererInfo? {
+    private static func rendererInfo(_ index: Int) -> SDL_RendererInfo? {
         var info = SDL_RendererInfo()
         guard SDL_GetRenderDriverInfo(Int32(index), &info) >= 0 else {
             return nil
@@ -79,7 +80,7 @@ public extension SDLPointer where T == SDLRenderer {
         return info
     }
 
-    init(window: Window, driver index: Int = -1, flags renderFlags: RenderFlags...) throws {
+    convenience init(window: SDL.Window, driver index: Int = -1, flags renderFlags: RenderFlags...) throws {
         let flags: UInt32 = renderFlags.reduce(0) { $0 | $1.rawValue }
         guard let pointer = SDL_CreateRenderer(window._pointer, Int32(index), flags) else {
             throw SDLError.error(Thread.callStackSymbols)
@@ -90,7 +91,7 @@ public extension SDLPointer where T == SDLRenderer {
     /**
      Create a
      */
-    init(withSurfaceFromWindow window: Window) throws {
+    convenience init(withSurfaceFromWindow window: SDL.Window) throws {
         let surface = try window.surface.get()._pointer
         
         guard let pointer = SDL_CreateSoftwareRenderer(surface) else {
@@ -125,7 +126,7 @@ public extension SDLPointer where T == SDLRenderer {
     }
     
     @discardableResult
-    func copy(from texture: Texture, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
+    func copy(from texture: SDL.Texture, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil
@@ -209,7 +210,7 @@ public extension SDL_RendererInfo {
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    func has(flags: Renderer.RenderFlags...) -> Bool {
+    public func has(flags: SDL.Renderer.RenderFlags...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (self.flags & mask) != 0
     }

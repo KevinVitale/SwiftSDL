@@ -10,23 +10,23 @@ public struct SDLSurface: SDLType {
 public typealias Surface = SDLPointer<SDLSurface>
 
 public extension SDLPointer where T == SDLSurface {
-    init?(width: Int32, height: Int32, depth: Int32, redMask: UInt32 = .min, greenMask: UInt32 = .min, blueMask: UInt32 = .min, alphaMask: UInt32 = .min) {
+    convenience init?(width: Int32, height: Int32, depth: Int32, redMask: UInt32 = .min, greenMask: UInt32 = .min, blueMask: UInt32 = .min, alphaMask: UInt32 = .min) {
         return nil
     }
     
-    init?(width: Int32, height: Int32, format: UInt32) {
+    convenience init?(width: Int32, height: Int32, format: UInt32) {
         return nil
     }
     
-    init?(pixels: UnsafeMutableRawPointer!, width: Int32, height: Int32, depth: Int32, pitch: Int32, redMask: UInt32, greenMask: UInt32, blueMask: UInt32, alphaMask: UInt32) {
+    convenience init?(pixels: UnsafeMutableRawPointer!, width: Int32, height: Int32, depth: Int32, pitch: Int32, redMask: UInt32, greenMask: UInt32, blueMask: UInt32, alphaMask: UInt32) {
         return nil
     }
     
-    init?(pixels: UnsafeMutableRawPointer!, width: Int32, height: Int32, pitch: Int32, format: UInt32) {
+    convenience init?(pixels: UnsafeMutableRawPointer!, width: Int32, height: Int32, pitch: Int32, format: UInt32) {
         return nil
     }
 
-    static func surface(forWindow window: Window) -> Result<Surface, Error> {
+    static func surface(forWindow window: SDL.Window) -> Result<Surface, Error> {
         guard let surface = SDL_GetWindowSurface(window._pointer) else {
             return .failure(SDLError.error(Thread.callStackSymbols))
         }

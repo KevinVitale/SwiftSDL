@@ -1,13 +1,13 @@
 import Foundation.NSThread
 import CSDL2
 
-public struct SDLPointer<T: SDLType> {
+public final class SDLPointer<T: SDLType> {
     init(pointer: T.PointerType) {
         self._pointer = pointer
     }
     
-    func destroy(pointer: T.PointerType) {
-        T.destroy(pointer: pointer)
+    deinit {
+        T.destroy(pointer: _pointer)
     }
     
     let _pointer: T.PointerType
