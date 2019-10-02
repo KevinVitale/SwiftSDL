@@ -5,7 +5,9 @@ import SwiftSDL2
 try SDL.initialize(subSystems: .everything)
 
 var characterIndex: Int32 = 1
-var turnOnBlinking = false // either can be  'true' or 'false'
+var turnOnBlinking = false
+var clearRenderTarget = true
+var fillRect = SDL_Rect(x: 200, y: 400, w: 100, h: 100)
 
 
 var yPos = 0
@@ -59,9 +61,11 @@ func Run(renderer: inout Renderer, while handler: (SDL_Event) throws -> Bool) re
         }
         
         let drawingColor: SDL_Color = .init(r: 255, g: 255, b: 255, a: 255)
-        renderer.setDrawingColor(with: drawingColor)
-        renderer.clear()
-        
+        if clearRenderTarget {
+            renderer.setDrawingColor(with: drawingColor)
+            renderer.clear()
+        }
+
         if turnOnBlinking == true {
             characterSprites.setColorMod(with: .random())
         }
@@ -116,22 +120,28 @@ Renderer.availableRenderers.forEach { driver in
 }
 
 let window = try Window(title: "Swift SDL", width: 480, height: 640)
-var render = try Renderer(window: window, driver: 3, flags: .softwareRendering)
-
-print(try window.surface.get())
+var render = try Renderer(window: window, driver: 3)
+let surface = try window.surface.get()
 
 if let metalLayer = render.metalLayer, let device = metalLayer.device
 {
     print(device.name)
 }
 
-Run(renderer: &render) {
+try Run(renderer: &render) {
     if $0.type == SDL_KEYDOWN.rawValue {
         switch Int($0.key.keysym.sym) {
         case SDLK_1: characterIndex = 1
         case SDLK_2: characterIndex = 2
         case SDLK_3: characterIndex = 3
         case SDLK_4: characterIndex = 4
+        case SDLK_f:
+            clearRenderTarget = false
+            try surface.fill(rects: fillRect, color: .random())
+        case SDLK_c:
+            clearRenderTarget = true
+            try surface.fill(color: SDL_Color(r: 255, g: 255, b: 255, a: 255))
+            
         case SDLK_RETURN: turnOnBlinking = !turnOnBlinking
         case SDLK_RIGHT:
             if flip == false {

@@ -78,4 +78,15 @@ public extension SDLPointer where T == SDLSurface {
             throw SDLError.error(Thread.callStackSymbols)
         }
     }
+    
+    func fill(rects fillRects: [SDL_Rect], color: SDL_Color) throws {
+        var rects = fillRects
+        guard SDL_FillRects(_pointer, &rects, Int32(fillRects.count), color.mapRGB(format: self.format)) == 0 else {
+            throw SDLError.error(Thread.callStackSymbols)
+        }
+    }
+
+    func fill(rects fillRects: SDL_Rect..., color: SDL_Color) throws {
+        try self.fill(rects: fillRects, color: color)
+    }
 }
