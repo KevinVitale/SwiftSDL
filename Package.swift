@@ -10,9 +10,16 @@ let package = Package(
     ],
     targets: [
       .target( name: "DemoSDL2", dependencies: ["SwiftSDL2"]), 
-      .target( name: "SwiftSDL2", dependencies: ["CSDL2"]),
+      .target( name: "SwiftSDL2", dependencies: ["CSDL2", "CSDL2_Image"]),
       .systemLibrary( name: "CSDL2", pkgConfig: "sdl2"
-        , providers: [ .brew(["sdl2"]), .apt(["libsdl2-dev"]) ]
+        , providers: [
+            .brew(["sdl2"]),
+            .apt(["libsdl2-dev"]) ]
+      ),
+      .systemLibrary( name: "CSDL2_Image", pkgConfig: "sdl2_image"
+        , providers: [
+            .brew(["sdl2_image"]),
+            .apt(["libsdl2_image-dev"]) ]
       ),
       //.testTarget( name: "SDLTests", dependencies: ["SDL"]),
     ],

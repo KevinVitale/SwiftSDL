@@ -1,5 +1,6 @@
-import Foundation.NSThread
 import CSDL2
+import CSDL2_Image
+import Foundation.NSThread
 
 public struct SDLTexture: SDLType {
     public static func destroy(pointer: OpaquePointer) {

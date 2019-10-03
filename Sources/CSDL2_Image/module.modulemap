@@ -1,0 +1,5 @@
+module CSDL2_Image [system] {
+    header "shim.h"
+    link "SDL2"
+    export *
+}

@@ -11,9 +11,7 @@ public struct SDLRenderer: SDLType {
 
 public extension SDL { typealias Renderer = SDLPointer<SDLRenderer> }
 
-public extension SDLPointer where T == SDLRenderer {
-    typealias RendererInfo = SDL_RendererInfo
-    
+public extension SDL.Renderer {
     struct RenderFlags: OptionSet {
         public init(rawValue: RawValue) {
             self.rawValue = rawValue
@@ -38,47 +36,6 @@ public extension SDLPointer where T == SDLRenderer {
         public static let vertical   = Flip(rawValue: SDL_FLIP_VERTICAL.rawValue)
         public static let horizontal = Flip(rawValue: SDL_FLIP_HORIZONTAL.rawValue)
     }
-    
-    static var availableRenderers: [SDL_RendererInfo] {
-        return (0..<availableRendererCount).compactMap { rendererInfo($0) }
-    }
-    
-    /**
-     Get the number of rendering drivers available for the current display.
-     
-     A render driver is a set of code that handles rendering and texture
-     management on a particular display. Normally there is only one, but some
-     drivers may have several available with different capabilities.
-     */
-    static var availableRendererCount: Int {
-        return Int(SDL_GetNumRenderDrivers())
-    }
-    
-    /**
-     Returns info for a the driver at a specific index.
-     
-     **Example:**
-     ```
-     (0..<SDLRenderer.availableRendererCount)
-         .compactMap { Renderer.driverInfo($0) }
-         .forEach {
-             print(String(cString: $0.name).uppercased())
-             print(($0.flags & SDL_RENDERER_ACCELERATED.rawValue) > 0)
-             print(($0.flags & SDL_RENDERER_PRESENTVSYNC.rawValue) > 0)
-             print(($0.flags & SDL_RENDERER_SOFTWARE.rawValue) > 0)
-             print(($0.flags & SDL_RENDERER_TARGETTEXTURE.rawValue) > 0)
-     }
-     ```
-     
-     - parameter index: The index of the driver being queried.
-     */
-    private static func rendererInfo(_ index: Int) -> SDL_RendererInfo? {
-        var info = SDL_RendererInfo()
-        guard SDL_GetRenderDriverInfo(Int32(index), &info) >= 0 else {
-            return nil
-        }
-        return info
-    }
 
     convenience init(window: SDL.Window, driver index: Int = -1, flags renderFlags: RenderFlags...) throws {
         let flags: UInt32 = renderFlags.reduce(0) { $0 | $1.rawValue }
@@ -89,7 +46,6 @@ public extension SDLPointer where T == SDLRenderer {
     }
     
     /**
-     Create a
      */
     convenience init(withSurfaceFromWindow window: SDL.Window) throws {
         let surface = try window.surface.get()._pointer
@@ -158,23 +114,16 @@ public extension SDLPointer where T == SDLRenderer {
      Get information about a rendering context.
      */
     var rendererInfo: RendererInfo {
-        var info = SDL_RendererInfo()
-        SDL_GetRendererInfo(_pointer, &info)
-        return info
+        RendererInfo(for: self)
+    }
+    
+    var name: String {
+        rendererInfo.label
     }
     
     @available(OSX 10.11, *)
     var metalLayer: CAMetalLayer? {
-        guard let untypedMutablePtr = SDL_RenderGetMetalLayer(_pointer) else {
-            return nil
-        }
-        
-        let typedMutablePtr = untypedMutablePtr.assumingMemoryBound(to: CAMetalLayer.self)
-        let typedPtr = UnsafeRawPointer(typedMutablePtr)
-        
-        return Unmanaged
-            .fromOpaque(typedPtr)
-            .takeUnretainedValue()
+        return unsafeBitCast(SDL_RenderGetMetalLayer(_pointer), to: CAMetalLayer?.self)
     }
     
     /**
@@ -193,6 +142,16 @@ public extension SDLPointer where T == SDLRenderer {
         }
     }
     
+    @discardableResult
+    func flush() -> Result<(), Error> {
+        switch SDL_RenderFlush(_pointer) {
+        case -1:
+            return .failure(SDLError.error(Thread.callStackSymbols))
+        default:
+            return .success(())
+        }
+    }
+    
     /**
      Update the screen with rendering performed.
      */
@@ -201,48 +160,83 @@ public extension SDLPointer where T == SDLRenderer {
     }
 }
 
-extension SDL_RendererInfo: CustomDebugStringConvertible {
-    public var label: String {
+public extension SDLPointer where T == SDLRenderer {
+    typealias RendererInfo = SDL_RendererInfo
+    
+    static func renderers(at indexes: Int32...) -> [RendererInfo] {
+        return Self.renderers(at: indexes)
+    }
+    
+    /**
+     Returns info for a the driver at a specific index.
+     
+     - parameter index: The index of the driver being queried.
+     */
+    static func renderers(at indexes: [Int32] = Array(0..<Int32(SDL_GetNumRenderDrivers()))) -> [RendererInfo] {
+        indexes.compactMap {
+            var info = SDL_RendererInfo()
+            guard SDL_GetRenderDriverInfo(Int32($0), &info) >= 0 else {
+                return nil
+            }
+            return info
+        }
+    }
+
+    static func copyTextureFormats(for rendererInfo: SDL.Renderer.RendererInfo) -> [SDL.PixelFormat] {
+        return rendererInfo.copyTextureFormats()
+    }
+}
+
+fileprivate extension SDL.Renderer.RendererInfo {
+    init(for renderer: SDL.Renderer) {
+        var info = SDL_RendererInfo()
+        SDL_GetRendererInfo(renderer._pointer, &info)
+        self = info
+    }
+    
+    var label: String {
         return String(cString: name).uppercased()
     }
     
-    public var textureFormats: [UInt32] {
+    var textureFormats: [UInt32] {
         var tmp = texture_formats
         return withUnsafePointer(to: &tmp.0) {
             [UInt32](UnsafeBufferPointer(start: $0, count: Int(num_texture_formats)))
         }
     }
     
-    public var textureFormatNames: [String] {
+    var textureFormatNames: [String] {
         textureFormats
             .compactMap(SDL_GetPixelFormatName)
             .map(String.init)
     }
     
-    public func copyTextureFormats() -> [SDL.PixelFormat] {
+    func copyTextureFormats() -> [SDL.PixelFormat] {
         textureFormats
             .compactMap(SDL_AllocFormat)
             .map(SDL.PixelFormat.init)
     }
-
+    
     /**
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    public func has(flags: SDL.Renderer.RenderFlags...) -> Bool {
+    func has(flags: SDL.Renderer.RenderFlags...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (self.flags & mask) != 0
     }
-    
+}
+
+extension SDL_RendererInfo: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
         Driver Name: \(label)
-          Hardware Acceleration: \(has(flags: .hardwareAcceleration))
-          Software Rendering:    \(has(flags: .softwareRendering))
-          Target Texturing:      \(has(flags: .targetTexturing))
-          Veritical Sync:        \(has(flags: .verticalSync))
-          Pixel Format Count:    \(num_texture_formats)
-          Pixel Format Enums:
+          : Hardware Acceleration: \(has(flags: .hardwareAcceleration))
+          : Software Rendering:    \(has(flags: .softwareRendering))
+          : Target Texturing:      \(has(flags: .targetTexturing))
+          : Veritical Sync:        \(has(flags: .verticalSync))
+          : Pixel Format Count:    \(num_texture_formats)
+          : Pixel Format Enums:
           \t- \(textureFormatNames.joined(separator: "\n\t- "))
         """
     }

@@ -66,7 +66,7 @@ public extension SDLPointer where T == SDLWindow {
         self.init(pointer: pointer)
     }
     
-    convenience init(renderer: inout SDL.Renderer!, width: Int32, height: Int32, flags: WindowFlags...) throws {
+    convenience init(title: String = "", renderer: inout SDL.Renderer!, width: Int32, height: Int32, flags: WindowFlags...) throws {
         let flags_: UInt32 = flags.reduce(0) { $0 | $1.rawValue }
         var rendererPtr: OpaquePointer? = nil
         var windowPtr: OpaquePointer? = nil
@@ -77,6 +77,7 @@ public extension SDLPointer where T == SDLWindow {
         
         renderer = SDL.Renderer(pointer: rendererPtr!)
         self.init(pointer: windowPtr!)
+        self.title = title
     }
     
     static func glWindow() throws -> SDL.Window {
