@@ -1,4 +1,3 @@
-import Foundation.NSThread
 import CSDL2
 
 public final class SDLPointer<T: SDLType> {
@@ -40,7 +39,7 @@ public final class SDLPointer<T: SDLType> {
     @discardableResult
     public func result(of block: (T.PointerType) -> Int32) -> Result<(),Error> {
         guard self.pass(to: block) == 0 else {
-            return .failure(SDLError.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
         }
         return .success(())
     }
@@ -48,7 +47,7 @@ public final class SDLPointer<T: SDLType> {
     @discardableResult
     public func result<A>(of block: (T.PointerType, A) -> Int32, _ a: A) -> Result<(),Error> {
         guard self.pass(to: block, a) == 0 else {
-            return .failure(SDLError.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
         }
         return .success(())
     }
@@ -56,7 +55,7 @@ public final class SDLPointer<T: SDLType> {
     @discardableResult
     public func result<A, B>(of block: (T.PointerType, A, B) -> Int32, _ a: A, _ b: B) -> Result<(),Error> {
         guard self.pass(to: block, a, b) == 0 else {
-            return .failure(SDLError.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
         }
         return .success(())
     }
@@ -64,7 +63,7 @@ public final class SDLPointer<T: SDLType> {
     @discardableResult
     public func result<A, B, C>(of block: (T.PointerType, A, B, C) -> Int32, _ a: A, _ b: B, _ c: C) -> Result<(),Error> {
         guard self.pass(to: block, a, b, c) == 0 else {
-            return .failure(SDLError.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
         }
         return .success(())
     }
@@ -72,7 +71,7 @@ public final class SDLPointer<T: SDLType> {
     @discardableResult
     public func result<A, B, C, D>(of block: (T.PointerType, A, B, C, D) -> Int32, _ a: A, _ b: B, _ c: C, _ d: D) -> Result<(),Error> {
         guard self.pass(to: block, a, b, c, d) == 0 else {
-            return .failure(SDLError.error(Thread.callStackSymbols))
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
         }
         return .success(())
     }

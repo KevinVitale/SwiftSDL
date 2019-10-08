@@ -1,4 +1,3 @@
-import Foundation.NSThread
 import CSDL2
 import QuartzCore.CAMetalLayer
 

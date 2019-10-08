@@ -1,6 +1,5 @@
 import CSDL2
 import CSDL2_Image
-import Foundation.NSThread
 
 public typealias Texture = SDLPointer<SDLTexture>
 

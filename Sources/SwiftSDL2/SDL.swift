@@ -1,11 +1,17 @@
 import CSDL2
-import Foundation.NSThread
+
+#if canImport(Darwin)
+import Foundation
+typealias ThreadImpl = Foundation.Thread
+#else
+typealias ThreadImpl = Foundation.Thread
+#endif
 
 public struct SDL {
     public static func Init(subSystems: SubSystem...) throws {
         let subsystems = subSystems.reduce(0) { $0 | $1.rawValue }
         guard SDL_InitSubSystem(subsystems) == 0 else {
-            throw SDLError.error(Thread.callStackSymbols)
+            throw SDLError.error(ThreadImpl.callStackSymbols)
         }
     }
     

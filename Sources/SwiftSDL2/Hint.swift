@@ -1,5 +1,4 @@
 import CSDL2
-import Foundation.NSThread
 
 public extension SDL {
     enum Hint: String {
