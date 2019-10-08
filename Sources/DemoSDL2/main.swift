@@ -59,8 +59,8 @@ func Draw(to renderer: Renderer?) throws {
     
     //--------------------------------------------------------------------------
     let size: Int32 = 16
-    let rows: Int32 = 20
-    let cols: Int32 = 10
+    let rows: Int32 = 13 * 2
+    let cols: Int32 = 16 * 2
     for r in 0..<rows {
         for c in 0..<cols {
             let randomColor = SDL_Color.random()
