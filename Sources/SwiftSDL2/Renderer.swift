@@ -1,5 +1,7 @@
 import CSDL2
+#if canImport(QuartzCore)
 import QuartzCore.CAMetalLayer
+#endif
 
 public typealias Renderer = SDLPointer<SDLRenderer>
 
@@ -60,10 +62,12 @@ public extension SDLPointer where T == SDLRenderer {
         }
     }
     
+    #if canImport(QuartzCore)
     @available(OSX 10.11, *)
     weak var metalLayer: CAMetalLayer? {
         return unsafeBitCast(self.pass(to: SDL_RenderGetMetalLayer), to: CAMetalLayer?.self)
     }
+    #endif
     
     @discardableResult
     func copy(texture: Texture?, from srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {

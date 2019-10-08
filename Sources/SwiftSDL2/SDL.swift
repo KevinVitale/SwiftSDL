@@ -1,7 +1,7 @@
 import CSDL2
+import Foundation
 
 #if canImport(Darwin)
-import Foundation
 typealias ThreadImpl = Foundation.Thread
 #else
 typealias ThreadImpl = Foundation.Thread
@@ -41,7 +41,7 @@ public extension SDL {
           , .gameController
           , .haptic
           , .joystick
-          , .sensor
+          // , .sensor
           , .timer
           , .video
         ]
@@ -52,7 +52,7 @@ public extension SDL {
         public static let gameController = SubSystem(rawValue: SDL_INIT_GAMECONTROLLER)
         public static let haptic         = SubSystem(rawValue: SDL_INIT_HAPTIC)
         public static let joystick       = SubSystem(rawValue: SDL_INIT_JOYSTICK)
-        public static let sensor         = SubSystem(rawValue: SDL_INIT_SENSOR)
+        // public static let sensor         = SubSystem(rawValue: SDL_INIT_SENSOR)
         public static let timer          = SubSystem(rawValue: SDL_INIT_TIMER)
         public static let video          = SubSystem(rawValue: SDL_INIT_VIDEO)
     }
