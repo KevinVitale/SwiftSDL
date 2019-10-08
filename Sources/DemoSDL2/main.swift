@@ -68,7 +68,7 @@ func Draw(to renderer: Renderer?) throws {
 
             let srcrect = SDL_Rect(x: c * size, y: r * size, w: size, h: size)
             let dstrect = SDL_Rect(x: c * size, y: r * size, w: size, h: size)
-            renderer?.copy(from: textures.last, from: srcrect, to: dstrect)
+            renderer?.copy(texture: textures.last, from: srcrect, into: dstrect)
         }
     }
 }

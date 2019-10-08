@@ -67,7 +67,7 @@ public extension SDLPointer where T == SDLRenderer {
     }
     
     @discardableResult
-    func copy(from texture: Texture?, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {
+    func copy(texture: Texture?, from srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil
