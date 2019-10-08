@@ -1,5 +1,4 @@
 import CSDL2
-import CSDL2_Image
 
 public typealias Texture = SDLPointer<SDLTexture>
 
