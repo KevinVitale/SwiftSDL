@@ -3,7 +3,7 @@ import CSDL2
 public enum SDLError: Error, CustomStringConvertible
 {
     case error(_ callStackSymbols: [String]?)
-    
+
     public var callStackSymbols: [String] {
         switch self {
         case .error(let callStackSymbols?):

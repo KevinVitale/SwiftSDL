@@ -282,8 +282,7 @@ public extension SDL {
                 value.withCString { v in
                     SDL_SetHintWithPriority(h, v, SDL_HintPriority(rawValue: priority.rawValue))
                 }
-            })
-            .bool
+            }) == SDL_TRUE
         }
         
         private func query() -> String? {

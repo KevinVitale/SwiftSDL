@@ -1,15 +1,66 @@
 import Foundation
 import Metal
+import Quartz
 import CSDL2
+import CSDL2_Image
 import SwiftSDL2
 
+//------------------------------------------------------------------------------
 try SDL.Init(subSystems: .everything)
 
-// SDL.Hint.set("metal", for: .renderDriver)
-// SDL.Hint.set("1", for: .renderBatching)
-// SDL.Hint.set("1", for: .videoDoubleBuffer)
+let window   = try Window(title: "SwiftSDL", width: 640, height: 480)
+let renderer = window
+    .pass(to: SDL_CreateRenderer, -1, .renderFlags(.verticalSync))
+    .map(Renderer.init)
+
+//------------------------------------------------------------------------------
+let resourceURL = Bundle.main.resourceURL!
+let textures = [ "characters_7.png", "spritesheet.png" ]
+    .compactMap { resourceURL.appendingPathComponent($0) }
+    .compactMap { renderer?.pass(to: IMG_LoadTexture, $0.path) }
+    .map(Texture.init)
+
+//------------------------------------------------------------------------------
+func HandleInput(_ event: SDL_Event) throws -> Bool {
+    if event.type == SDL_KEYDOWN.rawValue {
+        switch Int(event.key.keysym.sym) {
+        default: ()
+        }
+    }
+    return event.type != SDL_QUIT.rawValue
+}
+
+func Draw(to renderer: Renderer?) throws {
+    defer {
+        renderer?.pass(to: SDL_RenderPresent)
+    }
+    
+    let whiteColor = SDL_Color(r: 255, g: 255, b: 255, a: 255)
+    try renderer?.result(of: SDL_SetRenderDrawColor, whiteColor.r, whiteColor.g, whiteColor.b, whiteColor.a).get()
+    try renderer?.result(of: SDL_RenderClear).get()
+}
+
+//------------------------------------------------------------------------------
+var running = true
+repeat {
+    var event = SDL_Event()
+    while SDL_PollEvent(&event) != 0 {
+        guard try HandleInput(event) else {
+            running = false
+            break
+        }
+    }
+    
+    try Draw(to: renderer)
+    SDL_Delay(100)
+} while running
+
+//------------------------------------------------------------------------------
+SDL.Quit(subSystems: .everything)
+exit(0)
 
 
+/*
 var characterIndex: Int32 = 1
 var turnOnBlinking = false
 var clearRenderTarget = true
@@ -28,12 +79,14 @@ guard let projectURL = Bundle.main.resourceURL else {
 }
 
 print(projectURL)
+ */
 
-var characterSprites: SDL.Texture! = nil
-/*weak*/ var itemSprites: SDL.Texture! = nil
+// var characterSprites: SDL.Texture! = nil
+// /*weak*/ var itemSprites: SDL.Texture! = nil
 
-print(SDL.Version.current)
+// print(SDL.Version.current)
 
+/*
 let textureLoadQueue = DispatchQueue(label: "com.demo.sdl2.texture.loading.queue", attributes: [.concurrent])
 
 func Run(needsDisplay shouldRender: @autoclosure () -> Bool, renderer: inout SDL.Renderer!, while handler: (SDL_Event) throws -> Bool) rethrows -> Never {
@@ -193,4 +246,4 @@ try Run(needsDisplay: true, renderer: &renderer) {
 
     return $0.type != SDL_QUIT.rawValue
 }
-
+*/
