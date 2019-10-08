@@ -6,6 +6,24 @@ import CSDL2_Image
 import SwiftSDL2
 
 //------------------------------------------------------------------------------
+public extension SDL_Color {
+    static func random(alpha a: UInt8 = 0xFF) -> SDL_Color {
+        let r = UInt8(arc4random_uniform(256))
+        let g = UInt8(arc4random_uniform(256))
+        let b = UInt8(arc4random_uniform(256))
+        return SDL_Color(r: r, g: g, b: b, a: a)
+    }
+    
+    func mapRGB(format: UnsafeMutablePointer<SDL_PixelFormat>!) -> UInt32 {
+        return SDL_MapRGB(format, self.r, self.g, self.b)
+    }
+    
+    func mapRGBA(format: UnsafeMutablePointer<SDL_PixelFormat>!) -> UInt32 {
+        return SDL_MapRGBA(format, self.r, self.g, self.b, self.a)
+    }
+}
+
+//------------------------------------------------------------------------------
 try SDL.Init(subSystems: .everything)
 
 let window   = try Window(title: "SwiftSDL", width: 640, height: 480)
@@ -38,6 +56,21 @@ func Draw(to renderer: Renderer?) throws {
     let whiteColor = SDL_Color(r: 255, g: 255, b: 255, a: 255)
     try renderer?.result(of: SDL_SetRenderDrawColor, whiteColor.r, whiteColor.g, whiteColor.b, whiteColor.a).get()
     try renderer?.result(of: SDL_RenderClear).get()
+    
+    //--------------------------------------------------------------------------
+    let size: Int32 = 16
+    let rows: Int32 = 20
+    let cols: Int32 = 10
+    for r in 0..<rows {
+        for c in 0..<cols {
+            let randomColor = SDL_Color.random()
+            textures.last?.pass(to: SDL_SetTextureColorMod, randomColor.r, randomColor.g, randomColor.b)
+
+            let srcrect = SDL_Rect(x: c * size, y: r * size, w: size, h: size)
+            let dstrect = SDL_Rect(x: c * size, y: r * size, w: size, h: size)
+            renderer?.copy(from: textures.last, from: srcrect, to: dstrect)
+        }
+    }
 }
 
 //------------------------------------------------------------------------------

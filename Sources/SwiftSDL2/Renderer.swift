@@ -66,9 +66,8 @@ public extension SDLPointer where T == SDLRenderer {
         return unsafeBitCast(self.pass(to: SDL_RenderGetMetalLayer), to: CAMetalLayer?.self)
     }
     
-    /*
     @discardableResult
-    func copy(from texture: SDL.Texture, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
+    func copy(from texture: Texture?, from srcrect: SDL_Rect? = nil, to dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil
@@ -88,12 +87,10 @@ public extension SDLPointer where T == SDLRenderer {
             return $0.withMemoryRebound(to: SDL_Point.self, capacity: 1) { $0 }
         }
         
-        switch SDL_RenderCopyEx(_pointer, texture._pointer, sourceRect, destRect, angle, centerPoint, SDL_RendererFlip(rawValue: flip.rawValue)) {
-        case -1:
-            return .failure(SDLError.error(Thread.callStackSymbols))
-        default:
-            return .success(())
-        }
+        return self.result(of: { renderer in
+            texture?.pass(to: {
+                SDL_RenderCopyEx(renderer, $0, sourceRect, destRect, angle, centerPoint, SDL_RendererFlip(rawValue: flip.rawValue))
+            }) ?? 0
+        })
     }
-     */
 }
