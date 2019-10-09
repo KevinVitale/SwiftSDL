@@ -54,7 +54,7 @@ public extension SDLPointer where T == SDLWindow {
         self.init(pointer: pointer)
     }
     
-    convenience init(title: String = "", renderer: inout Renderer, width w: Int32, height h: Int32, flags: WindowFlag...) throws {
+    convenience init(title: String = "", renderer: inout Renderer!, width w: Int32, height h: Int32, flags: WindowFlag...) throws {
         var windowPtr: OpaquePointer! = nil
         var renderPtr: OpaquePointer! = nil
         let f = flags.reduce(0) { $0 | $1.rawValue }
