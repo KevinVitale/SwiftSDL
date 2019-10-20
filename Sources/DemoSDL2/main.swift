@@ -30,7 +30,7 @@ if #available(OSX 10.12, *) {
     print(try renderer!.info())
     
     //--------------------------------------------------------------------------
-    let gridValues    = Grid<Piece.Element>(rows: 20, columns: 15)
+    let gridValues    = Grid<Piece.Element>(rows: 17, columns: 15)
     let gameBoard     = GameBoard(gridValues)
     let blockTexture  = try Texture.load(into: renderer, resourceURL: Bundle.main.resourceURL!, texturesNamed: "block.png")
     let boardRenderer = try GameBoardRenderer(tileTexture: blockTexture.values.first, gameBoard: gameBoard)
