@@ -1,6 +1,6 @@
 import CSDL2
 
-public final class SDLPointer<T: SDLType> {
+public final class SDLPointer<T: SDLType>: Hashable, Identifiable {
     public init(pointer: T.PointerType) {
         self._pointer = pointer
     }
@@ -75,9 +75,17 @@ public final class SDLPointer<T: SDLType> {
         }
         return .success(())
     }
+    
+    public static func == (lhs: SDLPointer<T>, rhs: SDLPointer<T>) -> Bool {
+        lhs._pointer == rhs._pointer
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        self._pointer.hash(into: &hasher)
+    }
 }
 
 public protocol SDLType {
-    associatedtype PointerType
+    associatedtype PointerType: Hashable
     static func destroy(pointer: PointerType)
 }

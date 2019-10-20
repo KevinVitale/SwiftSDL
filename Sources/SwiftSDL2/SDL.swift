@@ -69,3 +69,13 @@ public extension SDL {
         }
     }
 }
+
+extension SDL_Color {
+    func mapRGB(format: UnsafeMutablePointer<SDL_PixelFormat>!) -> UInt32 {
+        return SDL_MapRGB(format, self.r, self.g, self.b)
+    }
+    
+    func mapRGBA(format: UnsafeMutablePointer<SDL_PixelFormat>!) -> UInt32 {
+        return SDL_MapRGBA(format, self.r, self.g, self.b, self.a)
+    }
+}
