@@ -18,7 +18,9 @@ class WindowScene: Node, Identifiable {
     
     private(set) var lastUpdateInterval: TimeInterval = .zero {
         didSet {
-            print(lastUpdateInterval)
+            if self.enableUpdateIntervalLogging {
+                print(lastUpdateInterval)
+            }
         }
     }
 
@@ -43,6 +45,7 @@ class WindowScene: Node, Identifiable {
     let renderer: Renderer?
     
     var backgroundColor: SDL_Color = SDL_Color()
+    var enableUpdateIntervalLogging: Bool = false
 
     static func == (lhs: WindowScene, rhs: WindowScene) -> Bool {
         lhs.window == rhs.window

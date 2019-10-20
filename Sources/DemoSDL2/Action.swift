@@ -1,6 +1,6 @@
 import Foundation
 
-class Action: Identifiable, Equatable, Updatable {
+class Action: Hashable, Equatable, Updatable {
     typealias UpdateBlock = (_ deltaTime: TimeInterval) -> ()
     
     init(repeats: Bool, atInterval updateInterval: TimeInterval? = nil, speed: Double = 1.0, _ block: @escaping UpdateBlock) {
@@ -8,9 +8,11 @@ class Action: Identifiable, Equatable, Updatable {
         self.repeats        = repeats
         self.speed          = speed
         self.updateInterval = updateInterval ?? .zero
+        self.id             = UUID()
     }
     
     private var block: UpdateBlock?
+    private let id: UUID
     private let repeats: Bool
     private let speed: Double
     private let updateInterval: TimeInterval
@@ -47,6 +49,10 @@ class Action: Identifiable, Equatable, Updatable {
     
     func cancel() {
         self.isCancelled.toggle()
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        self.id.hash(into: &hasher)
     }
 
     static func == (lhs: Action, rhs: Action) -> Bool {

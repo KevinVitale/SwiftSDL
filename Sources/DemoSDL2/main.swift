@@ -30,16 +30,17 @@ if #available(OSX 10.12, *) {
     print(try renderer!.info())
     
     //--------------------------------------------------------------------------
-    let gridValues    = Grid<Piece.Element>(rows: 17, columns: 15)
+    let gridValues    = Grid<Piece.Element>(rows: 20, columns: 15)
     let gameBoard     = GameBoard(gridValues)
-    let blockTexture  = try Texture.load(into: renderer, resourceURL: Bundle.main.resourceURL!, texturesNamed: "block.png")
-    let boardRenderer = try GameBoardRenderer(tileTexture: blockTexture.values.first, gameBoard: gameBoard)
+    let blockTexture  = try Texture.load(into: renderer, resourceURL: Bundle.main.resourceURL!, texturesNamed: "block.png", "characters_7.png")
+    let boardRenderer = try GameBoardRenderer(tileTexture: blockTexture["block.png"], gameBoard: gameBoard)
     
     //--------------------------------------------------------------------------
-    let stateChangeAction = Action(repeats: true, atInterval: 0.25) { deltaTime in
+    let stateChangeAction = Action(repeats: true, atInterval: 0.1) { deltaTime in
         boardRenderer.testStateChange(numberOfTile: 100)
     }
     mainScene.attach(actions: stateChangeAction)
+    mainScene.enableUpdateIntervalLogging = false
 
     //--------------------------------------------------------------------------
     mainScene.gameBoardRenderer = boardRenderer
