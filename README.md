@@ -33,7 +33,7 @@ let rendererSize = try renderer?.result(of: SDL_GetRendererOutputSize, &width, &
 print("\(width) x \(height)")
 ```
 
-### Full Example
+### Create Window Example
 This example is an excerpt from `CreateWindowDemo`:
 
 ```swift
