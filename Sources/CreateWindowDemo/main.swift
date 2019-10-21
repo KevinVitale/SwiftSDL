@@ -28,7 +28,7 @@ if let renderer = renderer {
 
 // Get logical renderer size ---------------------------------------------------
 var width: Int32 = .zero, height: Int32 = .zero
-let rendererSize = renderer?.pass(to: SDL_GetRendererOutputSize, &width, &height)
+let rendererSize = renderer?.result(of: SDL_GetRendererOutputSize, &width, &height)
 print("\(width) x \(height)")
 
 // Draw random rectangles ------------------------------------------------------
