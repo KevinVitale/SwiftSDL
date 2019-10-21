@@ -10,6 +10,7 @@ let package = Package(
     ],
     targets: [
       .target( name: "DemoSDL2", dependencies: ["SwiftSDL2"]), 
+      .target( name: "CreateWindowDemo", dependencies: ["SwiftSDL2"]), 
       .target( name: "SwiftSDL2", dependencies: ["CSDL2", "CSDL2_Image"]),
       .systemLibrary( name: "CSDL2", pkgConfig: "sdl2"
         , providers: [

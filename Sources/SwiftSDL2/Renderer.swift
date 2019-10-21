@@ -44,7 +44,7 @@ public extension SDLPointer where T == SDLRenderer {
     }
     
     static func renderers(at indexes: Int32...) -> [SDL_RendererInfo] {
-        return Self.renderers(at: indexes)
+        return Self.availableRenderers(at: indexes)
     }
     
     /**
@@ -52,7 +52,7 @@ public extension SDLPointer where T == SDLRenderer {
      
      - parameter index: The index of the driver being queried.
      */
-    static func renderers(at indexes: [Int32] = Array(0..<Int32(SDL_GetNumRenderDrivers()))) -> [SDL_RendererInfo] {
+    static func availableRenderers(at indexes: [Int32] = Array(0..<Int32(SDL_GetNumRenderDrivers()))) -> [SDL_RendererInfo] {
         indexes.compactMap {
             var info = SDL_RendererInfo()
             guard SDL_GetRenderDriverInfo($0, &info) >= 0 else {
