@@ -1,8 +1,5 @@
 import Foundation
-import Metal
-import Quartz
 import CSDL2
-import CSDL2_Image
 import SwiftSDL2
 
 if #available(OSX 10.12, *) {
