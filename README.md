@@ -42,7 +42,7 @@ Lastly, typealiases for `SDLPointer<SDLType>` make interfaces more readable (e.g
   - `result(of:)` is used for `SDL2` functions which return errors; and,
   - `pass(to:)` is used for `SDL2` functions that don't error-out.
   
-Because these are member functions, you're able to call them on `Optional` instances of `SDLPointer<SDLType>`, foregoing the need to constantly checking for `nil`.
+Because these are member functions, you're able to call them on `Optional` instances of `SDLPointer<SDLType>`, foregoing the need to constantly be checking for `nil`.
   
 #### `result(of:)`
 This function is does a great job of squashing multiple concerns into a single function call.  
