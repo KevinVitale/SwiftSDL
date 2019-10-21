@@ -13,7 +13,7 @@ $ brew install sdl2 sdl2_image
 $ git clone git@github.com:KevinVitale/SwiftSDL.git
 
 # Run DemoSDL2
-$ cd SwiftSDL2
+$ cd SwiftSDL
 $ make && make run
 ```
 
