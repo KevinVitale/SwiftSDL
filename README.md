@@ -82,9 +82,9 @@ In just a few lines of code, we've called `IMG_LoadTexture` using a potentially 
 ## More Examples
 Let's see more of `SDLPointer<SDLType>` in action! 🎉
 
-### Get the renderer's logical size
+### Get the renderer's output size
 
-For example, to read the `width` and `height` of a renderer's logical size:
+For example, to read the `width` and `height` of a renderer's output size:
 ```swift
 // Get logical renderer size ---------------------------------------------------
 do {
