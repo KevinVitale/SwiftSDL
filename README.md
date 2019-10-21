@@ -19,11 +19,9 @@ $ make && make run
 
 ## Overview
 
-The ♥️ of making `SwiftSDL2` simple to use is `SDLPointer<SDLType>`.  
-
 A common reaction for wrapper library authors is to expose APIs which explicitly call into every potential underlying API. [This has the benefit of feeling _"native"_](https://github.com/PureSwift/SDL/blob/master/Sources/SDL/Window.swift); however, it is ultimately very slow, error-prone, and scales extremely poorly.
 
-To solve this, `SDLPointer<SDLType>` creates a genericized interface to wrap the `OpaquePointer` instances returned by the `SDL2` when bridged to _Swift_. `SDLPointer` exposes two key functions, both which take existing `SDL2` functions as their first argument.
+To solve this, `SDLPointer<SDLType>` creates a genericized interface to wrap the `OpaquePointer` instances returned when calling `SDL2` from _Swift_. Furthermore, `SDLPointer` exposes two key functions, both which take existing `SDL2` functions as their first argument—this is discussed in the next section.
 
 `SDLPointer` relies on `SDLType` adopters to describe the `OpaquePointer`'s intent as an object (`SDLWindow`, `SDLRenderer`, `SDLTexture`, etc...), and to pass it into the `SDL2` API associated with freeing its memory.
 
