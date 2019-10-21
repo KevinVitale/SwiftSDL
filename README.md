@@ -29,7 +29,7 @@ For example, to read the `width` and `height` of a renderer's logical size:
 ```swift
 // Get logical renderer size ---------------------------------------------------
 var width: Int32 = .zero, height: Int32 = .zero
-let rendererSize = renderer?.result(of: SDL_GetRendererOutputSize, &width, &height)
+let rendererSize = try renderer?.result(of: SDL_GetRendererOutputSize, &width, &height)
 print("\(width) x \(height)")
 ```
 
