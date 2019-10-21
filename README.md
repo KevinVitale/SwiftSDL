@@ -77,7 +77,7 @@ In just a few lines of code, we've called `IMG_LoadTexture` using a potentially 
 
 ### Why this matters?
 
-None of examples involved an explicit implementations within `SwiftSDL2` in order for them to work. Nor do they require `SwiftSDL2` to coordinate API calls involving the bespoke types it introduces (`Renderer`, `Texture`, etc.). Finally, role `Renderer` takes when creating `Texture` remains solely within the underlying `SDL2` (and `SDL2_image`) libraries which are already very welld defined.
+`SDLPointer<SDLType>` makes the entirety of `SDL2` (and related extensions) available out of the box, with a single object, which defines just two functions.
 
 ## More Examples
 Let's see more of `SDLPointer<SDLType>` in action! 🎉
