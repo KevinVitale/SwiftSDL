@@ -104,7 +104,7 @@ try SDL.Init(subSystems: .video)
 
 // Print available renderers ---------------------------------------------------
 Renderer.availableRenderers().forEach {
-print($0)
+    print($0)
 }
 SDL.Hint.set("software", for: .renderDriver)
 
