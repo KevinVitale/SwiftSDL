@@ -8,10 +8,20 @@ class WindowScene: Node, Identifiable {
         self.renderer = renderer
     }
     
-    convenience init(window: (title: String, width: Int32, height: Int32), backgroundColor: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255), windowFlags: Window.WindowFlag = [], renderFlags: Renderer.RenderFlag = []) throws {
-        var renderer: Renderer! = nil
-        let window = try Window(title: window.title, renderer: &renderer, width: window.width, height: window.height, flags: windowFlags)
+    convenience init(window windowInfo: (title: String, width: Int32, height: Int32), backgroundColor: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255), windowFlags: Window.WindowFlag = [], renderFlags: Renderer.RenderFlag = []) throws {
+        var window: Window!
+        var renderer: Renderer!
         
+        switch renderFlags.isEmpty {
+        case true:
+            window = try Window(title: windowInfo.title, renderer: &renderer, width: windowInfo.width, height: windowInfo.height, flags: windowFlags)
+        case false:
+            window = try Window(title: windowInfo.title, width: windowInfo.width, height: windowInfo.height, flags: windowFlags)
+            renderer = window
+                .pass(to: SDL_CreateRenderer, -1, .renderFlags(renderFlags))
+                .map(Renderer.init)
+        }
+
         self.init(window: window, renderer: renderer)
         self.backgroundColor = backgroundColor
     }

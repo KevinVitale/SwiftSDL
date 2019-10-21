@@ -24,7 +24,7 @@ if #available(OSX 10.12, *) {
     }
     
     // Create a window scene and renderer to draw into -------------------------
-    let mainScene = try MainScene(window: (title: "DemoSDL2", width: 480, height: 640), windowFlags: .allowHighDPI)
+    let mainScene = try MainScene(window: (title: "DemoSDL2", width: 480, height: 640), windowFlags: .allowHighDPI, renderFlags: .verticalSync)
     let  renderer = mainScene.renderer
 
     // Print render info -------------------------------------------------------
