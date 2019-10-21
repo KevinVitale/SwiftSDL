@@ -45,7 +45,7 @@ Lastly, typealiases for `SDLPointer<SDLType>` make interfaces more readable (e.g
 Because these are member functions, you're able to call them on `Optional` instances of `SDLPointer<SDLType>`, foregoing the need to constantly be checking for `nil`.
   
 #### `result(of:)`
-This function is does a great job of squashing multiple concerns into a single function call.  
+This function does a great job of squashing multiple concerns into a single function call.  
 
 ```swift
 let renderer: Renderer? = /* provided elsewhere */
