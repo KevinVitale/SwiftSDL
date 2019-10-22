@@ -1,6 +1,6 @@
 # SwiftSDL
 
-<img width=240 src="example.gif"/>
+<img width=240 src="Sources/DemoSDL2/example.gif"/> <img width=240 src="example.gif"/>
 
 ## Testing It Out
 Use `Homebrew` to install the `SDL2` dependency, and then run `DemoSDL2`:
