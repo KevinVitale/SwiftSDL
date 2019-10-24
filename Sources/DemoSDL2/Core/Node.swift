@@ -94,18 +94,20 @@ class Node: Equatable, CustomStringConvertible {
 }
 
 class SpriteNode: Node, Drawable {
-    init(texture: Texture? = nil, size: (x: Float, y: Float)? = nil, color: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255)) {
+    init(texture: Texture? = nil, size: (x: Float, y: Float)? = nil, scaledTo scale: Float = 1.0, color: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255)) {
         self.color   = color
         self.size    = size ?? (try? texture?.sizeF()) ?? (x: 0, y: 0)
         self.texture = texture
+        self.scale   = scale
     }
     
     let size: (x: Float, y: Float)
     
+    var            isFlipped: Bool = false
     var             isHidden: Bool = false
     var     colorBlendFactor: Double = 1.0
-    private      let   color: SDL_Color
-    private(set) var texture: Texture?
+    private let        color: SDL_Color
+    var              texture: Texture?
 
     var scale: Float = 1.0
     var rotation: Double = 0
@@ -121,13 +123,13 @@ class SpriteNode: Node, Drawable {
         guard self.isHidden == false else {
             return
         }
-        
+
         texture?.result(of: SDL_SetTextureColorMod, UInt8(Double(color.r) * colorBlendFactor), UInt8(Double(color.g) * colorBlendFactor), UInt8(Double(color.b) * colorBlendFactor))
         
         let sourceRect = SDL_Rect(x: 0, y: 0, w: Int32(size.x), h: Int32(size.y))
         let destRect   = SDL_Rect(x: Int32(position.x), y: Int32(position.y), w: Int32(size.x * scale), h: Int32(size.y * scale))
         
-        renderer?.copy(texture: texture, from: sourceRect, into: destRect, rotatedBy: rotation)
+        renderer?.copy(from: texture, within: sourceRect, into: destRect, rotatedBy: rotation, flipped: self.isFlipped ? .horizontal : .none)
     }
 }
 

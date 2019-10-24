@@ -11,7 +11,7 @@ class Action: Hashable, Equatable, Updatable {
         self.id             = UUID()
     }
     
-    private var block: UpdateBlock?
+    private(set) var block: UpdateBlock?
     private let id: UUID
     private let repeats: Bool
     private let speed: Double

@@ -37,6 +37,16 @@ public final class SDLPointer<T: SDLType>: Hashable, Identifiable {
     }
     
     @discardableResult
+    public func pass<R, A, B, C, D, E>(to block: (T.PointerType, A, B, C, D, E) throws -> R, _ a: A, _ b: B, _ c: C, _ d: D, _ e: E) rethrows -> R {
+        try block(_pointer, a, b, c, d, e)
+    }
+    
+    @discardableResult
+    public func pass<R, A, B, C, D, E, F>(to block: (T.PointerType, A, B, C, D, E, F) throws -> R, _ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) rethrows -> R {
+        try block(_pointer, a, b, c, d, e, f)
+    }
+    
+    @discardableResult
     public func result(of block: (T.PointerType) -> Int32) -> Result<(),Error> {
         guard self.pass(to: block) == 0 else {
             return .failure(SDLError.error(ThreadImpl.callStackSymbols))
@@ -71,6 +81,22 @@ public final class SDLPointer<T: SDLType>: Hashable, Identifiable {
     @discardableResult
     public func result<A, B, C, D>(of block: (T.PointerType, A, B, C, D) -> Int32, _ a: A, _ b: B, _ c: C, _ d: D) -> Result<(),Error> {
         guard self.pass(to: block, a, b, c, d) == 0 else {
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
+        }
+        return .success(())
+    }
+    
+    @discardableResult
+    public func result<A, B, C, D, E>(of block: (T.PointerType, A, B, C, D, E) -> Int32, _ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Result<(),Error> {
+        guard self.pass(to: block, a, b, c, d, e) == 0 else {
+            return .failure(SDLError.error(ThreadImpl.callStackSymbols))
+        }
+        return .success(())
+    }
+    
+    @discardableResult
+    public func result<A, B, C, D, E, F>(of block: (T.PointerType, A, B, C, D, E, F) -> Int32, _ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Result<(),Error> {
+        guard self.pass(to: block, a, b, c, d, e, f) == 0 else {
             return .failure(SDLError.error(ThreadImpl.callStackSymbols))
         }
         return .success(())

@@ -68,15 +68,24 @@ public extension SDLPointer where T == SDLRenderer {
         return info
     }
     
+    /**
+     - parameter flags: A list of flags to be checked.
+     - returns: Evaluates if the receiver contains `flags` in its own list of flags.
+     */
+    func supports(_ flags: RenderFlag...) throws -> Bool {
+        let mask = flags.reduce(0) { $0 | $1.rawValue }
+        return (try self.info().flags & mask) != 0
+    }
+    
     #if canImport(QuartzCore)
     @available(OSX 10.11, *)
     weak var metalLayer: CAMetalLayer? {
         return unsafeBitCast(self.pass(to: SDL_RenderGetMetalLayer), to: CAMetalLayer?.self)
     }
     #endif
-
+    
     @discardableResult
-    func copy(texture: Texture?, from srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {
+    func copy(from texture: Texture?, within srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil
@@ -96,10 +105,8 @@ public extension SDLPointer where T == SDLRenderer {
             return $0.withMemoryRebound(to: SDL_Point.self, capacity: 1) { $0 }
         }
         
-        return self.result(of: { renderer in
-            texture?.pass(to: {
-                SDL_RenderCopyEx(renderer, $0, sourceRect, destRect, angle, centerPoint, SDL_RendererFlip(rawValue: flip.rawValue))
-            }) ?? 0
-        })
+        return Result {
+            try self.result(of: SDL_RenderCopyEx, texture?.pass(to: { $0 }), sourceRect, destRect, angle, centerPoint, SDL_RendererFlip(rawValue: flip.rawValue)).get()
+        }
     }
 }
