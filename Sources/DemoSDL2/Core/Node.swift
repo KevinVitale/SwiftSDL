@@ -21,6 +21,9 @@ class Node: Equatable, CustomStringConvertible {
     /// Child nodes.
     private(set) var children: [Node] = []
     
+    /// Actions
+    private(set) var actions: [Action] = []
+    
     // MARK: - Public
     /// Arbitruary data to attach to the node.
     var userData: [AnyHashable:Any]?
@@ -85,6 +88,10 @@ class Node: Equatable, CustomStringConvertible {
             currentParent = currentParent?.parent
         }
         return doesExist
+    }
+    
+    func attach(actions: Action...) {
+        self.actions += actions
     }
 
     // MARK: Equitability

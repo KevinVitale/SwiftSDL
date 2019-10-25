@@ -26,36 +26,10 @@ class WindowScene: Node, Identifiable {
         self.backgroundColor = backgroundColor
     }
     
-    private(set) var lastUpdateInterval: TimeInterval = .zero {
-        didSet {
-            if self.enableUpdateIntervalLogging {
-                print(lastUpdateInterval)
-            }
-        }
-    }
-
-    private var actions: [Action] = []
-    private var trackUpdateIntervalAction: Action? {
-        willSet {
-            actions.removeAll {
-                guard let action = self.trackUpdateIntervalAction else {
-                    return false
-                }
-                return $0 == action
-            }
-        }
-        didSet {
-            if let trackUpdateIntervalAction = self.trackUpdateIntervalAction {
-                self.actions.append(trackUpdateIntervalAction)
-            }
-        }
-    }
-
     let window: Window
     let renderer: Renderer?
     
     var backgroundColor: SDL_Color = SDL_Color()
-    var enableUpdateIntervalLogging: Bool = false
 
     static func == (lhs: WindowScene, rhs: WindowScene) -> Bool {
         lhs.window == rhs.window
@@ -84,23 +58,26 @@ class WindowScene: Node, Identifiable {
     }
     
     func update(atTime timeInterval: TimeInterval) {
+        self.update(nodes: self.children, atTime: timeInterval)
         self.actions.forEach {
             $0.update(atTime: timeInterval)
         }
     }
     
-    func attach(actions: Action...) {
-        self.actions += actions
+    private func update<N: Node>(nodes: [N], atTime timeInterval: TimeInterval) {
+        nodes.forEach { node in
+            node.actions.forEach {
+                $0.update(atTime: timeInterval)
+            }
+            self.update(nodes: node.children, atTime: timeInterval)
+        }
     }
-    
+
     func handleInput(from event: SDL_Event) {
     }
     
     @available(OSX 10.12, *)
     func willPresent(to game: Game) throws {
-        self.trackUpdateIntervalAction = Action(repeats: true) {
-            self.lastUpdateInterval = $0
-        }
     }
     
     @available(OSX 10.12, *)

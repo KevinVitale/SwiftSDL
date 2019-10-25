@@ -1,25 +1,31 @@
 import Foundation
+import SwiftSDL2
 
 class Action: Hashable, Equatable, Updatable {
-    typealias UpdateBlock = (_ deltaTime: TimeInterval) -> ()
+    typealias UpdateBlock = (_ elapsedTime: TimeInterval) -> ()
     
-    init(repeats: Bool, atInterval updateInterval: TimeInterval? = nil, speed: Double = 1.0, _ block: @escaping UpdateBlock) {
-        self.block          = block
-        self.repeats        = repeats
-        self.speed          = speed
-        self.updateInterval = updateInterval ?? .zero
-        self.id             = UUID()
+    fileprivate init(atInterval duration: TimeInterval = .zero, _ callback: @escaping (_ node: Node, _ elaspedTime: TimeInterval) -> ()) {
+        var weak_self: Action!
+        self.block = {
+            if let node = weak_self.node {
+                callback(node, $0)
+            }
+        }
+        self.duration = duration
+        weak_self = self
     }
-    
-    private(set) var block: UpdateBlock?
-    private let id: UUID
-    private let repeats: Bool
-    private let speed: Double
-    private let updateInterval: TimeInterval
-    private var isCancelled: Bool = false
+
+    private(set) var  block: UpdateBlock? = nil
+    private let          id: UUID         = UUID()
+    private var     repeats: Bool         = false
+    private var       speed: Double       = 1.0
+    private var    duration: TimeInterval = .zero
+    private var isCancelled: Bool         = false
 
     private var  previousUpdateTime: TimeInterval = .infinity
     private var remainingUpdateTime: TimeInterval = .zero
+    
+    fileprivate var node: Node? = nil
 
     func update(atTime timeInterval: TimeInterval) {
         guard self.isCancelled == false else {
@@ -34,12 +40,11 @@ class Action: Hashable, Equatable, Updatable {
             self.previousUpdateTime = timeInterval
         }
         
-        let lastUpdateInterval = timeInterval - self.previousUpdateTime
-        self.remainingUpdateTime -= lastUpdateInterval * self.speed
+        self.remainingUpdateTime -= (timeInterval - self.previousUpdateTime) * self.speed
         
         if let block = self.block, self.remainingUpdateTime.isLessThanOrEqualTo(.zero) {
-            block(lastUpdateInterval)
-            self.remainingUpdateTime = self.updateInterval
+            block(self.remainingUpdateTime)
+            self.remainingUpdateTime = self.duration
         }
         
         if self.repeats == false {
@@ -57,5 +62,48 @@ class Action: Hashable, Equatable, Updatable {
 
     static func == (lhs: Action, rhs: Action) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+extension Action {
+    func map(_ block: (Action) -> Action) -> Action {
+        block(self)
+    }
+    
+    open class func move(by delta: (x: Float, y: Float), duration: TimeInterval) -> Action {
+        Action(atInterval: duration) { (node, elapsedTime) in
+            let xPos = delta.x * Float(elapsedTime)
+            let yPos = delta.y * Float(elapsedTime)
+            node.moveTo(x: Int(node.position.x + xPos), y: Int(node.position.y + yPos))()
+        }
+    }
+    
+    open class func customAction(duration: TimeInterval, _ callback: @escaping (_ node: Node, _ elapsedTime: TimeInterval) -> ()) -> Action {
+        Action(atInterval: duration, callback)
+    }
+    
+    open class func repeatsForever(_ action: Action) -> Action {
+        action.repeats = true
+        return action
+    }
+    
+    open class func animate(_ textures: [Texture], frameDuration: TimeInterval) -> Action {
+        var textureIndex = textures.startIndex
+        return Action(atInterval: frameDuration) { node, elapsedTime in
+            if let node = node as? SpriteNode {
+                node.texture = textures[textureIndex]
+                textureIndex = textures.index(after: textureIndex)
+                if textureIndex >= textures.endIndex {
+                    textureIndex = textures.startIndex
+                }
+            }
+        }
+    }
+}
+
+extension Node {
+    func run(_ action: Action) {
+        action.node = self
+        self.attach(actions: action)
     }
 }

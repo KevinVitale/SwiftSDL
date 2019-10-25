@@ -2,52 +2,6 @@ import Foundation
 import CSDL2
 import SwiftSDL2
 
-class AnimateTexture: Action {
-    init(spriteNode: SpriteNode, textures: [Texture], atInterval timeInterval: TimeInterval) {
-        var weak_self: AnimateTexture! = nil
-        
-        super.init(repeats: true, atInterval: timeInterval) { _ in
-            defer { spriteNode.texture = weak_self?.texture }
-            weak_self.textureIndex = textures.index(after: weak_self.textureIndex)
-            if weak_self.textureIndex >= textures.endIndex {
-                weak_self.textureIndex = textures.startIndex
-            }
-        }
-        self.textures = textures
-
-        weak_self = self
-    }
-    
-    private var textureIndex = 0
-    private var textures: [Texture] = []
-    private weak var spriteNode: SpriteNode?
-    
-    var texture: Texture? {
-        textures[textureIndex]
-    }
-}
-
-func LoadCharacterSprites(format: SDL_PixelFormatEnum.RawValue, sizedAt size: (x: Float, y: Float) = (x: 32, y: 32), into renderer: Renderer?, resourceURL sourceURL: URL = Bundle.main.resourceURL!, atlasName: String) throws -> [[Texture]] {
-    let sourceTexture  = try Texture.load(into: renderer, resourceURL: Bundle.main.resourceURL!, texturesNamed: atlasName).first?.value
-    let characterCount = Int((try sourceTexture?.sizeF().y ?? .zero) / size.y)
-    
-    var characterAnimations = [[Texture]]()
-    for index in 0..<characterCount {
-        let position = (x: size.x, y: size.y * Float(index))
-        print(position)
-        var frameCount = 8
-        switch index {
-        case 0: fallthrough
-        case 3: frameCount = 4
-        default: ()
-        }
-        let textures = try Texture.separateTextures(from: sourceTexture, frameCount: frameCount, format: format, sized: size, locatedAt: position, into: renderer, resourceURL: sourceURL)
-        characterAnimations.append(textures)
-    }
-    
-    return characterAnimations
-}
-
 if #available(OSX 10.12, *) {
     // Initialize the game (and SDL, too) --------------------------------------
     let game = Game(loopFrequency: 1/60)
@@ -80,28 +34,31 @@ if #available(OSX 10.12, *) {
     let boardRenderer = try GameBoardRenderer(tileTexture: blockTexture["block.png"], gameBoard: gameBoard)
 
     // Modify game board state on a set interval -------------------------------
-    let stateChangeAction = Action(repeats: true, atInterval: 0.1) { deltaTime in
-        boardRenderer.testStateChange(numberOfTile: 100)
-    }
-    mainScene.attach(actions: stateChangeAction)
-    mainScene.enableUpdateIntervalLogging = false
+    let stateChangeAction = Action
+        .customAction(duration: 0.1) { _, _ in boardRenderer.testStateChange(numberOfTile: 100) }
+        .map(Action.repeatsForever(_:))
+    
+    mainScene.run(stateChangeAction)
 
     // Include the game board renderer in the scene's node graph ---------------
     mainScene.gameBoardRenderer = boardRenderer
     
     // Character Animation -----------------------------------------------------
-    let allCharacterTextures = try LoadCharacterSprites(format: mainScene.window.pass(to: SDL_GetWindowPixelFormat), into: renderer, atlasName: "characters_7.png")
+    let allCharacterTextures = try CharacterSprites.load(format: mainScene.window.pass(to: SDL_GetWindowPixelFormat), into: renderer, atlasName: "characters_7.png")
     for (index, characterTextures) in allCharacterTextures.enumerated() {
-        let characterNode      = SpriteNode(texture: characterTextures.first, scaledTo: 6.0)
-        let characterAnimation = AnimateTexture(spriteNode: characterNode, textures: characterTextures, atInterval: 0.25)
+        let characterNode = SpriteNode(texture: characterTextures.first, scaledTo: 6.0)
+        characterNode.moveTo(x: Int(characterNode.size.x * characterNode.scale) * index + 64 + (32 * index), y: 1064)()
         
-        mainScene.attach(actions: characterAnimation)
-        mainScene.add(child: characterNode)
-        
-        if index == 2 {
+        if index >= 2 {
             characterNode.isFlipped.toggle()
         }
-        characterNode.moveTo(x: Int(characterNode.size.x * characterNode.scale) * index + 64 + (32 * index), y: 1064)()
+        
+        characterNode.run(Action
+            .animate(characterTextures, frameDuration: 0.25)
+            .map(Action.repeatsForever(_:))
+        )
+
+        mainScene.add(child: characterNode)
     }
 
     // Present the game's current scene ----------------------------------------
