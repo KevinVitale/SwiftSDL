@@ -44,20 +44,32 @@ if #available(OSX 10.12, *) {
     mainScene.gameBoardRenderer = boardRenderer
     
     // Character Animation -----------------------------------------------------
-    let allCharacterTextures = try CharacterSprites.load(format: mainScene.window.pass(to: SDL_GetWindowPixelFormat), into: renderer, atlasName: "characters_7.png")
+    let windowPixelFormat    = mainScene.window.pass(to: SDL_GetWindowPixelFormat)
+    let allCharacterTextures = try CharacterSprites.load(format: windowPixelFormat
+        , into: renderer
+        , atlasName: "characters_7.png"
+    )
+    
     for (index, characterTextures) in allCharacterTextures.enumerated() {
         let characterNode = SpriteNode(texture: characterTextures.first, scaledTo: 6.0)
-        characterNode.moveTo(x: Int(characterNode.size.x * characterNode.scale) * index + 64 + (32 * index), y: 1064)()
         
+        // Move to point -------------------------------------------------------
+        let xPos = Int(characterNode.size.x * characterNode.scale) * index + 64 + (32 * index)
+        let yPos = 1064
+        characterNode.moveTo(x: xPos, y: yPos)()
+        
+        // Flip viewing direction ----------------------------------------------
         if index >= 2 {
             characterNode.isFlipped.toggle()
         }
         
+        // Add animation actions -----------------------------------------------
         characterNode.run(Action
             .animate(characterTextures, frameDuration: 0.25)
             .map(Action.repeatsForever(_:))
         )
 
+        // Add to node parent --------------------------------------------------
         mainScene.add(child: characterNode)
     }
 
