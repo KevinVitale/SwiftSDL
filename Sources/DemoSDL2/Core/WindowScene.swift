@@ -8,7 +8,7 @@ class WindowScene: Node, Identifiable {
         self.renderer = renderer
     }
     
-    convenience init(window windowInfo: (title: String, width: Int32, height: Int32), backgroundColor: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255), windowFlags: Window.WindowFlag = [], renderFlags: Renderer.RenderFlag = []) throws {
+    convenience init(window windowInfo: (title: String, width: Int32, height: Int32), backgroundColor: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255), windowFlags: Window.Flag = [], renderFlags: Renderer.RenderFlag = []) throws {
         var window: Window!
         var renderer: Renderer!
         

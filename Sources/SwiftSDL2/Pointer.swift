@@ -1,6 +1,6 @@
 import CSDL2
 
-public final class SDLPointer<T: SDLType>: Hashable, Identifiable {
+public class SDLPointer<T: SDLType>: Hashable, Identifiable {
     public init(pointer: T.PointerType) {
         self._pointer = pointer
     }
