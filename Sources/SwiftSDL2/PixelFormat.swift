@@ -1,14 +1,12 @@
 import CSDL2
 
-public typealias PixelFormat = SDLPointer<SDLPixelFormat>
-
-public struct SDLPixelFormat: SDLType {
+public class PixelFormat: SDLPointer<PixelFormat>, SDLType {
     public static func destroy(pointer: UnsafeMutablePointer<SDL_PixelFormat>) {
         SDL_FreeFormat(pointer)
     }
 }
 
-public extension SDLPointer where T == SDLPixelFormat {
+public extension PixelFormat {
     static func name(for format: UInt32) -> String {
         SDL_GetPixelFormatName(format).map(String.init)!
     }
