@@ -3,46 +3,44 @@ import CSDL2
 import QuartzCore.CAMetalLayer
 #endif
 
-public typealias Renderer = SDLPointer<SDLRenderer>
-
 public extension UInt32 {
-    static func renderFlags(_ flags: Renderer.RenderFlag...) -> UInt32 {
+    static func renderFlags(_ flags: Renderer.Flag...) -> UInt32 {
         flags.reduce(0) { $0 | $1.rawValue }
     }
 }
 
-public struct SDLRenderer: SDLType {
-    public static func destroy(pointer: OpaquePointer) {
-        SDL_DestroyRenderer(pointer)
-    }
-}
-
-public extension SDLPointer where T == SDLRenderer {
-    struct RenderFlag: OptionSet {
+public class Renderer: SDLPointer<Renderer>, SDLType {
+    public struct Flag: OptionSet {
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }
         
         public let rawValue: SDL_RendererFlags.RawValue
         
-        public static let hardwareAcceleration = RenderFlag(rawValue: SDL_RENDERER_ACCELERATED.rawValue)
-        public static let softwareRendering    = RenderFlag(rawValue: SDL_RENDERER_SOFTWARE.rawValue)
-        public static let targetTexturing      = RenderFlag(rawValue: SDL_RENDERER_TARGETTEXTURE.rawValue)
-        public static let verticalSync         = RenderFlag(rawValue: SDL_RENDERER_PRESENTVSYNC.rawValue)
+        public static let hardwareAcceleration = Flag(rawValue: SDL_RENDERER_ACCELERATED.rawValue)
+        public static let softwareRendering    = Flag(rawValue: SDL_RENDERER_SOFTWARE.rawValue)
+        public static let targetTexturing      = Flag(rawValue: SDL_RENDERER_TARGETTEXTURE.rawValue)
+        public static let verticalSync         = Flag(rawValue: SDL_RENDERER_PRESENTVSYNC.rawValue)
     }
     
-    struct RenderFlip: OptionSet {
+    public struct Flip: OptionSet {
         public init(rawValue: SDL_RendererFlip.RawValue) {
             self.rawValue = rawValue
         }
         
         public let rawValue: SDL_RendererFlip.RawValue
         
-        public static let none       = RenderFlip(rawValue: SDL_FLIP_NONE.rawValue)
-        public static let vertical   = RenderFlip(rawValue: SDL_FLIP_VERTICAL.rawValue)
-        public static let horizontal = RenderFlip(rawValue: SDL_FLIP_HORIZONTAL.rawValue)
+        public static let none       = Flip(rawValue: SDL_FLIP_NONE.rawValue)
+        public static let vertical   = Flip(rawValue: SDL_FLIP_VERTICAL.rawValue)
+        public static let horizontal = Flip(rawValue: SDL_FLIP_HORIZONTAL.rawValue)
     }
     
+    public static func destroy(pointer: OpaquePointer) {
+        SDL_DestroyRenderer(pointer)
+    }
+}
+
+public extension Renderer {
     static func renderers(at indexes: Int32...) -> [SDL_RendererInfo] {
         return Self.availableRenderers(at: indexes)
     }
@@ -72,7 +70,7 @@ public extension SDLPointer where T == SDLRenderer {
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    func supports(_ flags: RenderFlag...) throws -> Bool {
+    func supports(_ flags: Flag...) throws -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (try self.info().flags & mask) != 0
     }
@@ -85,7 +83,7 @@ public extension SDLPointer where T == SDLRenderer {
     #endif
     
     @discardableResult
-    func copy(from texture: Texture?, within srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: RenderFlip = .none) -> Result<(), Error> {
+    func copy(from texture: Texture?, within srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil

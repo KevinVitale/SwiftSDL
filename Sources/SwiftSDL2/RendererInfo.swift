@@ -23,7 +23,7 @@ public extension SDL_RendererInfo {
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    func supports(flags: Renderer.RenderFlag...) -> Bool {
+    func supports(flags: Renderer.Flag...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (self.flags & mask) != 0
     }
