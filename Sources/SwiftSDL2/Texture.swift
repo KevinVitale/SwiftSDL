@@ -2,15 +2,13 @@ import Foundation
 import CSDL2
 import CSDL2_Image
 
-public typealias Texture = SDLPointer<SDLTexture>
-
-public struct SDLTexture: SDLType {
+public class Texture: SDLPointer<Texture>, SDLType {
     public static func destroy(pointer: OpaquePointer) {
         SDL_DestroyTexture(pointer)
     }
 }
 
-public extension SDLPointer where T == SDLTexture {
+public extension Texture {
     private func query() throws -> Result<(pixelFormat: UInt32, access: Int32, width: Int32, height: Int32),Error> {
         var pixelFormat  : UInt32 = 0
         var access       : Int32  = 0
