@@ -39,7 +39,7 @@ class WindowScene: Node, Identifiable {
         self.window.hash(into: &hasher)
     }
     
-    func draw(atTime timeInterval: TimeInterval) {
+    func draw() {
         self.renderer?.result(of: SDL_SetRenderDrawColor, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
         self.renderer?.result(of: SDL_RenderClear)
         
@@ -71,16 +71,5 @@ class WindowScene: Node, Identifiable {
             }
             self.update(nodes: node.children, atTime: timeInterval)
         }
-    }
-
-    func handleInput(from event: SDL_Event) {
-    }
-    
-    @available(OSX 10.12, *)
-    func willPresent(to game: Game) throws {
-    }
-    
-    @available(OSX 10.12, *)
-    func didPresent(to game: Game) throws {
     }
 }

@@ -22,7 +22,6 @@ class Action: Hashable, Equatable, Updatable {
     private var    duration: TimeInterval = .zero
     private var isCancelled: Bool         = false
 
-    private var  previousUpdateTime: TimeInterval = .infinity
     private var remainingUpdateTime: TimeInterval = .zero
     
     fileprivate var node: Node? = nil
@@ -31,17 +30,9 @@ class Action: Hashable, Equatable, Updatable {
         guard self.isCancelled == false else {
             return
         }
-        
-        defer {
-            self.previousUpdateTime = timeInterval
-        }
-        
-        if self.previousUpdateTime.isInfinite {
-            self.previousUpdateTime = timeInterval
-        }
-        
-        self.remainingUpdateTime -= (timeInterval - self.previousUpdateTime) * self.speed
-        
+
+        self.remainingUpdateTime -= timeInterval * self.speed
+
         if let block = self.block, self.remainingUpdateTime.isLessThanOrEqualTo(.zero) {
             block(self.remainingUpdateTime)
             self.remainingUpdateTime = self.duration

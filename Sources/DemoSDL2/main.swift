@@ -2,30 +2,27 @@ import Foundation
 import CSDL2
 import SwiftSDL2
 
-if #available(OSX 10.12, *) {
-    // Initialize the game (and SDL, too) --------------------------------------
-    let game = Game(loopFrequency: 1/60)
-    try game.initialize()
+try SDL.Run { engine in
+    // Start engine ------------------------------------------------------------
+    try engine.start(subsystems: .everything)
     
-    // Prints display mode information -----------------------------------------
-    Display.allDisplays.forEach {
-        print("Display:", String(cString: SDL_GetDisplayName($0.id)).uppercased())
-        $0.modes().forEach {
-            print("""
-                .: Display Size: \($0.w) x \($0.h)
-                .: Pixel Format: \(SDLPixelFormat.name(for: $0.format))
-                .: Refresh Rate: \($0.refresh_rate)hz
-                -----------------------------------------
-                """)
+    // Print display modes -----------------------------------------------------
+    for display in engine.videoDisplays {
+        print("---------------------------------------------|")
+        print(display.name)
+        print("---------------------------------------------|")
+        for mode in display.modes() {
+            print("\(mode.w) x \(mode.h)\t", SDLPixelFormat.name(for: mode.format), "\t\(mode.refresh_rate)hz")
         }
+        print("---------------------------------------------|")
     }
     
     // Create a window scene and renderer to draw into -------------------------
     let mainScene = try MainScene(window: (title: "DemoSDL2", width: 480, height: 640), windowFlags: .allowHighDPI, renderFlags: [.targetTexturing, .verticalSync])
     let  renderer = mainScene.renderer
-
+    
     // Print render info -------------------------------------------------------
-    print(try renderer!.info())
+    print(try renderer!.info.get())
     
     // Create a game board to be renderered into our scene ---------------------
     let gridValues    = Grid<Piece.Element>(rows: 17, columns: 15)
@@ -72,10 +69,21 @@ if #available(OSX 10.12, *) {
         // Add to node parent --------------------------------------------------
         mainScene.add(child: characterNode)
     }
-
-    // Present the game's current scene ----------------------------------------
-    try game.present(scene: mainScene)
-
-    // Start the game ----------------------------------------------------------
-    game.start()
+    
+    engine.handleInput = { [weak engine] in
+        var event = SDL_Event()
+        while(SDL_PollEvent(&event) != 0) {
+            if event.type == SDL_QUIT.rawValue {
+                engine?.stop()
+            }
+        }
+    }
+    
+    engine.update = { deltaTime in
+        mainScene.update(atTime: deltaTime)
+    }
+    
+    engine.render = {
+        mainScene.draw()
+    }
 }

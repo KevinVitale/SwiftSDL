@@ -35,38 +35,31 @@ public final class SDLRenderer: SDLPointer<SDLRenderer>, SDLType {
 }
 
 public extension SDLRenderer {
-    static func renderers(at indexes: Int32...) -> [SDL_RendererInfo] {
-        return Self.availableRenderers(at: indexes)
-    }
-    
-    /**
-     Returns info for a the driver at a specific index.
-     
-     - parameter index: The index of the driver being queried.
-     */
-    static func availableRenderers(at indexes: [Int32] = Array(0..<Int32(SDL_GetNumRenderDrivers()))) -> [SDL_RendererInfo] {
-        indexes.compactMap {
-            var info = SDL_RendererInfo()
+    static func rendererInfo(at indexes: [Int32] = Array(0..<Int32(SDL_GetNumRenderDrivers()))) -> [SDL_RendererInfo] {
+        var info = SDL_RendererInfo()
+        return indexes.compactMap({
             guard SDL_GetRenderDriverInfo($0, &info) >= 0 else {
                 return nil
             }
             return info
+        })
+    }
+}
+
+public extension SDLRenderer {
+    var info: Result<SDL_RendererInfo, Swift.Error> {
+        Result(catching: {
+            var info = SDL_RendererInfo()
+            try result(of: SDL_GetRendererInfo, &info).get()
+            return info
+        })
+    }
+    
+    func supports(_ flags: Flag...) -> Result<Bool, Swift.Error> {
+        self.info.map {
+            let mask = (flags.reduce(0) { $0 | $1.rawValue })
+            return ($0.flags & mask) != 0
         }
-    }
-    
-    func info() throws -> SDL_RendererInfo {
-        var info = SDL_RendererInfo()
-        try self.result(of: SDL_GetRendererInfo, &info).get()
-        return info
-    }
-    
-    /**
-     - parameter flags: A list of flags to be checked.
-     - returns: Evaluates if the receiver contains `flags` in its own list of flags.
-     */
-    func supports(_ flags: Flag...) throws -> Bool {
-        let mask = flags.reduce(0) { $0 | $1.rawValue }
-        return (try self.info().flags & mask) != 0
     }
     
     #if canImport(QuartzCore)
@@ -75,7 +68,9 @@ public extension SDLRenderer {
         return unsafeBitCast(self.pass(to: SDL_RenderGetMetalLayer), to: CAMetalLayer?.self)
     }
     #endif
-    
+}
+
+public extension SDLRenderer {
     @discardableResult
     func copy(from texture: SDLTexture?, within srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
@@ -108,4 +103,3 @@ public extension UInt32 {
         flags.reduce(0) { $0 | $1.rawValue }
     }
 }
-
