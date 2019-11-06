@@ -1,13 +1,11 @@
 import CSDL2
 import Foundation
 
-typealias ThreadImpl = Foundation.Thread
-
 public struct SDL {
     public static func Init(subSystems: SubSystem...) throws {
         let subsystems = subSystems.reduce(0) { $0 | $1.rawValue }
         guard SDL_InitSubSystem(subsystems) == 0 else {
-            throw SDLError.error(ThreadImpl.callStackSymbols)
+            throw SDLError.error(Thread.callStackSymbols)
         }
     }
     
