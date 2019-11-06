@@ -40,7 +40,7 @@ public struct SDL {
             exit(status)
         }
         
-        public func addWindow(title: String, width: Int32, height: Int32, windowFlags: SDLWindow.Flag = [], renderFlags: SDLRenderer.Flag = []) throws -> (SDLWindow, SDLRenderer) {
+        public func addWindow(title: String = "", width: Int32, height: Int32, windowFlags: SDLWindow.Flag = [], renderFlags: SDLRenderer.Flag = []) throws -> (SDLWindow, SDLRenderer) {
             var window: SDLWindow!
             var renderer: SDLRenderer!
             
