@@ -2,7 +2,7 @@ import Foundation
 import CSDL2
 import SwiftSDL2
 
-class GameBoardRenderer: SpriteNode, Updatable {
+class GameBoardRenderer: SpriteNode {
     required init(tileTexture: SDLTexture?, gameBoard: GameBoard = GameBoard()) throws {
         self.tileTexture = tileTexture
         self.gameBoard   = gameBoard
@@ -47,17 +47,16 @@ class GameBoardRenderer: SpriteNode, Updatable {
         return blocks
     }
     
-    func update(atTime timeInterval: TimeInterval) {
+    func testStateChange(numberOfTile: Int) {
+        self.gameBoard.clear()
+        
+        (0..<numberOfTile).forEach { _ in
+            self.gameBoard[self.gameBoard.randomTileIndex] = 1
+        }
+        
         for (index, value) in self.gameBoard.enumerated() {
             let sprite = self.tileSprites[index]
             sprite?.colorBlendFactor = value != .zero ? 1.0 : GameBoardRenderer.defaultTileColorBlendFactor
-        }
-    }
-
-    func testStateChange(numberOfTile: Int) {
-        self.gameBoard.clear()
-        (0..<numberOfTile).forEach { _ in
-            self.gameBoard[self.gameBoard.randomTileIndex] = 1
         }
     }
 }

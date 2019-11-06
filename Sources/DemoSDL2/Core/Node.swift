@@ -100,7 +100,7 @@ class Node: Equatable, CustomStringConvertible {
     }
 }
 
-class SpriteNode: Node, Drawable {
+class SpriteNode: Node, Updatable, Drawable {
     init(texture: SDLTexture? = nil, size: (x: Float, y: Float)? = nil, scaledTo scale: Float = 1.0, color: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255)) {
         self.color   = color
         self.size    = size ?? (try? texture?.sizeF()) ?? (x: 0, y: 0)
@@ -146,4 +146,14 @@ protocol Drawable {
 
 protocol Updatable {
     func update(atTime timeInterval: TimeInterval)
+}
+
+extension Updatable where Self: Node {
+    func update(atTime timeInterval: TimeInterval) {
+        self.children
+            .compactMap({ $0 as? Updatable })
+            .forEach({ $0.update(atTime: timeInterval) })
+        
+        self.actions.forEach({ $0.update(atTime: timeInterval) })
+    }
 }

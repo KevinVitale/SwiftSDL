@@ -17,12 +17,12 @@ try SDL.Run { engine in
         print("---------------------------------------------|")
     }
     
-    // Create a window scene and renderer to draw into -------------------------
-    let mainScene = try MainScene(window: (title: "DemoSDL2", width: 480, height: 640), windowFlags: .allowHighDPI, renderFlags: [.targetTexturing, .verticalSync])
-    let  renderer = mainScene.renderer
+    // Create a renderer to draw into -------------------------
+    let (window, renderer) = try engine.addWindow(title: "DemoSDL2", width: 480, height: 640, windowFlags: .allowHighDPI, renderFlags: [.targetTexturing, .verticalSync])
+    let mainScene = WindowScene(backgroundColor: SDL_Color(r: 127, g: 127, b: 127, a: 127))
     
     // Print render info -------------------------------------------------------
-    print(try renderer!.info.get())
+    print(try renderer.info.get())
     
     // Create a game board to be renderered into our scene ---------------------
     let gridValues    = Grid<Piece.Element>(rows: 17, columns: 15)
@@ -31,17 +31,16 @@ try SDL.Run { engine in
     let boardRenderer = try GameBoardRenderer(tileTexture: blockTexture["block.png"], gameBoard: gameBoard)
 
     // Modify game board state on a set interval -------------------------------
-    let stateChangeAction = Action
+    boardRenderer.run(Action
         .customAction(duration: 0.1) { _, _ in boardRenderer.testStateChange(numberOfTile: 100) }
         .map(Action.repeatsForever(_:))
-    
-    mainScene.run(stateChangeAction)
+    )
 
     // Include the game board renderer in the scene's node graph ---------------
-    mainScene.gameBoardRenderer = boardRenderer
-    
-    // Character Animation -----------------------------------------------------
-    let windowPixelFormat    = mainScene.window.pass(to: SDL_GetWindowPixelFormat)
+    mainScene.add(child: boardRenderer)
+
+    // Character (Sprite) Animation --------------------------------------------
+    let windowPixelFormat    = window.pass(to: SDL_GetWindowPixelFormat)
     let allCharacterTextures = try CharacterSprites.load(format: windowPixelFormat
         , into: renderer
         , atlasName: "characters_7.png"
@@ -70,6 +69,7 @@ try SDL.Run { engine in
         mainScene.add(child: characterNode)
     }
     
+    // Handle input ------------------------------------------------------------
     engine.handleInput = { [weak engine] in
         var event = SDL_Event()
         while(SDL_PollEvent(&event) != 0) {
@@ -79,11 +79,13 @@ try SDL.Run { engine in
         }
     }
     
+    // Update 'scene' ----------------------------------------------------------
     engine.update = { deltaTime in
         mainScene.update(atTime: deltaTime)
     }
     
+    // Render 'scene' ----------------------------------------------------------
     engine.render = {
-        mainScene.draw()
+        mainScene.draw(renderer: renderer)
     }
 }

@@ -40,7 +40,7 @@ public struct SDL {
             exit(status)
         }
         
-        public func addWindow(title: String, width: Int32, height: Int32, windowFlags: SDLWindow.Flag = [], renderFlags: SDLRenderer.Flag = []) throws -> SDLRenderer {
+        public func addWindow(title: String, width: Int32, height: Int32, windowFlags: SDLWindow.Flag = [], renderFlags: SDLRenderer.Flag = []) throws -> (SDLWindow, SDLRenderer) {
             var window: SDLWindow!
             var renderer: SDLRenderer!
             
@@ -57,10 +57,14 @@ public struct SDL {
             // Keep a reference to 'window' ------------------------------------
             self.windows.append(window)
             
-            // Return 'renderer' -----------------------------------------------
-            return renderer
+            // Return 'window' & 'renderer' ------------------------------------
+            return (window, renderer)
         }
         
+        public func removeWindow(_ window: SDLWindow) {
+            self.windows.removeAll(where: { $0 == window })
+        }
+
         public func removeWindow(titled title: String) {
             let matchingWindows = self.windows
                 .compactMap({ ($0, $0.pass(to: SDL_GetWindowTitle).map(String.init)) })
