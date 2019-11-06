@@ -12,7 +12,7 @@ try SDL.Run { engine in
     }
     
     // Create renderer ---------------------------------------------------------
-    let (_, renderer) = try engine.addWindow(width: 640, height: 480)
+    let (_, renderer) = try engine.addWindow(width: 480, height: 640)
 
     // Print renderer info -----------------------------------------------------
     print(try renderer.info.get())

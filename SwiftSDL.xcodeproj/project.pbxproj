@@ -22,7 +22,7 @@
 		OBJ_72 /* Piece.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_24 /* Piece.swift */; };
 		OBJ_75 /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_28 /* Grid.swift */; };
 		OBJ_76 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_29 /* Node.swift */; };
-		OBJ_78 /* WindowScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_31 /* WindowScene.swift */; };
+		OBJ_78 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_31 /* Scene.swift */; };
 		OBJ_79 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_32 /* main.swift */; };
 		OBJ_81 /* SwiftSDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftSDL::SwiftSDL2::Product" /* SwiftSDL2.framework */; };
 		OBJ_87 /* SDLError.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_34 /* SDLError.swift */; };
@@ -83,7 +83,7 @@
 		OBJ_24 /* Piece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Piece.swift; sourceTree = "<group>"; };
 		OBJ_28 /* Grid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		OBJ_29 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
-		OBJ_31 /* WindowScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowScene.swift; sourceTree = "<group>"; };
+		OBJ_31 /* Scene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
 		OBJ_32 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		OBJ_34 /* SDLError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLError.swift; sourceTree = "<group>"; };
 		OBJ_35 /* Hint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hint.swift; sourceTree = "<group>"; };
@@ -172,7 +172,7 @@
 				OBJ_28 /* Grid.swift */,
 				OBJ_29 /* Node.swift */,
 				OBJ_24 /* Piece.swift */,
-				OBJ_31 /* WindowScene.swift */,
+				OBJ_31 /* Scene.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -363,7 +363,7 @@
 				0AC1E13A23635ABA006FC179 /* CharacterSprites.swift in Sources */,
 				OBJ_75 /* Grid.swift in Sources */,
 				OBJ_76 /* Node.swift in Sources */,
-				OBJ_78 /* WindowScene.swift in Sources */,
+				OBJ_78 /* Scene.swift in Sources */,
 				OBJ_79 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -2,7 +2,7 @@ import Foundation
 import CSDL2
 import SwiftSDL2
 
-class WindowScene: SpriteNode, Identifiable {
+class Scene: SpriteNode, Identifiable {
     convenience init(backgroundColor: SDL_Color) {
         self.init()
         self.backgroundColor = backgroundColor
