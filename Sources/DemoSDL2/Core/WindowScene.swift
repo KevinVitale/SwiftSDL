@@ -3,31 +3,31 @@ import CSDL2
 import SwiftSDL2
 
 class WindowScene: Node, Identifiable {
-    required init(window: Window, renderer: Renderer?) {
+    required init(window: SDLWindow, renderer: SDLRenderer?) {
         self.window   = window
         self.renderer = renderer
     }
     
-    convenience init(window windowInfo: (title: String, width: Int32, height: Int32), backgroundColor: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255), windowFlags: Window.Flag = [], renderFlags: Renderer.Flag = []) throws {
-        var window: Window!
-        var renderer: Renderer!
+    convenience init(window windowInfo: (title: String, width: Int32, height: Int32), backgroundColor: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255), windowFlags: SDLWindow.Flag = [], renderFlags: SDLRenderer.Flag = []) throws {
+        var window: SDLWindow!
+        var renderer: SDLRenderer!
         
         switch renderFlags.isEmpty {
         case true:
-            window = try Window(title: windowInfo.title, renderer: &renderer, width: windowInfo.width, height: windowInfo.height, flags: windowFlags)
+            window = try SDLWindow(title: windowInfo.title, renderer: &renderer, width: windowInfo.width, height: windowInfo.height, flags: windowFlags)
         case false:
-            window = try Window(title: windowInfo.title, width: windowInfo.width, height: windowInfo.height, flags: windowFlags)
+            window = try SDLWindow(title: windowInfo.title, width: windowInfo.width, height: windowInfo.height, flags: windowFlags)
             renderer = window
                 .pass(to: SDL_CreateRenderer, -1, .renderFlags(renderFlags))
-                .map(Renderer.init)
+                .map(SDLRenderer.init)
         }
 
         self.init(window: window, renderer: renderer)
         self.backgroundColor = backgroundColor
     }
     
-    let window: Window
-    let renderer: Renderer?
+    let window: SDLWindow
+    let renderer: SDLRenderer?
     
     var backgroundColor: SDL_Color = SDL_Color()
 

@@ -10,20 +10,20 @@ public extension SDL_RendererInfo {
     }
     
     var textureFormatNames: [String] {
-        textureFormatIDs.map(PixelFormat.name)
+        textureFormatIDs.map(SDLPixelFormat.name)
     }
     
-    func copyTextureFormats() -> [PixelFormat] {
+    func copyTextureFormats() -> [SDLPixelFormat] {
         textureFormatIDs
             .compactMap(SDL_AllocFormat)
-            .map(PixelFormat.init)
+            .map(SDLPixelFormat.init)
     }
     
     /**
      - parameter flags: A list of flags to be checked.
      - returns: Evaluates if the receiver contains `flags` in its own list of flags.
      */
-    func supports(flags: Renderer.Flag...) -> Bool {
+    func supports(flags: SDLRenderer.Flag...) -> Bool {
         let mask = flags.reduce(0) { $0 | $1.rawValue }
         return (self.flags & mask) != 0
     }

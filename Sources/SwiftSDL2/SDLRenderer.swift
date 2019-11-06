@@ -3,13 +3,7 @@ import CSDL2
 import QuartzCore.CAMetalLayer
 #endif
 
-public extension UInt32 {
-    static func renderFlags(_ flags: Renderer.Flag...) -> UInt32 {
-        flags.reduce(0) { $0 | $1.rawValue }
-    }
-}
-
-public class Renderer: SDLPointer<Renderer>, SDLType {
+public final class SDLRenderer: SDLPointer<SDLRenderer>, SDLType {
     public struct Flag: OptionSet {
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
@@ -40,7 +34,7 @@ public class Renderer: SDLPointer<Renderer>, SDLType {
     }
 }
 
-public extension Renderer {
+public extension SDLRenderer {
     static func renderers(at indexes: Int32...) -> [SDL_RendererInfo] {
         return Self.availableRenderers(at: indexes)
     }
@@ -83,7 +77,7 @@ public extension Renderer {
     #endif
     
     @discardableResult
-    func copy(from texture: Texture?, within srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
+    func copy(from texture: SDLTexture?, within srcrect: SDL_Rect? = nil, into dstrect: SDL_Rect? = nil, rotatedBy angle: Double = 0, aroundCenter point: SDL_Point? = nil, flipped flip: Flip = .none) -> Result<(), Error> {
         let sourceRect: UnsafePointer<SDL_Rect>! = withUnsafePointer(to: srcrect) {
             guard $0.pointee != nil else {
                 return nil
@@ -108,3 +102,10 @@ public extension Renderer {
         }
     }
 }
+
+public extension UInt32 {
+    static func renderFlags(_ flags: SDLRenderer.Flag...) -> UInt32 {
+        flags.reduce(0) { $0 | $1.rawValue }
+    }
+}
+

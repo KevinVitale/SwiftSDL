@@ -101,7 +101,7 @@ class Node: Equatable, CustomStringConvertible {
 }
 
 class SpriteNode: Node, Drawable {
-    init(texture: Texture? = nil, size: (x: Float, y: Float)? = nil, scaledTo scale: Float = 1.0, color: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255)) {
+    init(texture: SDLTexture? = nil, size: (x: Float, y: Float)? = nil, scaledTo scale: Float = 1.0, color: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255)) {
         self.color   = color
         self.size    = size ?? (try? texture?.sizeF()) ?? (x: 0, y: 0)
         self.texture = texture
@@ -114,7 +114,7 @@ class SpriteNode: Node, Drawable {
     var             isHidden: Bool = false
     var     colorBlendFactor: Double = 1.0
     private let        color: SDL_Color
-    var              texture: Texture?
+    var              texture: SDLTexture?
 
     var scale: Float = 1.0
     var rotation: Double = 0
@@ -126,7 +126,7 @@ class SpriteNode: Node, Drawable {
         true
     }
 
-    func draw(renderer: Renderer?) {
+    func draw(renderer: SDLRenderer?) {
         guard self.isHidden == false else {
             return
         }
@@ -141,7 +141,7 @@ class SpriteNode: Node, Drawable {
 }
 
 protocol Drawable {
-    func draw(renderer: Renderer?)
+    func draw(renderer: SDLRenderer?)
 }
 
 protocol Updatable {

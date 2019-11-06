@@ -13,7 +13,7 @@ if #available(OSX 10.12, *) {
         $0.modes().forEach {
             print("""
                 .: Display Size: \($0.w) x \($0.h)
-                .: Pixel Format: \(PixelFormat.name(for: $0.format))
+                .: Pixel Format: \(SDLPixelFormat.name(for: $0.format))
                 .: Refresh Rate: \($0.refresh_rate)hz
                 -----------------------------------------
                 """)
@@ -30,7 +30,7 @@ if #available(OSX 10.12, *) {
     // Create a game board to be renderered into our scene ---------------------
     let gridValues    = Grid<Piece.Element>(rows: 17, columns: 15)
     let gameBoard     = GameBoard(gridValues)
-    let blockTexture  = try Texture.load(into: renderer, resourceURL: Bundle.main.resourceURL!, texturesNamed: "block.png")
+    let blockTexture  = try SDLTexture.load(into: renderer, resourceURL: Bundle.main.resourceURL!, texturesNamed: "block.png")
     let boardRenderer = try GameBoardRenderer(tileTexture: blockTexture["block.png"], gameBoard: gameBoard)
 
     // Modify game board state on a set interval -------------------------------

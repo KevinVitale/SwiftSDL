@@ -1,11 +1,7 @@
 import CSDL2
 import Foundation
 
-#if canImport(Darwin)
 typealias ThreadImpl = Foundation.Thread
-#else
-typealias ThreadImpl = Foundation.Thread
-#endif
 
 public struct SDL {
     public static func Init(subSystems: SubSystem...) throws {

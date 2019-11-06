@@ -5,18 +5,18 @@ import SwiftSDL2
 try SDL.Init(subSystems: .video)
 
 // Print available renderers ---------------------------------------------------
-Renderer.availableRenderers().forEach {
+SDLRenderer.availableRenderers().forEach {
     print($0)
 }
 SDL.Hint.set("software", for: .renderDriver)
 
 // Create window ---------------------------------------------------------------
-let window = try Window(width: 640, height: 480, flags: .allowHighDPI)
+let window = try SDLWindow(width: 640, height: 480, flags: .allowHighDPI)
 
 // Create renderer -------------------------------------------------------------
 let renderer = window
     .pass(to: SDL_CreateRenderer, -1, 0)
-    .map(Renderer.init)
+    .map(SDLRenderer.init)
 
 // Set background color --------------------------------------------------------
 renderer?.result(of: SDL_SetRenderDrawColor, 255, 255, 255, 255) // Set bg-color

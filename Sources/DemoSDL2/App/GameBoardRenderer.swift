@@ -3,7 +3,7 @@ import CSDL2
 import SwiftSDL2
 
 class GameBoardRenderer: SpriteNode, Updatable {
-    required init(tileTexture: Texture?, gameBoard: GameBoard = GameBoard()) throws {
+    required init(tileTexture: SDLTexture?, gameBoard: GameBoard = GameBoard()) throws {
         self.tileTexture = tileTexture
         self.gameBoard   = gameBoard
         super.init()
@@ -27,7 +27,7 @@ class GameBoardRenderer: SpriteNode, Updatable {
             }
         }
     }
-    private weak var tileTexture: Texture?
+    private weak var tileTexture: SDLTexture?
     private static let defaultTileColorBlendFactor: Double = 0.325
     
     private func generateTileSprites() throws -> [Int:SpriteNode] {

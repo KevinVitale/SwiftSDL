@@ -87,7 +87,7 @@ extension Action {
         return action
     }
     
-    open class func animate(_ textures: [Texture], frameDuration: TimeInterval) -> Action {
+    open class func animate(_ textures: [SDLTexture], frameDuration: TimeInterval) -> Action {
         var textureIndex = textures.startIndex
         return Action(atInterval: frameDuration) { node, elapsedTime in
             if let node = node as? SpriteNode {

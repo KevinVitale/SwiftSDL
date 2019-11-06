@@ -2,12 +2,12 @@ import Foundation
 import CSDL2
 
 public extension UInt32 {
-    static func windowFlags(_ flags: Window.Flag...) -> UInt32 {
+    static func windowFlags(_ flags: SDLWindow.Flag...) -> UInt32 {
         flags.reduce(0) { $0 | $1.rawValue }
     }
 }
 
-public class Window: SDLPointer<Window>, SDLType {
+public final class SDLWindow: SDLPointer<SDLWindow>, SDLType {
     public struct Flag: OptionSet {
         public init(rawValue: SDL_WindowFlags.RawValue) {
             self.rawValue = rawValue
@@ -50,14 +50,14 @@ public class Window: SDLPointer<Window>, SDLType {
         self.init(pointer: pointer)
     }
     
-    public convenience init(title: String = "", renderer: inout Renderer!, width w: Int32, height h: Int32, flags: Flag...) throws {
+    public convenience init(title: String = "", renderer: inout SDLRenderer!, width w: Int32, height h: Int32, flags: Flag...) throws {
         var windowPtr: OpaquePointer! = nil
         var renderPtr: OpaquePointer! = nil
         let f = flags.reduce(0) { $0 | $1.rawValue }
         guard SDL_CreateWindowAndRenderer(w, h, f, &windowPtr, &renderPtr) == 0 else {
             throw SDLError.error(Thread.callStackSymbols)
         }
-        renderer = Renderer(pointer: renderPtr)
+        renderer = SDLRenderer(pointer: renderPtr)
         self.init(pointer: windowPtr)
     }
 }
