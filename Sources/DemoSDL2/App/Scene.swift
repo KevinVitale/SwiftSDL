@@ -11,20 +11,24 @@ class Scene: SpriteNode, Identifiable {
     var backgroundColor: SDL_Color = SDL_Color()
 
     override func draw(renderer: SDLRenderer?) {
-        renderer?.result(of: SDL_SetRenderDrawColor, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
-        renderer?.result(of: SDL_RenderClear)
-        
-        self.draw(children: self.children, renderer: renderer)
-        
-        renderer?.pass(to: SDL_RenderPresent)
+        do {
+            try renderer?.result(of: SDL_SetRenderDrawColor, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a).get()
+            try renderer?.result(of: SDL_RenderClear).get()
+            
+            self.drawChildren(self.children, renderer: renderer)
+            
+            renderer?.pass(to: SDL_RenderPresent)
+        } catch {
+            print(error)
+        }
     }
 
-    private func draw<N: Node>(children: [N], renderer: SDLRenderer?) {
-        children.forEach { node in
-            if let node = node as? Drawable {
-                node.draw(renderer: renderer)
-            }
-            self.draw(children: node.children, renderer: renderer)
-        }
+    private func drawChildren<N: Node>(_ children: [N], renderer: SDLRenderer?) {
+        children
+            .compactMap({ $0 as? (Drawable & Node) })
+            .forEach({
+                self.drawChildren($0.children, renderer: renderer)
+                $0.draw(renderer: renderer)
+            })
     }
 }
