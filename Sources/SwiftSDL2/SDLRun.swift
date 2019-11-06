@@ -6,7 +6,6 @@ public extension SDL {
         try closure(engine)
         
         // Add the game loop (on a timer) --------------------------------------
-        var previousDate: TimeInterval = .infinity
         if #available(OSX 10.12, *) {
             let timer = Timer(timeInterval: 1/60, repeats: true) { timer in
                 guard engine.isRunning else {
@@ -14,21 +13,13 @@ public extension SDL {
                     return
                 }
                 
-                let currentDate = timer.fireDate.timeIntervalSince1970
-                
-                if previousDate.isInfinite {
-                    previousDate = currentDate
-                }
-                
                 engine.handleInput()
-                engine.update(currentDate - previousDate)
+                engine.update(timer.fireDate.timeIntervalSince1970)
                 engine.render()
-                
-                previousDate = currentDate
             }
             runLoop.add(timer, forMode: .default)
         } else {
-            // Fallback on earlier versions
+            engine.stop()
         }
 
         // Run until 'engine' is shutdown --------------------------------------

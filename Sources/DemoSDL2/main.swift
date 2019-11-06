@@ -80,8 +80,8 @@ try SDL.Run { engine in
     }
     
     // Update 'scene' ----------------------------------------------------------
-    engine.update = { deltaTime in
-        mainScene.update(atTime: deltaTime)
+    engine.update = { currentTime in
+        mainScene.update(atTime: currentTime)
     }
     
     // Render 'scene' ----------------------------------------------------------
