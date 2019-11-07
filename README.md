@@ -52,7 +52,7 @@ try SDL.Run { engine in
         
         renderer.pass(to: SDL_RenderPresent)
     } 
-  }
+}
 ```
 
 <img width=240 src="window.png"/>
