@@ -26,7 +26,7 @@
 		OBJ_79 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_32 /* main.swift */; };
 		OBJ_81 /* SwiftSDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "SwiftSDL::SwiftSDL2::Product" /* SwiftSDL2.framework */; };
 		OBJ_87 /* SDLError.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_34 /* SDLError.swift */; };
-		OBJ_88 /* Hint.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_35 /* Hint.swift */; };
+		OBJ_88 /* SDLHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_35 /* SDLHint.swift */; };
 		OBJ_89 /* SDLPixelFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_36 /* SDLPixelFormat.swift */; };
 		OBJ_90 /* SDLPointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_37 /* SDLPointer.swift */; };
 		OBJ_91 /* SDLRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_38 /* SDLRenderer.swift */; };
@@ -86,7 +86,7 @@
 		OBJ_31 /* Scene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
 		OBJ_32 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		OBJ_34 /* SDLError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLError.swift; sourceTree = "<group>"; };
-		OBJ_35 /* Hint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hint.swift; sourceTree = "<group>"; };
+		OBJ_35 /* SDLHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLHint.swift; sourceTree = "<group>"; };
 		OBJ_36 /* SDLPixelFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLPixelFormat.swift; sourceTree = "<group>"; };
 		OBJ_37 /* SDLPointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLPointer.swift; sourceTree = "<group>"; };
 		OBJ_38 /* SDLRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLRenderer.swift; sourceTree = "<group>"; };
@@ -181,7 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				0A36867923732076001B5A5E /* SDLDisplay.swift */,
-				OBJ_35 /* Hint.swift */,
+				OBJ_35 /* SDLHint.swift */,
 				OBJ_40 /* SDLEngine.swift */,
 				OBJ_34 /* SDLError.swift */,
 				OBJ_36 /* SDLPixelFormat.swift */,
@@ -374,7 +374,7 @@
 			files = (
 				OBJ_87 /* SDLError.swift in Sources */,
 				0AE9C87C2370ABC500139A69 /* SDLWindow.swift in Sources */,
-				OBJ_88 /* Hint.swift in Sources */,
+				OBJ_88 /* SDLHint.swift in Sources */,
 				OBJ_89 /* SDLPixelFormat.swift in Sources */,
 				0A36867A23732076001B5A5E /* SDLDisplay.swift in Sources */,
 				OBJ_90 /* SDLPointer.swift in Sources */,
