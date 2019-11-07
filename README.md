@@ -10,7 +10,7 @@ Use `Homebrew` to install the `SDL2` dependency, and then run `DemoSDL2`:
 $ brew install sdl2 sdl2_image
 
 # Pull Repo
-$ git clone git@github.com:KevinVitale/SwiftSDL.git
+$ git clone https://github.com/KevinVitale/SwiftSDL.git
 
 # Run DemoSDL2
 $ cd SwiftSDL
