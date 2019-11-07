@@ -1,11 +1,13 @@
 import Foundation
 import CSDL2
+import CSDL2_Image
 import SwiftSDL2
 
 try SDL.Run { engine in
     // Start engine ------------------------------------------------------------
     try engine.start(subsystems: .everything)
     
+
     // Print display modes -----------------------------------------------------
     for display in engine.videoDisplays {
         print("---------------------------------------------|")
