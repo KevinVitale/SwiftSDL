@@ -1,5 +1,13 @@
 # SwiftSDL
 
+[Simple DirectMedia Layer](https://libsdl.org) is a cross-platform development library designed 
+to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware.
+
+This project provides a lightweight wrapper around _SDL_ which makes its C-based API easy and
+intiutive to use from _Swift_.
+
+<hr/>
+
 <img width=240 src="Sources/DemoSDL2/example.gif"/> <img width=240 src="example.gif"/>
 
 ## Testing It Out
