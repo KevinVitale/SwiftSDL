@@ -3,15 +3,20 @@
 [Simple DirectMedia Layer](https://libsdl.org) is a cross-platform development library designed 
 to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware.
 
-This project provides a lightweight wrapper around _SDL_ which makes its C-based API easy and
-intiutive to use from _Swift_.
+This project provides a lightweight wrapper around _SDL2_ which makes its C-based API easy and
+intiutive to use from **Swift**.
 
-<hr/>
-
+## Example Screenshots
 <img width=240 src="Sources/DemoSDL2/example.gif"/> <img width=240 src="example.gif"/>
 
 ## Testing It Out
-Use `Homebrew` to install the `SDL2` dependency, and then run `DemoSDL2`:
+The `SwiftSDL.xcodeproj` provides two working examples of how to use the wrapper:
+  - `DemoSDL2`: includes a game-loop, a rudimentary scene graph, and animating sprite textues;
+  - `CreateWindowDemo`: includes the bare minumum for displaying (and rendering) a native window.
+
+### Compiling and Running Demos
+
+Use `Homebrew` to install the `SDL2` dependencies:
 
 ```bash
 # Install Deps
@@ -25,8 +30,11 @@ $ cd SwiftSDL
 $ make && make run
 ```
 
-## Quick Start
-Using `SDL.Run { engine in /*...*/ }` gets you a game loop quickly:
+> _Note: by default, `make run` will run the **DemoSDL2** demo._
+
+### Built-in Game Loop
+As an additional bonus, _SwiftSDL_ provides `SDL.Run { engine in /*...*/ }`, 
+which gets you a game loop quickly. Here's an example:
 
 ```swift
 import Foundation
