@@ -19,7 +19,7 @@ try SDL.Run { engine in
         print("---------------------------------------------|")
     }
     
-    // Create a renderer to draw into -------------------------
+    // Create a renderer to draw into ------------------------------------------
     let (window, renderer) = try engine.addWindow(title: "DemoSDL2", width: 480, height: 640, windowFlags: .allowHighDPI, renderFlags: [.targetTexturing, .verticalSync])
     let mainScene = Scene(backgroundColor: SDL_Color(r: 255, g: 255, b: 255, a: 255))
     
