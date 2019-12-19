@@ -4,7 +4,14 @@
 to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware.
 
 This project provides a lightweight wrapper around _SDL2_ which makes its C-based API easy and
-intiutive to use from **Swift**.
+intiutive to use from **Swift**. 
+
+Libraries currently supported are:
+
+ - SDL2
+ - Image
+ - Mixer
+ - TTF
 
 ## Example Screenshots
 <img width=240 src="Sources/DemoSDL2/example.gif"/> <img width=240 src="example.gif"/>
