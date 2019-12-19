@@ -14,8 +14,10 @@ public final class SDLTexture: SDLPointer<SDLTexture>, SDLType {
         var height       : Int32  = 0
         return self
             .result(of: SDL_QueryTexture, &pixelFormat, &access, &width, &height)
-            .map { _ in
-                (pixelFormat: pixelFormat, access: access, width: width, height: height)
+            .map { _ in ( pixelFormat: pixelFormat,
+                               access: access,
+                                width: width,
+                               height: height )
         }
     }
     
@@ -41,13 +43,14 @@ public final class SDLTexture: SDLPointer<SDLTexture>, SDLType {
         return zip(names, textures).reduce(into: [String:SDLTexture]()) { result, pair in result[pair.0] = pair.1 }
     }
     
-    public static func separateTextures(from sourceTexture: SDLTexture?
-        , frameCount: Int
-        , format: SDL_PixelFormatEnum.RawValue
-        , sized size: (x: Float, y: Float)
-        , locatedAt position: (x: Float, y: Float)
-        , into renderer: SDLRenderer?
-        , resourceURL sourceURL: URL) throws -> [SDLTexture] {
+    public static func separateTextures(from sourceTexture: SDLTexture?,
+                                                frameCount: Int,
+                                                    format: SDL_PixelFormatEnum.RawValue,
+                                                sized size: (x: Float, y: Float),
+                                        locatedAt position: (x: Float, y: Float),
+                                             into renderer: SDLRenderer?,
+                                     resourceURL sourceURL: URL) throws -> [SDLTexture]
+    {
         var textures = [SDLTexture?]()
         for frame in 0..<Int32(frameCount) {
             // Create a target texture -----------------------------------------
