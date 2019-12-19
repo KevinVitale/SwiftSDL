@@ -11,7 +11,7 @@ let package = Package(
     targets: [
       .target( name: "DemoSDL2", dependencies: ["SwiftSDL2"]), 
       .target( name: "CreateWindowDemo", dependencies: ["SwiftSDL2"]), 
-      .target( name: "SwiftSDL2", dependencies: ["CSDL2", "CSDL2_Image", "CSDL2_Mixer"]),
+      .target( name: "SwiftSDL2", dependencies: ["CSDL2", "CSDL2_Image", "CSDL2_Mixer", "CSDL2_TTF"]),
       .systemLibrary( name: "CSDL2", pkgConfig: "sdl2"
         , providers: [
             .brew(["sdl2"]),
@@ -26,6 +26,11 @@ let package = Package(
         , providers: [
             .brew(["sdl2_mixer"]),
             .apt(["libsdl2_mixer-dev"]) ]
+      ),
+      .systemLibrary( name: "CSDL2_TTF", pkgConfig: "sdl2_ttf"
+        , providers: [
+            .brew(["sdl2_ttf"]),
+            .apt(["libsdl2_ttf-dev"]) ]
       ),
       //.testTarget( name: "SDLTests", dependencies: ["SDL"]),
     ],
