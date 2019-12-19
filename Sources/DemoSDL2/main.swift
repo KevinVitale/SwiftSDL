@@ -20,7 +20,11 @@ try SDL.Run { engine in
     }
     
     // Create a renderer to draw into ------------------------------------------
-    let (window, renderer) = try engine.addWindow(title: "DemoSDL2", width: 480, height: 640, windowFlags: .allowHighDPI, renderFlags: [.targetTexturing, .verticalSync])
+    let (window, renderer) = try engine.addWindow( title: "DemoSDL2",
+                                                   width: 480,
+                                                  height: 640,
+                                             windowFlags: .allowHighDPI,
+                                             renderFlags: [.targetTexturing, .verticalSync] )
     let mainScene = Scene(backgroundColor: SDL_Color(r: 255, g: 255, b: 255, a: 255))
     
     // Print render info -------------------------------------------------------
@@ -43,10 +47,9 @@ try SDL.Run { engine in
 
     // Character (Sprite) Animation --------------------------------------------
     let windowPixelFormat    = window.pass(to: SDL_GetWindowPixelFormat)
-    let allCharacterTextures = try CharacterSprites.load(format: windowPixelFormat
-        , into: renderer
-        , atlasName: "characters_7.png"
-    )
+    let allCharacterTextures = try CharacterSprites.load( format: windowPixelFormat,
+                                                            into: renderer,
+                                                       atlasName: "characters_7.png" )
     
     for (index, characterTextures) in allCharacterTextures.enumerated() {
         let characterNode = SpriteNode(texture: characterTextures.first, scaledTo: 6.0)
