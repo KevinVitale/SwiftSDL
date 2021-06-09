@@ -6,7 +6,6 @@ import SwiftSDL2
 try SDL.Run { engine in
     // Start engine ------------------------------------------------------------
     try engine.start(subsystems: .everything)
-    
 
     // Print display modes -----------------------------------------------------
     for display in engine.videoDisplays {
@@ -17,16 +16,17 @@ try SDL.Run { engine in
             print("\(mode.w) x \(mode.h)\t", SDLPixelFormat.name(for: mode.format), "\t\(mode.refresh_rate)hz")
         }
         print("---------------------------------------------|")
+        print(display.ddpi, display.hdpi, display.vdpi)
+        print("---------------------------------------------|")
     }
     
     // Create a renderer to draw into ------------------------------------------
     let (window, renderer) = try engine.addWindow( title: "DemoSDL2",
                                                    width: 480,
                                                   height: 640,
-                                             windowFlags: .allowHighDPI,
+                                          // windowFlags: .allowHighDPI,
                                              renderFlags: [.targetTexturing, .verticalSync] )
-    let mainScene = Scene(backgroundColor: SDL_Color(r: 255, g: 255, b: 255, a: 255))
-    
+
     // Print render info -------------------------------------------------------
     print(try renderer.info.get())
     
@@ -43,7 +43,9 @@ try SDL.Run { engine in
     )
 
     // Include the game board renderer in the scene's node graph ---------------
+    let mainScene = Scene(backgroundColor: SDL_Color(r: 255, g: 255, b: 255, a: 255))
     mainScene.add(child: boardRenderer)
+    mainScene.scale = 0.5
 
     // Character (Sprite) Animation --------------------------------------------
     let windowPixelFormat    = window.pass(to: SDL_GetWindowPixelFormat)
@@ -52,12 +54,13 @@ try SDL.Run { engine in
                                                        atlasName: "characters_7.png" )
     
     for (index, characterTextures) in allCharacterTextures.enumerated() {
-        let characterNode = SpriteNode(texture: characterTextures.first, scaledTo: 6.0)
+        let characterNode = SpriteNode(texture: characterTextures.first, scaledTo: 6)
         
         // Move to point -------------------------------------------------------
-        let xPos = Int(characterNode.size.x * characterNode.scale) * index + 64 + (32 * index)
-        let yPos = 1064
+        let xPos = Int(characterNode.size.x) * index + 8 + (6 * index)
+        let yPos = 177
         characterNode.moveTo(x: xPos, y: yPos)()
+        print(characterNode)
         
         // Flip viewing direction ----------------------------------------------
         if index >= 2 {
