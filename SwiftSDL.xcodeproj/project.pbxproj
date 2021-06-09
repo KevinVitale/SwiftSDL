@@ -101,7 +101,7 @@
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		"SwiftSDL::CreateWindowDemo::Product" /* CreateWindowDemo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = CreateWindowDemo; sourceTree = BUILT_PRODUCTS_DIR; };
 		"SwiftSDL::DemoSDL2::Product" /* DemoSDL2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = DemoSDL2; sourceTree = BUILT_PRODUCTS_DIR; };
-		"SwiftSDL::SwiftSDL2::Product" /* SwiftSDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftSDL2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"SwiftSDL::SwiftSDL2::Product" /* SwiftSDL2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftSDL2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -485,7 +485,6 @@
 					"$(SRCROOT)/Sources/CSDL2",
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/CreateWindowDemo_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
@@ -527,7 +526,6 @@
 					"$(SRCROOT)/Sources/CSDL2",
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/CreateWindowDemo_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
@@ -569,7 +567,6 @@
 					"$(SRCROOT)/Sources/CSDL2",
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/DemoSDL2_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = (
@@ -611,7 +608,6 @@
 					"$(SRCROOT)/Sources/CSDL2",
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/DemoSDL2_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = (
@@ -654,7 +650,6 @@
 					"$(SRCROOT)/Sources/CSDL2",
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/SwiftSDL2_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
@@ -699,7 +694,6 @@
 					"$(SRCROOT)/Sources/CSDL2",
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/SwiftSDL2_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
