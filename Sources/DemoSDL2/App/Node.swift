@@ -7,6 +7,7 @@ class Node: Equatable, CustomStringConvertible {
     
     /// Node's raw position in 2D space.
     private var _position: SDL_FPoint = SDL_FPoint()
+    private var _scale: Float = 1.0
     
     /// Parent relationship.
     private(set) weak var parent: Node? = nil {
@@ -43,6 +44,19 @@ class Node: Equatable, CustomStringConvertible {
         }
     }
     
+    var scale: Float {
+        get {
+            var scale = _scale
+            if let parent = self.parent {
+                scale *= parent.scale
+            }
+            return scale
+        }
+        set {
+            _scale = newValue
+        }
+    }
+
     // MARK: - Description
     var description: String {
         "\(type(of: self))" + " (x: \(position.x), y: \(position.y))"
@@ -104,6 +118,7 @@ class SpriteNode: Node, Updatable, Drawable {
     init(texture: SDLTexture? = nil, size: (x: Float, y: Float)? = nil, scaledTo scale: Float = 1.0, color: SDL_Color = SDL_Color(r: 255, g: 255, b: 255, a: 255)) {
         self.color   = color
         self.size    = size ?? (try? texture?.sizeF()) ?? (x: 0, y: 0)
+        super.init()
         self.texture = texture
         self.scale   = scale
     }
@@ -116,7 +131,6 @@ class SpriteNode: Node, Updatable, Drawable {
     private let        color: SDL_Color
     var              texture: SDLTexture?
 
-    var scale: Float = 1.0
     var rotation: Double = 0
     var rect: SDL_FRect {
         SDL_FRect(x: position.x, y: position.y, w: position.x + size.x, h: position.y + size.y)
@@ -134,7 +148,10 @@ class SpriteNode: Node, Updatable, Drawable {
         texture?.result(of: SDL_SetTextureColorMod, UInt8(Double(color.r) * colorBlendFactor), UInt8(Double(color.g) * colorBlendFactor), UInt8(Double(color.b) * colorBlendFactor))
         
         let sourceRect = SDL_Rect(x: 0, y: 0, w: Int32(size.x), h: Int32(size.y))
-        let destRect   = SDL_Rect(x: Int32(position.x), y: Int32(position.y), w: Int32(size.x * scale), h: Int32(size.y * scale))
+        let destRect   = SDL_Rect(
+            x: Int32(position.x * scale), y: Int32(position.y * scale),
+            w: Int32(size.x * scale), h: Int32(size.y * scale)
+        )
         
         renderer?.copy(from: texture, within: sourceRect, into: destRect, rotatedBy: rotation, flipped: self.isFlipped ? .horizontal : .none)
     }
