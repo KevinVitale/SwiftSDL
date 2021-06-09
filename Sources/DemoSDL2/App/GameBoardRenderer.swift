@@ -37,7 +37,7 @@ class GameBoardRenderer: SpriteNode {
         gameBoard.forEach { index, _ in
             defer { idx += 1}
             
-            let block              = SpriteNode(texture: tileTexture)
+            let block              = SpriteNode(texture: tileTexture, scaledTo: scale)
             block.position.x       = block.size.x * Float(index.column)
             block.position.y       = block.size.y * Float(index.row)
             block.colorBlendFactor = GameBoardRenderer.defaultTileColorBlendFactor
