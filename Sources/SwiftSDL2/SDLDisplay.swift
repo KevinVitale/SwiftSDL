@@ -9,6 +9,16 @@ extension SDL.Engine {
             SDL_GetDisplayName(id).map(String.init) ?? "Video Display #\(id)"
         }
         
+        private var displayDPI: (Float, Float, Float) {
+            var ddpi: Float = 0, hdpi: Float = 0, vdpi: Float = 0
+            SDL_GetDisplayDPI(id, &ddpi, &hdpi, &vdpi)
+            return (ddpi, hdpi, vdpi)
+        }
+        
+        public var ddpi: Float { displayDPI.0 }
+        public var hdpi: Float { displayDPI.1 }
+        public var vdpi: Float { displayDPI.2 }
+        
         public func modes() -> [SDL_DisplayMode] {
             let numberOfModes = SDL_GetNumDisplayModes(self.id)
             var  displayModes = [SDL_DisplayMode]()
