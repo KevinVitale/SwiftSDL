@@ -436,7 +436,6 @@
 					"SWIFT_PACKAGE=1",
 					"DEBUG=1",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -461,7 +460,6 @@
 					"$(inherited)",
 					"SWIFT_PACKAGE=1",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -486,7 +484,6 @@
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/CreateWindowDemo_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-I/usr/local/include/SDL2",
@@ -495,12 +492,10 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L/usr/local/lib",
+					"-L/opt/homebrew/lib",
+					"-lSDL2",
+					"-L/opt/homebrew/lib",
 					"-lSDL2_image",
-					"-L/usr/local/lib",
-					"-lSDL2",
-					"-L/usr/local/lib",
-					"-lSDL2",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/include/SDL2 -I/usr/local/include/SDL2 -I/usr/local/include/SDL2";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -508,8 +503,6 @@
 				SWIFT_FORCE_STATIC_LINK_STDLIB = NO;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = CreateWindowDemo;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
@@ -527,7 +520,6 @@
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/CreateWindowDemo_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-I/usr/local/include/SDL2",
@@ -536,12 +528,10 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L/usr/local/lib",
+					"-L/opt/homebrew/lib",
+					"-lSDL2",
+					"-L/opt/homebrew/lib",
 					"-lSDL2_image",
-					"-L/usr/local/lib",
-					"-lSDL2",
-					"-L/usr/local/lib",
-					"-lSDL2",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/include/SDL2 -I/usr/local/include/SDL2 -I/usr/local/include/SDL2";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -549,8 +539,6 @@
 				SWIFT_FORCE_STATIC_LINK_STDLIB = NO;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = CreateWindowDemo;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};
@@ -568,7 +556,6 @@
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/DemoSDL2_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-I/usr/local/include/SDL2",
@@ -577,12 +564,10 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L/usr/local/lib",
+					"-L/opt/homebrew/lib",
+					"-lSDL2",
+					"-L/opt/homebrew/lib",
 					"-lSDL2_image",
-					"-L/usr/local/lib",
-					"-lSDL2",
-					"-L/usr/local/lib",
-					"-lSDL2",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/include/SDL2 -I/usr/local/include/SDL2 -I/usr/local/include/SDL2";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -590,8 +575,6 @@
 				SWIFT_FORCE_STATIC_LINK_STDLIB = NO;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DemoSDL2;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
@@ -609,7 +592,6 @@
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/DemoSDL2_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx @executable_path";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-I/usr/local/include/SDL2",
@@ -618,12 +600,10 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L/usr/local/lib",
+					"-L/opt/homebrew/lib",
+					"-lSDL2",
+					"-L/opt/homebrew/lib",
 					"-lSDL2_image",
-					"-L/usr/local/lib",
-					"-lSDL2",
-					"-L/usr/local/lib",
-					"-lSDL2",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/include/SDL2 -I/usr/local/include/SDL2 -I/usr/local/include/SDL2";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -631,8 +611,6 @@
 				SWIFT_FORCE_STATIC_LINK_STDLIB = NO;
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = DemoSDL2;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};
@@ -651,7 +629,6 @@
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/SwiftSDL2_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-I/usr/local/include/SDL2",
@@ -660,12 +637,10 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L/usr/local/lib",
+					"-L/opt/homebrew/lib",
+					"-lSDL2",
+					"-L/opt/homebrew/lib",
 					"-lSDL2_image",
-					"-L/usr/local/lib",
-					"-lSDL2",
-					"-L/usr/local/lib",
-					"-lSDL2",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/include/SDL2 -I/usr/local/include/SDL2 -I/usr/local/include/SDL2";
 				PRODUCT_BUNDLE_IDENTIFIER = SwiftSDL2;
@@ -675,8 +650,6 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = SwiftSDL2;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
@@ -695,7 +668,6 @@
 				);
 				INFOPLIST_FILE = SwiftSDL.xcodeproj/SwiftSDL2_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-I/usr/local/include/SDL2",
@@ -704,12 +676,10 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L/usr/local/lib",
+					"-L/opt/homebrew/lib",
+					"-lSDL2",
+					"-L/opt/homebrew/lib",
 					"-lSDL2_image",
-					"-L/usr/local/lib",
-					"-lSDL2",
-					"-L/usr/local/lib",
-					"-lSDL2",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/include/SDL2 -I/usr/local/include/SDL2 -I/usr/local/include/SDL2";
 				PRODUCT_BUNDLE_IDENTIFIER = SwiftSDL2;
@@ -719,8 +689,6 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
 				TARGET_NAME = SwiftSDL2;
-				TVOS_DEPLOYMENT_TARGET = 9.0;
-				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};

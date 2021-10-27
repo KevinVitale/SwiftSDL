@@ -32,6 +32,9 @@ $ brew install sdl2 sdl2_image
 # Pull Repo
 $ git clone https://github.com/KevinVitale/SwiftSDL.git
 
+# Check your SDL2 paths and update 'shim.h' files if Xcode complains 👀
+$ sdl2-config --libs --cflags
+
 # Run DemoSDL2
 $ cd SwiftSDL
 $ make && make run
