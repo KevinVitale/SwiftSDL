@@ -23,8 +23,8 @@ try SDL.Run { engine in
   print("Window Created: \(width) x \(height)")
   
   // Draw random rectangles --------------------------------------------------
-  func generateRandomRects() -> [SDL_Rect] {
-    return (0..<Int32.random(in: 5...10)).map({ _ in
+  func generateRandomRects(count range: ClosedRange<Int32> = 5...10) -> [SDL_Rect] {
+    return (0..<Int32.random(in: range)).map({ _ in
       SDL_Rect(x: .random(in: 0..<width),
                y: .random(in: 0..<height),
                w: .random(in: 100..<300),
