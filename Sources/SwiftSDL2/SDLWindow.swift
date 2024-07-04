@@ -2,9 +2,9 @@ import Foundation
 import CSDL2
 
 public extension UInt32 {
-    static func windowFlags(_ flags: SDLWindow.Flag...) -> UInt32 {
-        flags.reduce(0) { $0 | $1.rawValue }
-    }
+  static func windowFlags(_ flags: SDLWindow.Flag...) -> UInt32 {
+    flags.reduce(0) { $0 | $1.rawValue }
+  }
 }
 
 public final class SDLWindow: SDLPointer<SDLWindow>, SDLType {

@@ -2,7 +2,7 @@ import CSDL2
 import Foundation
 
 public extension SDL_RendererInfo {
-    var textureFormatIDs: [UInt32] {
+    var textureFormats: [UInt32] {
         var tmp = texture_formats
         return withUnsafePointer(to: &tmp.0) {
             [UInt32](UnsafeBufferPointer(start: $0, count: Int(num_texture_formats)))
@@ -10,11 +10,11 @@ public extension SDL_RendererInfo {
     }
     
     var textureFormatNames: [String] {
-        textureFormatIDs.map(SDLPixelFormat.name)
+        textureFormats.map(SDLPixelFormat.name)
     }
     
     func copyTextureFormats() -> [SDLPixelFormat] {
-        textureFormatIDs
+        textureFormats
             .compactMap(SDL_AllocFormat)
             .map(SDLPixelFormat.init)
     }

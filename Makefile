@@ -1,6 +1,6 @@
 .PHONY: build clean run 
 
-LINKER_FLAGS = -Xlinker -L/opt/homebrew/lib -Xlinker -lsdl2 -Xlinker -lsdl2_image
+LINKER_FLAGS = -Xlinker -L/opt/homebrew/lib -Xlinker -lsdl2 -Xlinker -lsdl2_image -Xlinker -lsdl2_gfx
 ARCH = $(shell uname -m)
 
 build:

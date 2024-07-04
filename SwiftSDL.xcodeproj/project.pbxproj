@@ -436,6 +436,7 @@
 					"SWIFT_PACKAGE=1",
 					"DEBUG=1",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -460,6 +461,7 @@
 					"$(inherited)",
 					"SWIFT_PACKAGE=1",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

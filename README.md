@@ -1,3 +1,11 @@
+## Notice
+I made another attempt at idomatically wrapping SDL in Swift. **Runs on Linux!**
+
+### SDLKit
+https://github.com/KevinVitale/SDLKit
+
+---
+
 # SwiftSDL
 
 [Simple DirectMedia Layer](https://libsdl.org) is a cross-platform development library designed 
@@ -62,7 +70,7 @@ try SDL.Run { engine in
     engine.handleInput = { [weak engine] in
         var event = SDL_Event()
         while(SDL_PollEvent(&event) != 0) {
-            if event.type == SDL_QUIT.rawValue {
+            if event.stype == SDL_QUIT.rawValue {
                 engine?.removeWindow(window)
                 engine?.stop()
             }

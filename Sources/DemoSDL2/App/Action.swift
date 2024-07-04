@@ -22,8 +22,12 @@ class Action: Hashable, Equatable, Updatable {
     private var    duration: TimeInterval = .zero
     private var isCancelled: Bool         = false
 
-    private var  previousUpdateTime: TimeInterval = .infinity
-    private var remainingUpdateTime: TimeInterval = .zero
+  private var  previousUpdateTime: TimeInterval = .infinity
+  private var remainingUpdateTime: TimeInterval = .zero {
+    didSet {
+      print(remainingUpdateTime)
+    }
+  }
     
     fileprivate var node: Node? = nil
 
@@ -33,14 +37,15 @@ class Action: Hashable, Equatable, Updatable {
         }
         
         if self.previousUpdateTime.isInfinite {
-            self.previousUpdateTime = timeInterval
+          self.previousUpdateTime = timeInterval
+          self.remainingUpdateTime = duration
         }
 
         self.remainingUpdateTime -= (timeInterval - self.previousUpdateTime) * self.speed
 
         if let block = self.block, self.remainingUpdateTime.isLessThanOrEqualTo(.zero) {
             block(self.remainingUpdateTime)
-            self.remainingUpdateTime = self.duration
+            self.remainingUpdateTime += self.duration
         }
         
         if self.repeats == false {
@@ -68,7 +73,7 @@ extension Action {
         block(self)
     }
     
-    open class func move(by delta: (x: Float, y: Float), duration: TimeInterval) -> Action {
+    public class func move(by delta: (x: Float, y: Float), duration: TimeInterval) -> Action {
         Action(atInterval: duration) { (node, elapsedTime) in
             let xPos = delta.x * Float(elapsedTime)
             let yPos = delta.y * Float(elapsedTime)
@@ -76,16 +81,16 @@ extension Action {
         }
     }
     
-    open class func customAction(duration: TimeInterval, _ callback: @escaping (_ node: Node, _ elapsedTime: TimeInterval) -> ()) -> Action {
+    public class func customAction(duration: TimeInterval, _ callback: @escaping (_ node: Node, _ elapsedTime: TimeInterval) -> ()) -> Action {
         Action(atInterval: duration, callback)
     }
     
-    open class func repeatsForever(_ action: Action) -> Action {
+    public class func repeatsForever(_ action: Action) -> Action {
         action.repeats = true
         return action
     }
     
-    open class func animate(_ textures: [SDLTexture], frameDuration: TimeInterval) -> Action {
+    public class func animate(_ textures: [SDLTexture], frameDuration: TimeInterval) -> Action {
         var textureIndex = textures.startIndex
         return Action(atInterval: frameDuration) { node, elapsedTime in
             if let node = node as? SpriteNode {

@@ -32,6 +32,17 @@ try SDL.Run { engine in
     })
   }
   
+  // Draw random cirlces --------------------------------------------------
+  func generateRandomCircles(count range: ClosedRange<Int32> = 5...10) -> [(x: Sint16, y: Sint16, rad: Sint16, color: SDL_Color)] {
+    return (0..<Int32.random(in: range)).map({ _ in
+      let x = Sint16((Int16.random(in: 0..<Int16(width))))
+      let y = Sint16((Int16.random(in: 0..<Int16(height))))
+      let r = Sint16((Int16.random(in: Int16(100)..<Int16(300))))
+      let c = randomColor()
+      return (x: x, y: y, rad: r, color: c)
+    })
+  }
+  
   // Generates a random color ------------------------------------------------
   func randomColor() -> SDL_Color {
     SDL_Color(r: .random(in: 0..<(.max)),
@@ -41,8 +52,9 @@ try SDL.Run { engine in
   }
   
   // Game state --------------------------------------------------------------
-  var randomRects = generateRandomRects()
-  var rectColor   = randomColor()
+  var randomCircles = generateRandomCircles()
+  var randomRects   = generateRandomRects()
+  var rectColor     = randomColor()
   
   // Handle input ------------------------------------------------------------
   engine.handleInput = { [weak engine] in
@@ -58,6 +70,7 @@ try SDL.Run { engine in
         case SDLK_RETURN:
           rectColor = randomColor()
           if event.key.repeat == 0 && event.key.state == SDL_PRESSED {
+            randomCircles = generateRandomCircles()
             randomRects = generateRandomRects()
           }
         default: ()
@@ -72,6 +85,21 @@ try SDL.Run { engine in
     renderer.result(of: SDL_SetRenderDrawColor, 255, 255, 255, 255)
     renderer.result(of: SDL_RenderClear)
     
+    /*
+    randomCircles.forEach {
+      var currentCircle = $0
+      renderer.result(of: circleColorRGBA,
+                      currentCircle.x,
+                      currentCircle.y,
+                      currentCircle.rad,
+                      currentCircle.color.r,
+                      currentCircle.color.g,
+                      currentCircle.color.b,
+                      currentCircle.color.a
+      )
+    }
+     */
+     
     randomRects.forEach {
       var currectRect = $0
       renderer.result(of: SDL_SetRenderDrawColor, rectColor.r, rectColor.g, rectColor.b, 255)

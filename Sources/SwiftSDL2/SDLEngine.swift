@@ -1,6 +1,12 @@
 import CSDL2
 import Foundation
 
+extension SDL_version: CustomStringConvertible {
+  public var description: String {
+    "\(major).\(minor).\(patch)"
+  }
+}
+
 public struct SDL {
     public final class Engine {
         public typealias InputHandler   = () -> ()

@@ -3,11 +3,13 @@ import CSDL2
 import CSDL2_Image
 
 public final class SDLTexture: SDLPointer<SDLTexture>, SDLType {
+  
+  
     public static func destroy(pointer: OpaquePointer) {
         SDL_DestroyTexture(pointer)
     }
     
-    private func query() throws -> Result<(pixelFormat: UInt32, access: Int32, width: Int32, height: Int32),Error> {
+    private func query() throws -> Result<(pixelFormat: UInt32, access: Int32, width: Int32, height: Int32), Error> {
         var pixelFormat  : UInt32 = 0
         var access       : Int32  = 0
         var width        : Int32  = 0
