@@ -1,7 +1,7 @@
-## Notice
+# 🚨 Attention 🚨
 I made another attempt at idomatically wrapping SDL in Swift. **Runs on Linux!**
 
-### SDLKit
+## SDLKit
 https://github.com/KevinVitale/SDLKit
 
 ---
