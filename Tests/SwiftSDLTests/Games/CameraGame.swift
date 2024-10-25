@@ -18,7 +18,7 @@ final class CameraGame: Game {
     try SDL_Init(.camera)
     
     #if os(Linux)
-    print("Create renderer:", try window.get(SDL_CreateRenderer, nil))
+    print("Create renderer:", try window(SDL_CreateRenderer, nil))
     #else
     #endif
 
@@ -30,6 +30,8 @@ final class CameraGame: Game {
   
   func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {
     try scene.update(window: window, at: delta)
+    try scene.draw(try window.surface.get())
+    try window.updateSurface()
   }
   
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {

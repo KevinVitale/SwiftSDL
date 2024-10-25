@@ -31,4 +31,8 @@ open class BaseScene: SceneNode, Scene {
   
   open func update(window: any Window, at delta: Tick) throws(SDL_Error) {
   }
+  
+  @MainActor
+  open func draw(_ surface: any Surface) throws(SDL_Error) {
+  }
 }

@@ -1,0 +1,5 @@
+module CSDL3_TTF [system][extern_c] {
+  header "sdl3_ttf.h"
+  link "SDL3"
+  export *
+}

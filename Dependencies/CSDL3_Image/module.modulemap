@@ -1,0 +1,5 @@
+module CSDL3_Image [system][extern_c] {
+  header "sdl3_image.h"
+  link "SDL3"
+  export *
+}

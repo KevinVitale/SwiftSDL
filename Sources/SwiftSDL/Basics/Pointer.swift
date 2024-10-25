@@ -25,7 +25,7 @@ public final class SDLObject<Pointer: SDLPointer>: SDLObjectProtocol {
 
 extension SDLObjectProtocol {
   @discardableResult
-  public func get<Value, each Argument>(_ block: (Pointer.Value, repeat each Argument) -> Value?, _ argument: repeat each Argument) throws(SDL_Error) -> Value {
+  public func callAsFunction<Value, each Argument>(_ block: (Pointer.Value, repeat each Argument) -> Value?, _ argument: repeat each Argument) throws(SDL_Error) -> Value {
     guard let value = block(pointer, repeat each argument) else {
       throw SDL_Error.error
     }
@@ -34,7 +34,7 @@ extension SDLObjectProtocol {
   
   @discardableResult
   @MainActor
-  public func set<each Argument>(_ block: (Pointer.Value, repeat each Argument) -> Bool, _ arguments: repeat each Argument) throws(SDL_Error) -> Self {
+  public func callAsFunction<each Argument>(_ block: (Pointer.Value, repeat each Argument) -> Bool, _ arguments: repeat each Argument) throws(SDL_Error) -> Self {
     guard block(pointer, repeat each arguments) else {
       throw SDL_Error.error
     }

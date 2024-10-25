@@ -10,6 +10,11 @@ final class TestGame: Game {
   private var scene: Scene!
   
   func onReady(window: any Window) throws(SDL_Error) {
+    /*
+    IMG_Init(.png)
+    TTF_Init()
+     */
+    
     scene = .init(size: try window.size(as: Float.self))
   }
   
@@ -31,13 +36,17 @@ final class TestGame: Game {
   }
   
   func onShutdown(window: any Window) throws(SDL_Error) {
+    /*
+    TTF_Quit()
+    IMG_Quit()
+     */
   }
 }
 
 fileprivate final class TestScene: BaseScene {
   override func update(window: any Window, at delta: Tick) throws(SDL_Error) {
     try _draw(try window.surface.get())
-    try window.set(SDL_UpdateWindowSurface)
+    try window.updateSurface()
   }
   
   @MainActor private func _draw(_ surface: any Surface) throws(SDL_Error) {

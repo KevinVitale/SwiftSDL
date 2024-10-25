@@ -20,7 +20,17 @@ extension SDL_MouseMotionEvent {
   }
   
   public func position<S: SIMDScalar>(as type: S.Type) -> SIMD2<S> where S: BinaryFloatingPoint {
+    Point(x: Float(x), y: Float(y)).to(type)
+  }
+}
+
+extension SDL_TouchFingerEvent {
+  public func position<S: SIMDScalar>(as type: S.Type) -> SIMD2<S> where S: FixedWidthInteger {
     Point(x: Int32(x), y: Int32(y)).to(type)
+  }
+  
+  public func position<S: SIMDScalar>(as type: S.Type) -> SIMD2<S> where S: BinaryFloatingPoint {
+    Point(x: Float(x), y: Float(y)).to(type)
   }
 }
 

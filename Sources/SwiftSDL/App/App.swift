@@ -1,6 +1,6 @@
 @MainActor final class App: Sendable {
   private init() { }
-
+  
   static let shared = App()
   
   private var gameType: Game.Type!
@@ -17,77 +17,81 @@
       throw SDL_Error.error
     }
     
-    SDL_EnterAppMainCallbacks(
-      CommandLine.argc,
-      CommandLine.unsafeArgv,
-      { state, argc, argv in
-        do {
-          let game = App.shared.gameType.init()
-          let window = try game.onInit()
-          
-          let appState = State(game: AnyGame(game), window: AnyWindow(window))
-          state?.pointee = Unmanaged.passRetained(appState).toOpaque()
-          
-          try game.onReady(window: window)
-          
-          return .continue
-        } catch {
-          return .failure
-        }
-      },
-      { state in
-        do {
-          let ticks = Tick(value: Double(SDL_GetTicksNS()), unit: .nanoseconds)
-          if App.shared.ticks.value == .infinity {
-            App.shared.ticks = ticks
-          }
-          
-          let delta = Tick(
-            value: ticks.value - App.shared.ticks.value,
-            unit: .nanoseconds
-          )
-          
-          App.shared.ticks = ticks
-          
-          let appState = Unmanaged<State>.fromOpaque(state!).takeUnretainedValue()
-          try appState.game.onUpdate(window: appState.window, delta)
-          
-          return .continue
-        } catch {
-          return .failure
-        }
-      },
-      { state, event in
-        guard let event = event?.pointee else {
-          return .failure
-        }
-        do {
-          guard event.eventType != .quit else {
-            return .success
-          }
-          
-          let appState = Unmanaged<State>.fromOpaque(state!).takeUnretainedValue()
-          try appState.game.onEvent(window: appState.window, event)
-          
-          return .continue
-        } catch {
-          return .failure
-        }
-      },
-      { state, result in
-        let error: SDL_Error? = (result == .failure ? .error : nil)
-        if let error = error { debugPrint(error) }
+    SDL_RunApp(CommandLine.argc, CommandLine.unsafeArgv, { argc, argv in
+      App._startCallbacks(argc, argv)
+      return 0
+    }, nil)
+  }
+  
+  private static func _startCallbacks(
+    _ argc: Int32,
+    _ argv: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
+  ) {
+    SDL_EnterAppMainCallbacks(argc, argv, { state, argc, argv in
+      /* onInit */
+      do {
+        let game = App.shared.gameType.init()
+        let window = try game.onInit()
         
-        let appStatePtr = Unmanaged<State>.fromOpaque(state!)
-        let window = appStatePtr.takeUnretainedValue().window
-        let game = appStatePtr.takeUnretainedValue().game
+        let appState = State(game: AnyGame(game), window: AnyWindow(window))
+        state?.pointee = Unmanaged.passRetained(appState).toOpaque()
         
-        try? game.onShutdown(window: window)
-        game.onQuit(error)
+        try game.onReady(window: window)
         
-        appStatePtr.release() // destroys 'window'
+        return .continue
+      } catch {
+        return .failure
       }
-    )
+    }, /* onIterate */ { state in
+      do {
+        let ticks = Tick(value: Double(SDL_GetTicksNS()), unit: .nanoseconds)
+        if App.shared.ticks.value == .infinity {
+          App.shared.ticks = ticks
+        }
+        
+        let delta = Tick(
+          value: ticks.value - App.shared.ticks.value,
+          unit: .nanoseconds
+        )
+        
+        App.shared.ticks = ticks
+        
+        let appState = Unmanaged<State>.fromOpaque(state!).takeUnretainedValue()
+        try appState.game.onUpdate(window: appState.window, delta)
+        
+        return .continue
+      } catch {
+        return .failure
+      }
+    }, /* onEvent */ { state, event in
+      guard let event = event?.pointee else {
+        return .failure
+      }
+      do {
+        guard event.eventType != .quit else {
+          return .success
+        }
+        
+        let appState = Unmanaged<State>.fromOpaque(state!).takeUnretainedValue()
+        try appState.game.onEvent(window: appState.window, event)
+        
+        return .continue
+      } catch {
+        return .failure
+      }
+    }, /* onQuit */ { state, result in
+      let error: SDL_Error? = (result == .failure ? .error : nil)
+      if let error = error { debugPrint(error) }
+      
+      let appStatePtr = Unmanaged<State>.fromOpaque(state!)
+      let window = appStatePtr.takeUnretainedValue().window
+      let game = appStatePtr.takeUnretainedValue().game
+      
+      try? game.onShutdown(window: window)
+      game.onQuit(error)
+      
+      appStatePtr.release() // destroys 'window'
+    })
   }
 }
 

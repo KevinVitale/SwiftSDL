@@ -15,6 +15,12 @@ extension Window {
       .resultOf(SDL_GetWindowSurface)
       .map(SDLObject.init(pointer:))
   }
+  
+  public var renderer: Result<any Renderer, SDL_Error> {
+    self
+      .resultOf(SDL_GetRenderer)
+      .map(SDLObject.init(pointer:))
+  }
 
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
@@ -34,12 +40,12 @@ extension Window {
   
   @discardableResult
   public func set(size: Size<Int32>) throws(SDL_Error) -> some Window {
-    try self.set(SDL_SetWindowSize, size.x, size.y)
+    try self(SDL_SetWindowSize, size.x, size.y)
   }
   
   @discardableResult
   public func updateSurface() throws(SDL_Error) -> some Window {
-    try self.set(SDL_UpdateWindowSurface)
+    try self(SDL_UpdateWindowSurface)
   }
 }
 

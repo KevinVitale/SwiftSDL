@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "fileio": "cpp",
+    "bitset": "cpp",
+    "forward_list": "cpp"
+  }
+}

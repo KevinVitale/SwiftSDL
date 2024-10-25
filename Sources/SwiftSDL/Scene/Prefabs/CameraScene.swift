@@ -14,16 +14,27 @@ public final class CameraScene: BaseScene {
     super.init(label)
   }
   
-  public override func update(window: any Window, at delta: Tick) throws(SDL_Error) {
-    try _draw(try window.surface.get())
-    try window.set(SDL_UpdateWindowSurface)
-  }
-  
-  @MainActor private func _draw(_ surface: any Surface) throws(SDL_Error) {
+  public override func draw(_ surface: any Surface) throws(SDL_Error) {
+    var rect: SDL_Rect! = nil
+    
+    if size != .zero {
+      let bounds: SDL_FRect = [
+        position.x, position.y,
+        size.x, size.y
+      ]
+      rect = bounds.to(Int32.self)
+    }
+    
     try surface.clear(color: bgColor)
     
     if case(.success(let frame)) = camera?.frame, let frame = frame.0 {
-      SDL_BlitSurfaceScaled(frame.pointer, nil, surface.pointer, nil, SDL_SCALEMODE_NEAREST)
+      try frame(
+        SDL_BlitSurfaceScaled,
+        nil,
+        surface.pointer,
+        .some(&rect),
+        SDL_SCALEMODE_NEAREST
+      )
     }
   }
 }
