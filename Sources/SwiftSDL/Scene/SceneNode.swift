@@ -1,4 +1,4 @@
-open class SceneNode: Hashable, CustomDebugStringConvertible {
+open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   public typealias Child    = SceneNode
   public typealias Children = TreeSet<Child>
   public typealias Actions  = OrderedSet<SceneAction<SceneNode>>
@@ -24,9 +24,8 @@ open class SceneNode: Hashable, CustomDebugStringConvertible {
   public var parent: Parent = .none
   public private(set) var children: Children = []
   
-  @ActionSet var actions: Actions = []
-  
-  public var userData: Dictionary<String, Any> = [:]
+  // @ActionSet var actions: Actions = []
+  // public var userData: Dictionary<String, Any> = [:]
   
   public var debugDescription: String {
     """
@@ -84,14 +83,8 @@ open class SceneNode: Hashable, CustomDebugStringConvertible {
 }
 
 extension SceneNode {
-  func detach(action: Actions.Element) {
-    actions.removeAll(where: { $0 == action })
-  }
-}
-
-extension SceneNode {
   @dynamicMemberLookup
-  public enum Parent: Hashable, CustomDebugStringConvertible {
+  public enum Parent: Decodable, Hashable, CustomDebugStringConvertible {
     case none
     case parent(SceneNode)
     
@@ -130,6 +123,16 @@ extension SceneNode {
   }
 }
 
+
+/*
+extension SceneNode {
+  func detach(action: Actions.Element) {
+    actions.removeAll(where: { $0 == action })
+  }
+}
+ */
+
+/*
 extension SceneNode {
   @propertyWrapper
   struct ActionSet {
@@ -149,3 +152,4 @@ extension SceneNode {
     }
   }
 }
+*/

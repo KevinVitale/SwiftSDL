@@ -2,18 +2,20 @@ public func SDL_GetBasePath() throws(SDL_Error) -> String {
   guard let basePath = SDL_GetBasePath() else {
     throw SDL_Error.error
   }
-
+  
   return String(cString: basePath)
 }
 
-public func GetNearbyFilename(filename file: String) throws(SDL_Error) -> String {
-  try SDL_GetBasePath()
-}
+
+import class Foundation.ProcessInfo
 
 extension Bundle {
-  public static func bundles(
-    matching filter: (URL) throws -> Bool,
-    relativeTo basePath: String? = ((try? SDL_GetBasePath()) ?? Bundle.main.resourcePath) 
+  public static func resourceBundles(
+    matching filter: (URL) throws -> Bool = {
+      // By default, we look filter the bundles that contain the executable name
+      $0.lastPathComponent.contains(ProcessInfo.processInfo.processName)
+    },
+    relativeTo basePath: String? = ((try? SDL_GetBasePath()) ?? Bundle.main.resourcePath)
   ) -> [Bundle] {
     var matches: [String] = []
     guard let result = basePath?.completePath(
@@ -26,16 +28,15 @@ extension Bundle {
     guard result > 0 else {
       return []
     }
-
+    
     return (try? matches
-        .compactMap({ URL(string: "file://\($0)") })
-        .filter({
-          $0.lastPathComponent.hasSuffix(".bundle") ||
-          $0.lastPathComponent.hasSuffix(".resources")
-        })
+      .compactMap({ URL(string: "file://\($0)") })
+      .filter({
+        $0.lastPathComponent.hasSuffix(".bundle") ||
+        $0.lastPathComponent.hasSuffix(".resources")
+      })
         .filter(filter)
-        .compactMap(Bundle.init(url:)) 
-      ) ?? []
+        .compactMap(Bundle.init(url:))
+    ) ?? []
   }
 }
-

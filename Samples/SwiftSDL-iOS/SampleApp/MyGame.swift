@@ -6,10 +6,10 @@
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait")
     SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1")
   }
-
-  public static private(set) var name: String = ""
-  public static private(set) var version: String = ""
-  public static private(set) var identifier: String = ""
+  
+  public static let name: String = ""
+  public static let version: String = ""
+  public static let identifier: String = ""
   
   private var scene: CameraScene!
 
@@ -25,11 +25,12 @@
   }
   
   public func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {
-    try scene.update(window: window, at: delta)
+    try scene.update(at: delta)
     try self.drawSquare(surface: try window.surface.get())
     try window.updateSurface()
   }
   
+  @MainActor
   private func drawSquare(surface: any Surface) throws(SDL_Error) {
     let squareFrame: SDL_FRect = [
       squareNode.position.x, squareNode.position.y,

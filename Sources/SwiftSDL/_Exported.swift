@@ -18,6 +18,10 @@
 @_exported import Collections
 #endif
 
+#if canImport(ArgumentParser)
+@_exported import ArgumentParser
+#endif
+
 public protocol SDL_Flag:
   RawRepresentable,
   CaseIterable,

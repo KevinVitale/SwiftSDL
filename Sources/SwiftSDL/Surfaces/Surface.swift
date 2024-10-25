@@ -1,3 +1,4 @@
+
 public final class SurfacePtr: SDLPointer {
   public static func destroy(_ pointer: UnsafeMutablePointer<SDL_Surface>) {
     SDL_DestroySurface(pointer)
@@ -36,7 +37,7 @@ extension Surface {
   public func fill(rects: SDL_Rect..., color: SDL_Color) throws(SDL_Error) -> Self {
     try self.fill(rects: rects, color: color)
   }
-
+  
   @discardableResult
   public func fill(rects: [SDL_Rect], color: SDL_Color) throws(SDL_Error) -> Self {
     try self(
@@ -46,13 +47,40 @@ extension Surface {
       try map(color: color)
     )
   }
-
-  @discardableResult
-  public func load(bitmap file: String, relativePath: String? = nil) throws -> any Surface {
-    guard let pointer = SDL_LoadBMP(file) else {
-      throw SDL_Error.error
-    }
-
-    return SDLObject(pointer: pointer)
+  
+  public func blit() {
   }
+}
+
+@discardableResult
+public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SDL_Error) -> any Surface {
+  guard let pointer = SDL_LoadBMP(file) else {
+    throw SDL_Error.error
+  }
+  
+  return SDLObject(pointer: pointer)
+}
+
+@discardableResult
+public func SDL_Load(
+  bitmap file: String,
+  searchingBundles bundles: [Bundle] = Bundle.resourceBundles(),
+  inDirectory directory: String? = nil) throws(SDL_Error) -> any Surface
+{
+  guard let filePath = bundles.compactMap({ bundle in
+    bundle.path(
+      forResource: file,
+      ofType: nil,
+      inDirectory: directory
+    )
+  }).first else {
+    SDL_LoadBMP(nil)
+    throw SDL_Error.error
+  }
+  
+  guard let pointer = SDL_LoadBMP(filePath) else {
+    throw SDL_Error.error
+  }
+  
+  return SDLObject(pointer: pointer)
 }

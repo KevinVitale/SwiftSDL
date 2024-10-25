@@ -22,6 +22,14 @@ extension SDL_MouseMotionEvent {
   public func position<S: SIMDScalar>(as type: S.Type) -> SIMD2<S> where S: BinaryFloatingPoint {
     Point(x: Float(x), y: Float(y)).to(type)
   }
+  
+  public func relative<S: SIMDScalar>(as type: S.Type) -> SIMD2<S> where S: FixedWidthInteger {
+    Point(x: Int32(xrel), y: Int32(yrel)).to(type)
+  }
+  
+  public func relative<S: SIMDScalar>(as type: S.Type) -> SIMD2<S> where S: BinaryFloatingPoint {
+    Point(x: Float(xrel), y: Float(yrel)).to(type)
+  }
 }
 
 extension SDL_TouchFingerEvent {
@@ -91,7 +99,7 @@ extension SDL_EventType: @retroactive CaseIterable, @retroactive CustomDebugStri
       .keyboardAdded,
       .keyboardRemoved,
       .textEditingCandidates,
-      .mouseMove,
+      .mouseMotion,
       .mouseButtonDown,
       .mouseButtonUp,
       .mouseWheel,
@@ -208,7 +216,7 @@ extension SDL_EventType: @retroactive CaseIterable, @retroactive CustomDebugStri
       case .keyboardAdded: return "keyboardAdded"
       case .keyboardRemoved: return "keyboardRemoved"
       case .textEditingCandidates: return "textEditingCandidates"
-      case .mouseMove: return "mouseMove"
+      case .mouseMotion: return "mouseMove"
       case .mouseButtonDown: return "mouseButtonDown"
       case .mouseButtonUp: return "mouseButtonUp"
       case .mouseWheel: return "mouseWheel"
@@ -324,7 +332,7 @@ extension SDL_EventType: @retroactive CaseIterable, @retroactive CustomDebugStri
   public static let keyboardAdded = SDL_EVENT_KEYBOARD_ADDED
   public static let keyboardRemoved = SDL_EVENT_KEYBOARD_REMOVED
   public static let textEditingCandidates = SDL_EVENT_TEXT_EDITING_CANDIDATES
-  public static let mouseMove = SDL_EVENT_MOUSE_MOTION
+  public static let mouseMotion = SDL_EVENT_MOUSE_MOTION
   public static let mouseButtonDown = SDL_EVENT_MOUSE_BUTTON_DOWN
   public static let mouseButtonUp = SDL_EVENT_MOUSE_BUTTON_UP
   public static let mouseWheel = SDL_EVENT_MOUSE_WHEEL

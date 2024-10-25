@@ -14,6 +14,10 @@ public final class CameraScene: BaseScene {
     super.init(label)
   }
   
+  public required init(from decoder: any Decoder) throws {
+    try super.init(from: decoder)
+  }
+  
   public override func draw(_ surface: any Surface) throws(SDL_Error) {
     var rect: SDL_Rect! = nil
     

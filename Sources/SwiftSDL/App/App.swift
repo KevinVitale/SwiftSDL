@@ -1,98 +1,10 @@
-@MainActor final class App: Sendable {
+final class App {
   private init() { }
   
-  static let shared = App()
+  @MainActor static let shared = App()
   
-  private var gameType: Game.Type!
-  private var ticks = Tick(value: .infinity, unit: .nanoseconds)
-  
-  static func run(_ gameType: Game.Type) throws {
-    shared.gameType = gameType
-    
-    guard SDL_SetAppMetadata(
-      shared.gameType.name,
-      shared.gameType.version,
-      shared.gameType.identifier)
-    else {
-      throw SDL_Error.error
-    }
-    
-    SDL_RunApp(CommandLine.argc, CommandLine.unsafeArgv, { argc, argv in
-      App._startCallbacks(argc, argv)
-      return 0
-    }, nil)
-  }
-  
-  private static func _startCallbacks(
-    _ argc: Int32,
-    _ argv: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
-  ) {
-    SDL_EnterAppMainCallbacks(argc, argv, { state, argc, argv in
-      /* onInit */
-      do {
-        let game = App.shared.gameType.init()
-        let window = try game.onInit()
-        
-        let appState = State(game: AnyGame(game), window: AnyWindow(window))
-        state?.pointee = Unmanaged.passRetained(appState).toOpaque()
-        
-        try game.onReady(window: window)
-        
-        return .continue
-      } catch {
-        return .failure
-      }
-    }, /* onIterate */ { state in
-      do {
-        let ticks = Tick(value: Double(SDL_GetTicksNS()), unit: .nanoseconds)
-        if App.shared.ticks.value == .infinity {
-          App.shared.ticks = ticks
-        }
-        
-        let delta = Tick(
-          value: ticks.value - App.shared.ticks.value,
-          unit: .nanoseconds
-        )
-        
-        App.shared.ticks = ticks
-        
-        let appState = Unmanaged<State>.fromOpaque(state!).takeUnretainedValue()
-        try appState.game.onUpdate(window: appState.window, delta)
-        
-        return .continue
-      } catch {
-        return .failure
-      }
-    }, /* onEvent */ { state, event in
-      guard let event = event?.pointee else {
-        return .failure
-      }
-      do {
-        guard event.eventType != .quit else {
-          return .success
-        }
-        
-        let appState = Unmanaged<State>.fromOpaque(state!).takeUnretainedValue()
-        try appState.game.onEvent(window: appState.window, event)
-        
-        return .continue
-      } catch {
-        return .failure
-      }
-    }, /* onQuit */ { state, result in
-      let error: SDL_Error? = (result == .failure ? .error : nil)
-      if let error = error { debugPrint(error) }
-      
-      let appStatePtr = Unmanaged<State>.fromOpaque(state!)
-      let window = appStatePtr.takeUnretainedValue().window
-      let game = appStatePtr.takeUnretainedValue().game
-      
-      try? game.onShutdown(window: window)
-      game.onQuit(error)
-      
-      appStatePtr.release() // destroys 'window'
-    })
-  }
+  var game: AnyGame!
+  var ticks = Tick(value: .infinity, unit: .nanoseconds)
 }
 
 public struct SDL_AppMetadataFlags: RawRepresentable, Sendable {
@@ -136,19 +48,19 @@ extension SDL_AppResult: @retroactive CaseIterable, @retroactive CustomDebugStri
 
 public typealias Tick = Measurement<UnitDuration>
 
-fileprivate struct AnyWindow {
+struct AnyWindow {
   init(_ base: some Window) { self.base = base }
   let base: Any
 }
 
-fileprivate struct AnyGame {
+struct AnyGame {
   init(_ base: some Game) { self.base = base }
   let base: Any
 }
 
 extension App {
-  fileprivate final class State {
-    fileprivate init(game: AnyGame, window: AnyWindow) {
+  final class State {
+    init(game: AnyGame, window: AnyWindow) {
       self._game = game
       self._window = window
     }

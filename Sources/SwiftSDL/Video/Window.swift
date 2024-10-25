@@ -21,7 +21,15 @@ extension Window {
       .resultOf(SDL_GetRenderer)
       .map(SDLObject.init(pointer:))
   }
-
+  
+  @discardableResult
+  public func createRenderer() throws(SDL_Error) -> any Renderer {
+    try self
+      .resultOf(SDL_CreateRenderer, nil)
+      .map(SDLObject<RendererPtr>.init(pointer:))
+      .get()
+  }
+  
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetWindowSize, .some(&width), .some(&height)) else {
@@ -43,6 +51,23 @@ extension Window {
     try self(SDL_SetWindowSize, size.x, size.y)
   }
   
+  public var title: Result<String, SDL_Error> {
+    self
+      .resultOf(SDL_GetWindowTitle)
+      .map(String.init(cString:))
+  }
+
+  @discardableResult
+  public func set(title: String) throws(SDL_Error) -> some Window {
+    // - FIXME: SDL_SetWindowTitle
+    // 'callAsFunction' not working as expected?
+    // Forced to invoke the C-function explicitly.
+    guard SDL_SetWindowTitle(pointer, title.cString(using: .utf8)) else {
+      throw SDL_Error.error
+    }
+    return self
+  }
+
   @discardableResult
   public func updateSurface() throws(SDL_Error) -> some Window {
     try self(SDL_UpdateWindowSurface)

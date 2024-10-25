@@ -1,5 +1,5 @@
 extension Flags {
-  public enum BlendMode: SDL_Flag {
+  public enum BlendMode: SDL_Flag, Decodable {
     public init(rawValue: Uint32) {
       switch rawValue {
         case SDL_BLENDMODE_NONE:                self = .none
@@ -36,16 +36,16 @@ extension Flags {
       }
     }
     
-    public var rawValue: SDL_InitFlags {
+    public var rawValue: UInt32 {
       switch self {
-        case .none:        return SDL_INIT_AUDIO
-        case .blend:       return SDL_INIT_VIDEO
-        case .blendPremul: return SDL_INIT_JOYSTICK
-        case .add:         return SDL_INIT_HAPTIC
-        case .addPremul:   return SDL_INIT_GAMEPAD
-        case .mod:         return SDL_INIT_EVENTS
-        case .mul:         return SDL_INIT_SENSOR
-        case .invalid:     return SDL_INIT_CAMERA
+        case .none:        return SDL_BLENDMODE_NONE
+        case .blend:       return SDL_BLENDMODE_BLEND
+        case .blendPremul: return SDL_BLENDMODE_BLEND_PREMULTIPLIED
+        case .add:         return SDL_BLENDMODE_ADD
+        case .addPremul:   return SDL_BLENDMODE_ADD_PREMULTIPLIED
+        case .mod:         return SDL_BLENDMODE_MOD
+        case .mul:         return SDL_BLENDMODE_MUL
+        case .invalid:     return SDL_BLENDMODE_INVALID
       }
     }
     
@@ -63,3 +63,22 @@ extension Flags {
     }
   }
 }
+
+extension Flags.BlendMode: ExpressibleByArgument {
+  public var defaultValueDescription: String {
+    Self.none.debugDescription
+  }
+  
+  public static var allValueStrings: [String] {
+    Self.allCases.filter({
+      switch $0 {
+        case .add: fallthrough
+        case .blend: fallthrough
+        case .mul: fallthrough
+        case .mod: return true
+        default: return false
+      }
+    }).map(\.debugDescription)
+  }
+}
+

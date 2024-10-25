@@ -9,14 +9,15 @@ let package = Package(
     .macOS(.v10_15),
   ],
   products: [
-    .library(name: "SwiftSDL", targets: ["SwiftSDL"])
+    .library(name: "SwiftSDL", targets: ["SwiftSDL"]),
+    .executable(name: "sdl", targets: ["SwiftSDL-TestBench"])
   ],
   dependencies: [
     // .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
     .package(url: "https://github.com/apple/swift-collections.git", .upToNextMinor(from: "1.1.4")),
   ],
   targets: [
-    .binaryTarget(name: "SDL3", path: "Dependencies/SDL3.xcframework"),
     .systemLibrary(
       name: "CSDL3",
       path: "Dependencies/CSDL3",
@@ -24,38 +25,28 @@ let package = Package(
       providers: [
         .apt(["libsdl3-dev"])
       ]),
-    /*
-    .systemLibrary(
-      name: "CSDL3_Image",
-      path: "Dependencies/CSDL3_Image",
-      pkgConfig: "sdl3-image",
-      providers: [
-        .apt(["libsdl3_image-dev"])
-      ]),
-    .systemLibrary(
-      name: "CSDL3_TTF",
-      path: "Dependencies/CSDL3_TTF",
-      pkgConfig: "sdl3-ttf",
-      providers: [
-        .apt(["libsdl3_ttf-dev"])
-      ]),
-     */
     .target(
       name: "SwiftSDL",
       dependencies: [
         .target(name: "CSDL3"),
-        // .target(name: "CSDL3_Image"),
-        // .target(name: "CSDL3_TTF"),
-        .product(name: "Collections", package: "swift-collections")
+        .product(name: "Collections", package: "swift-collections"),
+        .product(name: "ArgumentParser", package: "swift-argument-parser")
       ]
     ),
-    .testTarget(
-      name: "SwiftSDLTests",
-      dependencies: ["SwiftSDL"],
+    .executableTarget(
+      name: "SwiftSDL-TestBench",
+      dependencies: [
+        "SwiftSDL",
+      ],
+      path: "Samples/SwiftSDL-TestBench",
+      resources: [
+        .process("Resources/")
+      ],
       linkerSettings: [
         .unsafeFlags([
-          "-Xlinker", "-rpath", "-Xlinker", "/usr/local/lib"
-        ])
+          "-Xlinker", "-F", "-Xlinker", "/usr/local/lib",
+          "-Xlinker", "-rpath", "-Xlinker", "/usr/local/lib",
+        ], .when(platforms: [.macOS]))
       ]
     )
   ]

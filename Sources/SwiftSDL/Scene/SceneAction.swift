@@ -43,7 +43,8 @@ public final class SceneAction<Node: SceneNode>: Equatable, Hashable {
       }
       else {
         isCancelled.toggle()
-        node.detach(action: self as! Node.Actions.Element)
+        // FIXME: restore 'detach'
+        // node.detach(action: self as! Node.Actions.Element)
       }
       return
     }
