@@ -1,4 +1,3 @@
-
 public final class SurfacePtr: SDLPointer {
   public static func destroy(_ pointer: UnsafeMutablePointer<SDL_Surface>) {
     SDL_DestroySurface(pointer)
@@ -6,11 +5,18 @@ public final class SurfacePtr: SDLPointer {
 }
 
 @MainActor
+@dynamicMemberLookup
 public protocol Surface: SDLObjectProtocol where Pointer == SurfacePtr { }
 
 extension SDLObject<SurfacePtr>: Surface { }
 
 extension Surface {
+  public subscript<T>(dynamicMember keyPath: KeyPath<SDL_Surface, T>) -> T {
+    self.pointer.withMemoryRebound(to: SDL_Surface.self, capacity: 1) {
+      $0.pointee[keyPath: keyPath]
+    }
+  }
+  
   @discardableResult
   public func clear(color: SDL_Color? = nil) throws(SDL_Error) -> Self {
     let bgColor = color ?? .black
