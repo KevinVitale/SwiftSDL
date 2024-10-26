@@ -5,11 +5,18 @@ public final class TexturePtr: SDLPointer {
 }
 
 @MainActor
+@dynamicMemberLookup
 public protocol Texture: SDLObjectProtocol where Pointer == TexturePtr { }
 
 extension SDLObject<TexturePtr>: Texture { }
 
 extension Texture {
+  public subscript<T>(dynamicMember keyPath: KeyPath<SDL_Texture, T>) -> T {
+    self.pointer.withMemoryRebound(to: SDL_Texture.self, capacity: 1) {
+      $0.pointee[keyPath: keyPath]
+    }
+  }
+  
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Float(), height = Float()
     guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
