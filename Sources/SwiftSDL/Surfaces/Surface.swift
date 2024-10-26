@@ -53,9 +53,6 @@ extension Surface {
       try map(color: color)
     )
   }
-  
-  public func blit() {
-  }
 }
 
 @discardableResult
