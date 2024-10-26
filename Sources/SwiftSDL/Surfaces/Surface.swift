@@ -17,6 +17,10 @@ extension Surface {
     }
   }
   
+  public var size: Size<Int32> {
+    [self.w, self.h]
+  }
+  
   @discardableResult
   public func clear(color: SDL_Color? = nil) throws(SDL_Error) -> Self {
     let bgColor = color ?? .black
