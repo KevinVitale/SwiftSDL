@@ -24,12 +24,22 @@ extension Window {
   
   @discardableResult
   public func createRenderer() throws(SDL_Error) -> any Renderer {
+    try self.createRenderer(with: [(String, value: Bool)]())
+  }
+  
+  @discardableResult
+  public func createRenderer<P: PropertyValue>(with properties: (String, value: P)...) throws(SDL_Error) -> any Renderer {
+    try self.createRenderer(with: properties)
+  }
+  
+  @discardableResult
+  public func createRenderer<P: PropertyValue>(with properties: [(String, value: P)] = []) throws(SDL_Error) -> any Renderer {
     try self
       .resultOf(SDL_CreateRenderer, nil)
       .map(SDLObject<RendererPtr>.init(pointer:))
       .get()
   }
-  
+
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetWindowSize, .some(&width), .some(&height)) else {
@@ -74,12 +84,13 @@ extension Window {
   }
 }
 
-public func SDL_CreateWindowWithProperties(_ properties: SDL_WindowCreateFlag...) throws(SDL_Error) -> some Window {
-  try SDL_CreateWindowWithProperties(properties)
+public func SDL_CreateWindow(with properties: SDL_WindowCreateFlag...) throws(SDL_Error) -> some Window {
+  try SDL_CreateWindow(with: properties)
 }
 
-public func SDL_CreateWindowWithProperties(_ properties: [SDL_WindowCreateFlag]) throws(SDL_Error) -> some Window {
+public func SDL_CreateWindow(with properties: [SDL_WindowCreateFlag]) throws(SDL_Error) -> some Window {
   let windowProperties = SDL_CreateProperties()
+  defer { windowProperties.destroy() }
   
   for property in properties {
     guard windowProperties.set(property.value.0.rawValue, value: property.value.1) else {
@@ -90,6 +101,7 @@ public func SDL_CreateWindowWithProperties(_ properties: [SDL_WindowCreateFlag])
   guard let window = SDL_CreateWindowWithProperties(windowProperties) else {
     throw SDL_Error.error
   }
+  
   
   return SDLObject(pointer: window)
 }

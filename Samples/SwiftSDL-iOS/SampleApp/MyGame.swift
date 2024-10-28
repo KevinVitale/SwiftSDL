@@ -30,7 +30,7 @@
       try window.updateSurface()
     }
     catch {
-      print(error)
+      print("\(#function):", error)
     }
   }
   

@@ -9,6 +9,34 @@ public protocol Renderer: SDLObjectProtocol where Pointer == RendererPtr { }
 
 extension SDLObject<RendererPtr>: Renderer { }
 
+public func SDL_CreateRenderer<P: PropertyValue>(with properties: (String, value: P)..., window: (any Window)? = nil) throws(SDL_Error) -> some Renderer {
+  try SDL_CreateRenderer(with: properties, window: window)
+}
+
+public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, value: P)], window: (any Window)? = nil) throws(SDL_Error) -> some Renderer {
+  let rendererProperties = SDL_CreateProperties()
+  defer { rendererProperties.destroy() }
+  
+  for property in properties {
+    guard rendererProperties.set(property.0, value: property.value) else {
+      throw SDL_Error.error
+    }
+  }
+  
+  if var windowPointer = window?.pointer {
+    rendererProperties.set(
+      SDL_PROP_RENDERER_CREATE_WINDOW_POINTER,
+      value: withUnsafeMutableBytes(of: &windowPointer, \.baseAddress)
+    )
+  }
+
+  guard let texture = SDL_CreateRendererWithProperties(rendererProperties) else {
+    throw SDL_Error.error
+  }
+  
+  return SDLObject(pointer: texture)
+}
+
 extension Renderer {
   public var name: Result<String, SDL_Error> {
     return self
@@ -44,6 +72,23 @@ extension Renderer {
     try self(SDL_RenderPresent)
   }
   
+  public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
+    var width = Int32(), height = Int32()
+    guard case(.success) = self.resultOf(SDL_GetRenderOutputSize, .some(&width), .some(&height)) else {
+      throw SDL_Error.error
+    }
+    return [T(width), T(height)]
+  }
+  
+  public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: BinaryFloatingPoint {
+    var width = Int32(), height = Int32()
+    guard case(.success) = self.resultOf(SDL_GetRenderOutputSize, .some(&width), .some(&height)) else {
+      throw SDL_Error.error
+    }
+    return [T(width), T(height)]
+  }
+
+  
   @discardableResult
   public func fill(rects: SDL_FRect..., color: SDL_Color) throws(SDL_Error) -> Self {
     try self.fill(rects: rects, color: color)
@@ -59,12 +104,24 @@ extension Renderer {
   }
   
   @discardableResult
-  public func draw(texture: any Texture) throws(SDL_Error) -> Self {
+  public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil) throws(SDL_Error) -> Self {
+    guard let texture = texture else { return self }
+      
     let size = try texture.size(as: Float.self)
-    var rect: SDL_FRect = [
-      0, 0,
-      size.x, size.y
-    ]
+    
+    var rect: SDL_FRect! = nil
+    switch dstRect {
+      case let dstRect?:
+        rect = [
+          dstRect.lowHalf.x, dstRect.lowHalf.y,
+          dstRect.highHalf.x, dstRect.highHalf.y
+        ]
+      default:
+        rect = [
+          0, 0,
+          size.x, size.y
+        ]
+    }
 
     return try self(SDL_RenderTexture, texture.pointer, nil, .some(&rect))
   }

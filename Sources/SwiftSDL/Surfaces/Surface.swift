@@ -4,7 +4,6 @@ public final class SurfacePtr: SDLPointer {
   }
 }
 
-@MainActor
 @dynamicMemberLookup
 public protocol Surface: SDLObjectProtocol where Pointer == SurfacePtr { }
 

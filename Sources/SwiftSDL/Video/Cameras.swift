@@ -53,11 +53,11 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
   case invalid
   
   /*
-  public init(from decoder: any Decoder) throws {
-    let decoder = try decoder.container(keyedBy: CodingKeys.self)
-    let cameraID = try decoder.decode(SDL_CameraID.self, forKey: .cameraID)
-    self = .available(cameraID)
-  }
+   public init(from decoder: any Decoder) throws {
+   let decoder = try decoder.container(keyedBy: CodingKeys.self)
+   let cameraID = try decoder.decode(SDL_CameraID.self, forKey: .cameraID)
+   self = .available(cameraID)
+   }
    */
   
   // FIXME: Is a system-wide camera probe occurring during decoding a good idea?
@@ -127,7 +127,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     }
     return surface.0?[keyPath: keyPath]
   }
-
+  
   public func open(_ spec: SDL_CameraSpec? = nil) -> Result<Self, SDL_Error> {
     switch self {
       case .open: return .success(self)
@@ -155,7 +155,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     self = .available(id)
     CameraPtr.destroy(pointer)
   }
-
+  
   public var debugDescription: String {
     guard case(.success(let name)) = name else {
       return "INVALID CAMERA DEVICE"
@@ -179,6 +179,32 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     )
   }
   
+  public mutating func stream(to texture: inout (any Texture)?, renderer: any Renderer) throws(SDL_Error) {
+    let frame = self._updateFrame()
+    
+    if let surface = frame.surface, texture == nil
+        || texture?.w != surface.w
+        || texture?.h != surface.h {
+      
+      texture?.destroy()
+      
+      let colorSpace = try surface(SDL_GetSurfaceColorspace)
+      let textureProperties = SDL_CreateProperties()
+      defer { textureProperties.destroy() }
+      
+      texture = try SDL_CreateTexture(
+        with:
+          (SDL_PROP_TEXTURE_CREATE_FORMAT_NUMBER, value: Sint64(surface.format.rawValue)),
+          (SDL_PROP_TEXTURE_CREATE_COLORSPACE_NUMBER, value: Sint64(colorSpace.rawValue)),
+          (SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER, value: Sint64(SDL_TEXTUREACCESS_STREAMING.rawValue)),
+          (SDL_PROP_TEXTURE_CREATE_WIDTH_NUMBER, value: Sint64(surface.w)),
+          (SDL_PROP_TEXTURE_CREATE_HEIGHT_NUMBER, value: Sint64(surface.h)),
+        renderer: renderer)
+    }
+    
+    try texture?(SDL_UpdateTexture, nil, frame.surface?.pixels, frame.surface?.pitch ?? 0)
+  }
+
   private mutating func _updateFrame() -> (surface: (any Surface)?, timestamp: UInt64) {
     guard case(.open(let pointer, let frame, _)) = self else {
       return (nil, 0)
@@ -187,9 +213,8 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     guard let nextFrame = SDL_AcquireCameraFrame(pointer, .some(&timestamped)) else {
       return frame
     }
-    
     SDL_ReleaseCameraFrame(pointer, frame.0?.pointer)
-
+    
     let surface = SDLObject<SurfacePtr>(pointer: nextFrame)
     self = .open(pointer: pointer, frame: (surface, timestamped), spec: self.spec)
     return (surface, timestamped)

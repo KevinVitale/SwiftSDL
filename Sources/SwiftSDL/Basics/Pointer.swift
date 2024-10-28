@@ -10,9 +10,11 @@ public protocol SDLObjectProtocol {
 
 extension SDLObjectProtocol {
   public func destroy() {
+    /*
     #if DEBUG
-    print("\(type(of: Pointer.self)): \(#function)")
+      print("\(type(of: Pointer.self)): \(#function)")
     #endif
+     */
     Pointer.destroy(pointer)
   }
 }

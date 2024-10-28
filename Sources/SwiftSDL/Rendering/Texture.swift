@@ -4,11 +4,31 @@ public final class TexturePtr: SDLPointer {
   }
 }
 
-@MainActor
 @dynamicMemberLookup
 public protocol Texture: SDLObjectProtocol where Pointer == TexturePtr { }
 
 extension SDLObject<TexturePtr>: Texture { }
+
+public func SDL_CreateTexture<P: PropertyValue>(with properties: (String, value: P)..., renderer: any Renderer) throws(SDL_Error) -> some Texture {
+  try SDL_CreateTexture(with: properties, renderer: renderer)
+}
+
+public func SDL_CreateTexture<P: PropertyValue>(with properties: [(String, value: P)], renderer: any Renderer) throws(SDL_Error) -> some Texture {
+  let textureProperties = SDL_CreateProperties()
+  defer { textureProperties.destroy() }
+  
+  for property in properties {
+    guard textureProperties.set(property.0, value: property.value) else {
+      throw SDL_Error.error
+    }
+  }
+  
+  guard let texture = SDL_CreateTextureWithProperties(renderer.pointer, textureProperties) else {
+    throw SDL_Error.error
+  }
+  
+  return SDLObject(pointer: texture)
+}
 
 extension Texture {
   public subscript<T>(dynamicMember keyPath: KeyPath<SDL_Texture, T>) -> T {

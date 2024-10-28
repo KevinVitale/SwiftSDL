@@ -15,7 +15,6 @@ extension SDL.Test {
     @OptionGroup var options: Options
     
     @Option(transform: {
-      print($0)
       switch $0 {
         case "blend": return .blend
         case "add": return .add

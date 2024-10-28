@@ -43,7 +43,7 @@ extension Game {
   public func onInit() throws(SDL_Error) -> any Window {
     try SDL_Init(.video)
     
-    let window = try SDL_CreateWindowWithProperties(Self.windowFlags)
+    let window = try SDL_CreateWindow(with: Self.windowFlags)
     let _ = try window.size(as: Float.self)
     
     return window
@@ -51,13 +51,15 @@ extension Game {
   
   @MainActor
   public func onQuit(_ result: SDL_Error?) {
+    /*
     defer {
-    #if DEBUG
-    if result != nil {
-      print(SDL_Error.callStackDescription)
+      #if DEBUG
+      if result != nil {
+        print(SDL_Error.callStackDescription)
+      }
+      #endif
     }
-    #endif
-    }
+     */
     SDL_Quit()
   }
 }
@@ -129,7 +131,9 @@ extension Game {
         }
       }, /* onQuit */ { state, result in
         let error: SDL_Error? = (result == .failure ? .error : nil)
-        if let error = error { debugPrint(error) }
+        if let error = error, !error.debugDescription.isEmpty {
+          debugPrint(error)
+        }
         
         let appStatePtr = Unmanaged<App.State>.fromOpaque(state!)
         let window = appStatePtr.takeUnretainedValue().window
