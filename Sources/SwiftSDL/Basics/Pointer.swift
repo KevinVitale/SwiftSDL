@@ -35,7 +35,6 @@ extension SDLObjectProtocol {
   }
   
   @discardableResult
-  @MainActor
   public func callAsFunction<each Argument>(_ block: (Pointer.Value, repeat each Argument) -> Bool, _ arguments: repeat each Argument) throws(SDL_Error) -> Self {
     guard block(pointer, repeat each arguments) else {
       throw SDL_Error.error

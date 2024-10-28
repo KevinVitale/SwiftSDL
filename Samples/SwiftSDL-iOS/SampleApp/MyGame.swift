@@ -11,23 +11,27 @@
   public static let version: String = ""
   public static let identifier: String = ""
   
-  private var scene: CameraScene!
+  private var camera: CameraID? = nil
 
   public func onReady(window: any Window) throws(SDL_Error) {
     try SDL_Init(.camera)
     
-    let size = try window.size(as: Float.self)
-    scene = try CameraScene(size: size) { camera, _, _ in
+    camera = try Cameras.matching { camera, _, _ in
       camera.position == .frontFacing
     }
-    scene.position = [0, 100]
-    scene.size = [320, 240]
   }
   
   public func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {
-    try scene.update(at: delta)
-    try self.drawSquare(surface: try window.surface.get())
-    try window.updateSurface()
+    do {
+      let surface = try window.surface.get()
+      try surface.clear(color: .gray)
+      try camera?.draw(to: surface)
+      try self.drawSquare(surface: surface)
+      try window.updateSurface()
+    }
+    catch {
+      print(error)
+    }
   }
   
   @MainActor
@@ -38,8 +42,6 @@
     ]
     
     var rect: SDL_Rect = squareFrame.to(Int32.self)
-    
-    try scene.draw(surface)
     
     let color = try surface.map(color: .green)
     try surface(SDL_FillSurfaceRect, .some(&rect), color)
@@ -60,6 +62,6 @@
   }
   
   public func onShutdown(window: any Window) throws(SDL_Error) {
-    scene.camera?.destroy()
+    camera?.close()
   }
 }

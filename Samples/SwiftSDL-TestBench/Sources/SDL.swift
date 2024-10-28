@@ -18,6 +18,7 @@ extension SDL {
     static let configuration = CommandConfiguration(
       abstract: "Run a variety SDL tests reimplemented using SwiftSDL.",
       subcommands: [
+        Camera.self,
         Geometry.self
       ]
     )

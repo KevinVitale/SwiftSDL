@@ -7,7 +7,7 @@ public final class WindowPtr: SDLPointer {
 @MainActor
 public protocol Window: SDLObjectProtocol where Pointer == WindowPtr { }
 
-extension SDLObject: Window where Pointer == WindowPtr { }
+extension SDLObject<WindowPtr>: Window { }
 
 extension Window {
   public var surface: Result<any Surface, SDL_Error> {
