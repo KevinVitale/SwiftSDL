@@ -37,7 +37,7 @@ let package = Package(
   name: "SwiftSDLTest",
   platforms: [.macOS(.v10_15)],
   dependencies: [
-    .package(url: "https://github.com/KevinVitale/SwiftSDL.git", branch: "epics/sdl3"),
+    .package(url: "https://github.com/KevinVitale/SwiftSDL.git", from: "0.2.0-alpha.4"),
   ],
   targets: [
     .executableTarget(
