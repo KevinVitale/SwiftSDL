@@ -1,194 +1,118 @@
-# SwiftSDL
-
-[Simple DirectMedia Layer](https://libsdl.org) is a cross-platform development library designed 
-to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware.
-
-This project provides a lightweight wrapper around _SDL2_ which makes its C-based API easy and
-intiutive to use from **Swift**. 
-
-Libraries currently supported are:
-
- - SDL2
- - Image
- - Mixer
- - TTF
-
-## Example Screenshots
-<img width=240 src="Sources/DemoSDL2/example.gif"/> <img width=240 src="example.gif"/>
-
-## Testing It Out
-The `SwiftSDL.xcodeproj` provides two working examples of how to use the wrapper:
-  - `DemoSDL2`: includes a game-loop, a rudimentary scene graph, and animating sprite textues;
-  - `CreateWindowDemo`: includes the bare minumum for displaying (and rendering) a native window.
-
-### Compiling and Running Demos
-
-Use `Homebrew` to install the `SDL2` dependencies:
-
-```bash
-# Install Deps
-$ brew install sdl2 sdl2_image
-
-# Pull Repo
-$ git clone https://github.com/KevinVitale/SwiftSDL.git
-
-# Check your SDL2 paths and update 'shim.h' files if Xcode complains 👀
-$ sdl2-config --libs --cflags
-
-# Run DemoSDL2
-$ cd SwiftSDL
-$ make && make run
-```
-
-> _Note: by default, `make run` will run the **DemoSDL2** demo._
-
-### Built-in Game Loop
-As an additional bonus, _SwiftSDL_ provides `SDL.Run { engine in /*...*/ }`, 
-which gets you a game loop quickly. Here's an example:
-
-```swift
-import Foundation
-import CSDL2
-import SwiftSDL2
-
-try SDL.Run { engine in
-    // Start engine ------------------------------------------------------------
-    try engine.start(subsystems: .video)
-    
-    // Create renderer ---------------------------------------------------------
-    let (window, renderer) = try engine.addWindow(width: 640, height: 480)
-    
-    // Handle input ------------------------------------------------------------
-    engine.handleInput = { [weak engine] in
-        var event = SDL_Event()
-        while(SDL_PollEvent(&event) != 0) {
-            if event.stype == SDL_QUIT.rawValue {
-                engine?.removeWindow(window)
-                engine?.stop()
-            }
-        }
-    }
-    
-    // Render ------------------------------------------------------------------
-    engine.render = {
-        renderer.result(of: SDL_SetRenderDrawColor, 255, 0, 0, 255)
-        renderer.result(of: SDL_RenderClear)
-        
-        /* Draw your stuff */
-        
-        renderer.pass(to: SDL_RenderPresent)
-    } 
-}
-```
-
-<img width=240 src="window.png"/>
-
+# SwiftSDL — Cross-Platform Targets with Swift & SDL3
 
 ## Overview
-SDL objects are subclasses of `SDLPointer<SDLType>`. These include (but are not limited to):
-  - `SDLWindow`
-  - `SDLRenderer`
-  - `SDLTexture`
-  - `SDLSurface`
 
-`SDLType` is a protocol which describes how the underlying SDL object is freed. Here is an example of `SDLWindow`:
+**SwiftSDL** is an open-source Swift library that provides a convenient interface for working with the C-based [SDL (Simple DirectMedia Layer)](https://www.libsdl.org/) library. This wrapper allows developers to leverage SDL's cross-platform multimedia and game development capabilities in Swift applications across macOS, Linux, Windows, and iOS.
 
-```swift
-public final class SDLWindow: SDLPointer<SDLWindow>, SDLType {
-    public static func destroy(pointer: OpaquePointer) {
-        SDL_DestroyWindow(pointer)
-    }
-}
-```
+The library integrates seamlessly with the **Swift Package Manager (SPM)**, making it simple to manage dependencies and build your projects without requiring a framework file on macOS. In addition, the library includes a **sample application** for iOS to demonstrate how to integrate SDL within iOS apps using a bridging header.
 
-### Methodology of `SDLPointer<SDLType>`
-`SDLPointer<SDLType>` has just two functions:
-  - `result(of:)` is used for `SDL2` functions which return errors; and,
-  - `pass(to:)` is used for `SDL2` functions that don't error-out.
-  
-You're able to call them on `Optional` instances of `SDLPointer<SDLType>`, foregoing the need to constantly be checking for `nil`.
-  
-#### `result(of:)`
-Some SDL function calls can return error codes. In these cases, use `result(of:)`. For example, when setting the renderer's draw color:
+## Features
 
-```swift
-// Create renderer ---------------------------------------------------------
-let (window, renderer) = try engine.addWindow(width: 640, height: 480)
+- Swift wrapper for the SDL library (vers. 3), exposing SDL's core functionality in an easy-to-use Swift API.
+- Cross-platform support for macOS, Linux, and Windows, with simplified project management using the Swift Package Manager.
+- iOS support using Objective-C to Swift bridging for SDL integration.
+- A sample iOS application that demonstrates how to set up and use SDL3 with this library.
 
-// Render ------------------------------------------------------------------
-engine.render = {
-    do {
-        try renderer.result(of: SDL_SetRenderDrawColor, 255, 255, 255, 255).get()
-        try renderer.result(of: SDL_RenderClear).get()
+## Sample Code
 
-        /* Draw your stuff */
+Below is a basic example of how you can use SwiftSDL to initialize an SDL window in Swift:
 
-        renderer.pass(to: SDL_RenderPresent)        
-    } catch {
-        print(error)
-    }
-} 
-```
+| `Example.swift`  | Output  |
+|---|---|
+|<pre width="0" lang="swift">import SwiftSDL&#13;&#13;@main final class Example: Game {&#13;  func onReady(window: any Window) throws(SDL_Error) { }&#13;  func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {&#13;    let surface = try window.surface.get()&#13;    try surface.clear(color: .red)&#13;    try window.updateSurface()&#13;  }&#13;  func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) { }&#13;  func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) { }&#13;}</pre> | <img align="right" width="100%" alt="Screenshot 2024-10-26 at 2 30 44 PM" src="https://github.com/user-attachments/assets/8868d4b8-b714-4c87-90d0-ef82dd46b02f"> |
 
-##### When should I handle SDL errors?
-You have total freedom for deciding when it is necessary for your application to handle potential errors; `result(of:)` has a `Void` as its `Success` type. You may decide to ignore the `Result` being returned, or call `try...get()` if you're interested in handling potential errors.
+## Installation
 
-#### `pass(to:)`
-Let's say you wanted to use `IMG_LoadTexture` to create a new texture object. Here is the interface for this function:
+### Swift Package Manager (SPM)
+
+You can add **SwiftSDL** as a dependency in your project by adding the following to your `Package.swift` file:
 
 ```swift
-func IMG_LoadTexture(_ renderer: OpaquePointer!, _ file: UnsafePointer<Int8>!) -> OpaquePointer!
+// swift-tools-version: 6.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+  name: "SwiftSDLTest",
+  platforms: [.macOS(.v10_15)],
+  dependencies: [
+    .package(url: "https://github.com/KevinVitale/SwiftSDL.git", branch: "epics/sdl3"),
+  ],
+  targets: [
+    .executableTarget(
+      name: "SwiftSDLTest",
+      dependencies: ["SwiftSDL"],
+
+      // Optional: bundle resources!
+      resources: [
+        .process("../Resources/BMP")
+      ],
+
+      // Required: when using SPM YOU MUST
+      // have libSDL3.{dylib|so|a} installed.
+      linkerSettings: [.unsafeFlags(
+        [
+          "-Xlinker", "-F", "-Xlinker", "/usr/local/lib",
+          "-Xlinker", "-rpath", "-Xlinker", "/usr/local/lib",
+        ], .when(platforms: [.macOS])
+      )]
+    ),
+  ]
+)
 ```
 
-Like nearly all SDL functions which get exposed to Swift, we need to pass an `OpaquePointer!` as the first argument. Following that, a C-string'd `file` path is needed as the second argument. 
+### CMake (for non-SPM platforms)
 
-Let's look at how `pass(to:)` is used to help us with this when loading a texture from a file:
-
-```swift
-let texturePathURL = Bundle.main.resourceURL!.appendingPathComponent("block.png")
-let texture = renderer
-    .pass(to: IMG_LoadTexture, texturePathURL.path)
-    .map(SDLTexture.init)
+```
+// TODO
 ```
 
-In just a few lines of code, we've called `IMG_LoadTexture` and created new `SDLTexture` instance from the pointer returned by `IMG_LoadTexture`.   
+## Platform-Specific Instructions
 
-## More Examples
-Let's see more of `SDLPointer<SDLType>` in action! 🎉
+### macOS
+![](https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/osx-example.png)
 
-### Get the renderer's output size
+### Linux
+![](https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/linux-example.png)
 
-For example, to read the `width` and `height` of a renderer's output size:
-```swift
-let renderer: SDLRenderer? = /* returned elsewhere */
-// Get logical renderer size ---------------------------------------------------
-do {
-    var width: Int32 = .zero, height: Int32 = .zero
-    try renderer?.result(of: SDL_GetRendererOutputSize, &width, &height).get()
-    print("\(width) x \(height)")
-} catch {
-    print(error)
-}
-```
+### Windows
+
+### iOS
+Due to platform differences, integrating SDL on iOS requires an **Objective-C to Swift Bridging Header**. The library includes a sample project to demonstrate this setup.
+
+1. **Create a Bridging Header**:
+    - In your iOS project, create a bridging header file (e.g., `YourApp-Bridging-Header.h`) and include SDL's necessary headers:
+
+    ```objective-c
+    #include "SDL.h"
+    #include "SDL_main.h"
+    ```
+
+2. **Link the SDL Framework**:
+    - Make sure to link the SDL framework in your Xcode project. This is necessary for building and running the iOS version of the app.
+
+3. **Sample App**:
+    - The library includes a sample iOS app in the `Examples/iOS` directory. Open the project in Xcode, ensure the bridging header is set up correctly, and build the app to see how SDL can be used in iOS apps.
+
+![](Samples/SwiftSDL-iOS/ios-example.gif)
+
+## Contributions
+
+**Fix Me:** Something like:
+
+> _We welcome contributions from the community! Feel free to fork the repository, submit issues, or create pull requests. Be sure to follow the contribution guidelines and coding standards outlined in `CONTRIBUTING.md`._
 
 ## License
-```
-Copyright (c) 2019 Kevin J. Vitale
 
-Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software and associated documentation files (the "Software"), to deal 
-in the Software without restriction, including without limitation the rights 
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-of the Software, and to permit persons to whom the Software is furnished to do so, 
-subject to the following conditions:
+SwiftSDL is open-sourced under the MIT license. See the `LICENSE` file for details.
 
-The above copyright notice and this permission notice shall be included in all 
-copies or substantial portions of the Software.
+## Contact
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-```
+**Fix Me:** Something like:
+
+> _For questions or further assistance, please reach out via GitHub issues or contact the maintainers directly at `email@example.com`._
+
+---
+
+With **SwiftSDL**, you can effortlessly bring SDL's cross-platform multimedia power into the world of Swift!

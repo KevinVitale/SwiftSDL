@@ -5,3 +5,5 @@ xcuserdata/
 Package.resolved
 Packages
 build
+
+.swiftpm

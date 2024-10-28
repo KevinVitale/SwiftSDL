@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:SwiftSDL-TestBench}",
+      "name": "Debug SwiftSDL-TestBench",
+      "program": "${workspaceFolder:SwiftSDL-TestBench}/.build/debug/SwiftSDL-TestBench",
+      "preLaunchTask": "swift: Build Debug SwiftSDL-TestBench"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:SwiftSDL-TestBench}",
+      "name": "Release SwiftSDL-TestBench",
+      "program": "${workspaceFolder:SwiftSDL-TestBench}/.build/release/SwiftSDL-TestBench",
+      "preLaunchTask": "swift: Build Release SwiftSDL-TestBench"
+    }
+  ]
+}

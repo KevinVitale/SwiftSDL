@@ -1,0 +1,6 @@
+[submodule "Dependencies/SDL"]
+	path = Dependencies/SDL
+	url = git@github.com:libsdl-org/SDL.git
+[submodule "Samples/SwiftSDLTest"]
+	path = Samples/SwiftSDLTest
+	url = git@github.com:KevinVitale/SwiftSDLTest.git
