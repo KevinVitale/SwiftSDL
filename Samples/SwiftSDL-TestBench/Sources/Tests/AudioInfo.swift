@@ -15,7 +15,6 @@ extension SDL.Test {
     func run() async throws {
       try SDL_Init(.audio)
       
-      
       guard case(.success(let audioDrivers)) = AudioDriver.available, audioDrivers.count > 0 else {
         print("No build-in audio drivers")
         return
