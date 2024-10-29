@@ -4,7 +4,7 @@ public final class CameraPtr: SDLPointer {
   }
 }
 
-public struct Cameras {
+public enum Cameras {
   public static var available: Result<[CameraID], SDL_Error> {
     var cameraCount: Int32 = 0
     guard let camerasPtr = SDL_GetCameras(&cameraCount) else {
@@ -230,13 +230,13 @@ public enum CameraDriver: CustomDebugStringConvertible {
     }
   }
   
-  public static var available: Result<[CameraDriver], SDL_Error> {
+  public static var available: Result<[Self], SDL_Error> {
     let driverCount = SDL_GetNumCameraDrivers()
     guard driverCount > 0 else {
       return .success([])
     }
     
-    var drivers = [CameraDriver]()
+    var drivers = [Self]()
     for index in 0..<Int(driverCount) {
       let driver = String(cString: SDL_GetCameraDriver(Int32(index)))
       drivers.append(.name(driver))
@@ -245,7 +245,7 @@ public enum CameraDriver: CustomDebugStringConvertible {
     return .success(drivers)
   }
 
-  public static var current: CameraDriver? {
+  public static var current: Self? {
     guard let current = SDL_GetCurrentCameraDriver() else {
       return nil
     }

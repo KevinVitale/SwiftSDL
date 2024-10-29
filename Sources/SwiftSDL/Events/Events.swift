@@ -4,6 +4,22 @@ extension SDL_Event {
   }
 }
 
+public func pollEvent() throws -> SDL_Event {
+  var event = SDL_Event()
+  while(SDL_PollEvent(&event)) {
+    return event
+  }
+  return event
+}
+
+public func waitEvent() throws -> SDL_Event {
+  var event = SDL_Event()
+  if(SDL_WaitEvent(&event)) {
+    return event
+  }
+  return event
+}
+
 extension SDL_KeyboardEvent {
   public static func == (lhs: Self, rhs: SDL_Keycode) -> Bool {
     lhs.key == rhs
