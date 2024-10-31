@@ -1,3 +1,0 @@
-extension SDL_GamepadType {
-  
-}
