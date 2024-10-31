@@ -26,37 +26,10 @@ extension SDL.Test {
       
       print("Using audio driver: \(AudioDriver.current!)")
       
-      func printDeviceInfo(_ device: AudioDeviceID, _ idx: Int? = nil) {
-        do {
-          if let idx = idx {
-            print("  \(idx): \(try device.name.get())")
-            let format = try device.spec.get()
-            let spec = format.0
-            let frames = format.bufferSize
-            print("     Sample Rate: \(spec.freq)")
-            print("     Channels: \(spec.channels)")
-            print("     SDL_AudioFormat: \(String(spec.format.rawValue, radix: 16))")
-            print("     Buffer Size: \(frames) frames")
-          } else {
-            let defaultRecording = AudioDeviceID.defaultRecording
-            print("\(try defaultRecording.name.get())")
-            let format = try defaultRecording.spec.get()
-            let spec = format.0
-            let frames = format.bufferSize
-            print("Sample Rate: \(spec.freq)")
-            print("Channels: \(spec.channels)")
-            print("SDL_AudioFormat: \(String(spec.format.rawValue, radix: 16))")
-            print("Buffer Size: \(frames) frames")
-          }
-        } catch {
-          print("  \(error)")
-        }
-      }
-      
       if let playbackDevices = try? AudioDevices.available(for: .playback).get() {
         print("Found \(playbackDevices.count) playback device\(playbackDevices.count > 0 ? "s" : "")")
         for (idx, playbackDevice) in playbackDevices.enumerated() {
-          printDeviceInfo(playbackDevice, idx)
+          _printDeviceInfo(playbackDevice, idx)
         }
       }
       else {
@@ -66,7 +39,7 @@ extension SDL.Test {
       if let recordingDevices = try? AudioDevices.available(for: .recording).get() {
         print("Found \(recordingDevices.count) recording device\(recordingDevices.count > 0 ? "s" : "")")
         for (idx, recordingDevice) in recordingDevices.enumerated() {
-          printDeviceInfo(recordingDevice, idx)
+          _printDeviceInfo(recordingDevice, idx)
         }
       }
       else {
@@ -74,12 +47,40 @@ extension SDL.Test {
       }
       
       print("Default playback device:")
-      printDeviceInfo(.defaultPlayback)
+      _printDeviceInfo(.defaultPlayback)
       
       print("Default recording device:")
-      printDeviceInfo(.defaultRecording)
+      _printDeviceInfo(.defaultRecording)
 
       SDL_Quit()
     }
+    
+    private func _printDeviceInfo(_ device: AudioDeviceID, _ idx: Int? = nil) {
+      do {
+        if let idx = idx {
+          print("  \(idx): \(try device.name.get())")
+          let format = try device.spec.get()
+          let spec = format.0
+          let frames = format.bufferSize
+          print("     Sample Rate: \(spec.freq)")
+          print("     Channels: \(spec.channels)")
+          print("     SDL_AudioFormat: \(String(spec.format.rawValue, radix: 16))")
+          print("     Buffer Size: \(frames) frames")
+        } else {
+          let defaultRecording = AudioDeviceID.defaultRecording
+          print("\(try defaultRecording.name.get())")
+          let format = try defaultRecording.spec.get()
+          let spec = format.0
+          let frames = format.bufferSize
+          print("Sample Rate: \(spec.freq)")
+          print("Channels: \(spec.channels)")
+          print("SDL_AudioFormat: \(String(spec.format.rawValue, radix: 16))")
+          print("Buffer Size: \(frames) frames")
+        }
+      } catch {
+        print("  \(error)")
+      }
+    }
+    
   }
 }
