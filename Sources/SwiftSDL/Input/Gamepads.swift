@@ -68,7 +68,7 @@ extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebug
   
   public static var allCases: [SDL_GamepadButton] {
     [
-      SDL_GAMEPAD_BUTTON_INVALID,
+      // SDL_GAMEPAD_BUTTON_INVALID,
       SDL_GAMEPAD_BUTTON_SOUTH,
       SDL_GAMEPAD_BUTTON_EAST,
       SDL_GAMEPAD_BUTTON_WEST,
@@ -95,7 +95,7 @@ extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebug
       SDL_GAMEPAD_BUTTON_MISC4,
       SDL_GAMEPAD_BUTTON_MISC5,
       SDL_GAMEPAD_BUTTON_MISC6,
-      SDL_GAMEPAD_BUTTON_COUNT
+      // SDL_GAMEPAD_BUTTON_COUNT
     ]
   }
 }
@@ -167,14 +167,14 @@ extension SDL_GamepadAxis: @retroactive CaseIterable, @retroactive CustomDebugSt
   
   public static var allCases: [SDL_GamepadAxis] {
     [
-      SDL_GAMEPAD_AXIS_INVALID,
+      // SDL_GAMEPAD_AXIS_INVALID,
       SDL_GAMEPAD_AXIS_LEFTX,
       SDL_GAMEPAD_AXIS_LEFTY,
       SDL_GAMEPAD_AXIS_RIGHTX,
       SDL_GAMEPAD_AXIS_RIGHTY,
       SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
       SDL_GAMEPAD_AXIS_RIGHT_TRIGGER,
-      SDL_GAMEPAD_AXIS_COUNT
+      // SDL_GAMEPAD_AXIS_COUNT
     ]
   }
 }

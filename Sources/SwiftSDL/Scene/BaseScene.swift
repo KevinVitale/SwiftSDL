@@ -1,4 +1,4 @@
-public protocol Scene: SceneNode {
+public protocol SceneProtocol: SceneNode {
   init(_ label: String, size: Size<Float>, bgColor: SDL_Color, blendMode: SDL_BlendMode)
   
   @MainActor var window: (any Window)? { get}
@@ -13,7 +13,7 @@ public protocol Scene: SceneNode {
   @MainActor func shutdown() throws(SDL_Error)
 }
 
-open class BaseScene: SceneNode, Scene {
+open class BaseScene: SceneNode, SceneProtocol {
   public required init(
     _ label: String = "",
     size: Size<Float>,

@@ -72,6 +72,7 @@ extension Renderer {
     try self(SDL_RenderPresent)
   }
   
+  @discardableResult
   public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetRenderOutputSize, .some(&width), .some(&height)) else {
@@ -80,12 +81,33 @@ extension Renderer {
     return [T(width), T(height)]
   }
   
+  @discardableResult
   public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: BinaryFloatingPoint {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetRenderOutputSize, .some(&width), .some(&height)) else {
       throw SDL_Error.error
     }
     return [T(width), T(height)]
+  }
+  
+  @discardableResult
+  public func set<T: SIMDScalar>(logicalSize size: Size<T>, presentation: SDL_RendererLogicalPresentation) throws(SDL_Error) -> Self where T: FixedWidthInteger {
+    let sizeAsInt32 = size.to(Int32.self)
+    let width = sizeAsInt32.x, height = sizeAsInt32.y
+    guard case(.success) = self.resultOf(SDL_SetRenderLogicalPresentation, width, height, presentation) else {
+      throw SDL_Error.error
+    }
+    return self
+  }
+  
+  @discardableResult
+  public func set<T: SIMDScalar>(logicalSize size: Size<T>, presentation: SDL_RendererLogicalPresentation) throws(SDL_Error) -> Self where T: BinaryFloatingPoint {
+    let sizeAsInt32 = size.to(Int32.self)
+    let width = sizeAsInt32.x, height = sizeAsInt32.y
+    guard case(.success) = self.resultOf(SDL_SetRenderLogicalPresentation, width, height, presentation) else {
+      throw SDL_Error.error
+    }
+    return self
   }
 
   
@@ -145,5 +167,34 @@ extension Renderer {
   @discardableResult
   public func set(vsync: Int32) throws(SDL_Error) -> Self {
     try self(SDL_SetRenderVSync, vsync)
+  }
+}
+
+extension SDL_RendererLogicalPresentation: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
+  public static let disabled = SDL_LOGICAL_PRESENTATION_DISABLED
+  public static let stretch = SDL_LOGICAL_PRESENTATION_STRETCH
+  public static let letterbox = SDL_LOGICAL_PRESENTATION_LETTERBOX
+  public static let overscan = SDL_LOGICAL_PRESENTATION_OVERSCAN
+  public static let integerScale = SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
+  
+  public var debugDescription: String {
+    switch self {
+      case SDL_LOGICAL_PRESENTATION_DISABLED: return "disabled"
+      case SDL_LOGICAL_PRESENTATION_STRETCH: return "stretch"
+      case SDL_LOGICAL_PRESENTATION_LETTERBOX: return "letterbox"
+      case SDL_LOGICAL_PRESENTATION_OVERSCAN: return "overscan"
+      case SDL_LOGICAL_PRESENTATION_INTEGER_SCALE: return "integer scale"
+      default: return "Unknown SDL_RendererLogicalPresentation: \(self.rawValue)"
+    }
+  }
+  
+  public static var allCases: [SDL_RendererLogicalPresentation] {
+    [
+      SDL_LOGICAL_PRESENTATION_DISABLED,
+      SDL_LOGICAL_PRESENTATION_STRETCH,
+      SDL_LOGICAL_PRESENTATION_LETTERBOX,
+      SDL_LOGICAL_PRESENTATION_OVERSCAN,
+      SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
+    ]
   }
 }
