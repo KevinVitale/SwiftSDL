@@ -13,7 +13,7 @@ public protocol SceneProtocol: SceneNode {
   @MainActor func shutdown() throws(SDL_Error)
 }
 
-open class BaseScene: SceneNode, SceneProtocol {
+open class BaseScene<Graphics>: SceneNode, SceneProtocol {
   public required init(
     _ label: String = "",
     size: Size<Float>,
@@ -55,6 +55,7 @@ open class BaseScene: SceneNode, SceneProtocol {
   }
   
   @MainActor
-  open func draw(_ surface: any Surface) throws(SDL_Error) {
+  open func draw(_ graphics: Graphics) throws(SDL_Error) {
   }
 }
+

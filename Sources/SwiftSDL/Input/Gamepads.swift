@@ -1,5 +1,4 @@
 extension SDL_GamepadType {
-  
 }
 
 extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {

@@ -5,7 +5,6 @@ public final class JoystickPtr: SDLPointer {
   }
 }
 
-
 public enum Joysticks {
   public static var connected: Result<[JoystickID], SDL_Error> {
     var deviceCount: Int32 = 0
@@ -134,6 +133,7 @@ public enum JoystickID: Decodable {
     switch self {
       case .open: return self
       default:
+        print("Opening \((try? name.get()) ?? "")...")
         guard let pointer = SDL_OpenJoystick(id) else {
           throw SDL_Error.error
         }

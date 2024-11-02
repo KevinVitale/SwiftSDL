@@ -5,7 +5,7 @@ public final class CameraPtr: SDLPointer {
 }
 
 public enum Cameras {
-  public static var available: Result<[CameraID], SDL_Error> {
+  public static var connected: Result<[CameraID], SDL_Error> {
     var cameraCount: Int32 = 0
     guard let camerasPtr = SDL_GetCameras(&cameraCount) else {
       return .failure(.error)
@@ -14,7 +14,7 @@ public enum Cameras {
     
     var cameras = [CameraID](repeating: .invalid, count: Int(cameraCount))
     for index in 0..<Int(cameraCount) {
-      cameras[index] = .available(camerasPtr[index])
+      cameras[index] = .connected(camerasPtr[index])
     }
     
     return .success(cameras)
@@ -26,7 +26,7 @@ public enum Cameras {
   throws(SDL_Error) -> Bool
   
   public static func matching (_ block: MatchingCallback) throws(SDL_Error) -> CameraID? {
-    let cameraIDs = try available.get()
+    let cameraIDs = try connected.get()
     var cameraSpec: SDL_CameraSpec? = nil
     for cameraID in cameraIDs {
       let cameraName = try cameraID.name.get()
@@ -48,7 +48,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     case cameraID
   }
   
-  case available(SDL_CameraID)
+  case connected(SDL_CameraID)
   case open(pointer: CameraPtr.Value, frame: (surface: (any Surface)?, timestamp: UInt64), spec: SDL_CameraSpec?)
   case invalid
   
@@ -56,7 +56,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
    public init(from decoder: any Decoder) throws {
    let decoder = try decoder.container(keyedBy: CodingKeys.self)
    let cameraID = try decoder.decode(SDL_CameraID.self, forKey: .cameraID)
-   self = .available(cameraID)
+   self = .connected(cameraID)
    }
    */
   
@@ -64,17 +64,17 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
   public init(from decoder: any Decoder) throws {
     let decoder = try decoder.container(keyedBy: CodingKeys.self)
     let cameraID = try decoder.decode(SDL_CameraID.self, forKey: .cameraID)
-    let available = try Cameras.available.get()
+    let available = try Cameras.connected.get()
     guard available.contains(where: { $0.id == cameraID }) else {
       self = .invalid
       return
     }
-    self = .available(cameraID)
+    self = .connected(cameraID)
   }
   
   public var id: SDL_CameraID {
     switch self {
-      case .available(let id): return id
+      case .connected(let id): return id
       case .open(let ptr, _, _): return SDL_GetCameraID(ptr)
       case .invalid: return .zero
     }
@@ -152,7 +152,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     guard case(.open(let pointer, _, _)) = self else {
       return
     }
-    self = .available(id)
+    self = .connected(id)
     CameraPtr.destroy(pointer)
   }
   

@@ -104,7 +104,7 @@ extension SDL.Test {
     }
     
     private func _printCameraInfoMatchingOriginalTestBench() throws(SDL_Error) {
-      let cameras = try Cameras.available.get()
+      let cameras = try Cameras.connected.get()
       let pluralText = cameras.count == 1 ? "" : "s"
       print("Saw \(cameras.count) camera device\(pluralText).")
       for (idx, camera) in cameras.enumerated() {

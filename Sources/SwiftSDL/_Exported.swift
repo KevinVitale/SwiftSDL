@@ -2,10 +2,6 @@
 @_exported import CSDL3
 #endif
 
-#if canImport(SDL3)
-@_exported import SDL3
-#endif
-
 #if canImport(CSDL3_Image)
 @_exported import CSDL3_Image
 #endif
