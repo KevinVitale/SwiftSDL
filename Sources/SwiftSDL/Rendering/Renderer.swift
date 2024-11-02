@@ -126,6 +126,11 @@ extension Renderer {
   }
   
   @discardableResult
+  public func set(scale: Float) throws(SDL_Error) -> Self {
+    try self(SDL_SetRenderScale, scale, scale)
+  }
+  
+  @discardableResult
   public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil) throws(SDL_Error) -> Self {
     guard let texture = texture else { return self }
       
@@ -146,6 +151,18 @@ extension Renderer {
     }
 
     return try self(SDL_RenderTexture, texture.pointer, nil, .some(&rect))
+  }
+  
+  @discardableResult
+  public func debug(text: String, position: Point<Float>, color: SDL_Color = .white, scale: Float = 1.0) throws(SDL_Error) -> Self {
+    try self
+      .set(color: color)
+      .set(scale: scale)
+    
+    guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
+      throw SDL_Error.error
+    }
+    return self
   }
 }
 

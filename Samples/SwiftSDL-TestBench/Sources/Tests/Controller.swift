@@ -27,6 +27,7 @@ extension SDL.Test {
       // See this issue: https://github.com/libsdl-org/SDL/issues/11002
       SDL_SetHint(SDL_HINT_JOYSTICK_MFI, "0")
       #endif
+      SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
       SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
       SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
       SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
@@ -52,7 +53,7 @@ extension SDL.Test {
         with: .windowTitle(Self.name),
         .width(screenSize.x), .height(screenSize.y)
       )
-      
+       
       /*!
        Consolidate this test's display and logic into a scene.
        
