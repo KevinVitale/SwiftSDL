@@ -131,6 +131,19 @@ extension Renderer {
   }
   
   @discardableResult
+  public func draw(texture: (any Texture)?, position: Point<Float>) throws(SDL_Error) -> Self {
+    guard let texture = texture else { return self }
+    let size = try texture.size(as: Float.self)
+    return try self.draw(
+      texture: texture,
+      destinationRect: [
+        position.x, position.y,
+        size.x, size.y
+      ]
+    )
+  }
+
+  @discardableResult
   public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil) throws(SDL_Error) -> Self {
     guard let texture = texture else { return self }
       
