@@ -7,43 +7,44 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0AB787D72CC9358100DBD8FF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0AB787D62CC9357D00DBD8FF /* README.md */; };
-		0AF72EB22CD7FF030072DDF4 /* SwiftSDL in Frameworks */ = {isa = PBXBuildFile; productRef = 0AF72EB12CD7FF030072DDF4 /* SwiftSDL */; };
+		0AB86E962CD819CD0004CC66 /* SwiftSDL in Frameworks */ = {isa = PBXBuildFile; productRef = 0AB86E952CD819CD0004CC66 /* SwiftSDL */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		0AD7A2E32CCAD0DB00F67A71 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		0A21CDA02CC8434300BBC8B0 /* SampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AB787D62CC9357D00DBD8FF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		0AB86E862CD819C20004CC66 /* SampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0A21CDB72CC8434400BBC8B0 /* Exceptions for "SampleApp" folder in "SampleApp" target */ = {
+		0AB86E982CD81A020004CC66 /* Exceptions for "Shared" folder in "SampleApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				SampleApp.swift,
+			);
+			target = 0AB86E852CD819C20004CC66 /* SampleApp */;
+		};
+		0AB86E9B2CD81F660004CC66 /* Exceptions for "SampleApp" folder in "SampleApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 0A21CD9F2CC8434300BBC8B0 /* SampleApp */;
+			target = 0AB86E852CD819C20004CC66 /* SampleApp */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0A21CDA22CC8434300BBC8B0 /* SampleApp */ = {
+		0A941A512CD817AF0040767E /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				0A21CDB72CC8434400BBC8B0 /* Exceptions for "SampleApp" folder in "SampleApp" target */,
+				0AB86E982CD81A020004CC66 /* Exceptions for "Shared" folder in "SampleApp" target */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		0AB86E872CD819C20004CC66 /* SampleApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0AB86E9B2CD81F660004CC66 /* Exceptions for "SampleApp" folder in "SampleApp" target */,
 			);
 			path = SampleApp;
 			sourceTree = "<group>";
@@ -51,11 +52,11 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0A21CD9D2CC8434300BBC8B0 /* Frameworks */ = {
+		0AB86E832CD819C20004CC66 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0AF72EB22CD7FF030072DDF4 /* SwiftSDL in Frameworks */,
+				0AB86E962CD819CD0004CC66 /* SwiftSDL in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,45 +66,45 @@
 		0A21CD972CC8434300BBC8B0 = {
 			isa = PBXGroup;
 			children = (
-				0A21CDA22CC8434300BBC8B0 /* SampleApp */,
-				0A21CDA12CC8434300BBC8B0 /* Products */,
+				0A941A512CD817AF0040767E /* Shared */,
+				0AB86E872CD819C20004CC66 /* SampleApp */,
+				0A941A182CD8156B0040767E /* Frameworks */,
 				0AB787D62CC9357D00DBD8FF /* README.md */,
+				0AB86E862CD819C20004CC66 /* SampleApp.app */,
 			);
 			sourceTree = "<group>";
 		};
-		0A21CDA12CC8434300BBC8B0 /* Products */ = {
+		0A941A182CD8156B0040767E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0A21CDA02CC8434300BBC8B0 /* SampleApp.app */,
 			);
-			name = Products;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0A21CD9F2CC8434300BBC8B0 /* SampleApp */ = {
+		0AB86E852CD819C20004CC66 /* SampleApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0A21CDB82CC8434400BBC8B0 /* Build configuration list for PBXNativeTarget "SampleApp" */;
+			buildConfigurationList = 0AB86E922CD819C30004CC66 /* Build configuration list for PBXNativeTarget "SampleApp" */;
 			buildPhases = (
-				0A21CD9C2CC8434300BBC8B0 /* Sources */,
-				0A21CD9D2CC8434300BBC8B0 /* Frameworks */,
-				0A21CD9E2CC8434300BBC8B0 /* Resources */,
-				0AD7A2E32CCAD0DB00F67A71 /* Embed Frameworks */,
+				0AB86E822CD819C20004CC66 /* Sources */,
+				0AB86E832CD819C20004CC66 /* Frameworks */,
+				0AB86E842CD819C20004CC66 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0A21CDA22CC8434300BBC8B0 /* SampleApp */,
+				0AB86E872CD819C20004CC66 /* SampleApp */,
 			);
 			name = SampleApp;
 			packageProductDependencies = (
-				0AF72EB12CD7FF030072DDF4 /* SwiftSDL */,
+				0AB86E952CD819CD0004CC66 /* SwiftSDL */,
 			);
 			productName = SampleApp;
-			productReference = 0A21CDA02CC8434300BBC8B0 /* SampleApp.app */;
+			productReference = 0AB86E862CD819C20004CC66 /* SampleApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -113,11 +114,11 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					0A21CD9F2CC8434300BBC8B0 = {
-						CreatedOnToolsVersion = 16.0;
-						LastSwiftMigration = 1600;
+					0AB86E852CD819C20004CC66 = {
+						CreatedOnToolsVersion = 16.1;
 					};
 				};
 			};
@@ -134,28 +135,27 @@
 				0AF72EAE2CD7FE6C0072DDF4 /* XCLocalSwiftPackageReference "../../../SwiftSDL" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 0A21CDA12CC8434300BBC8B0 /* Products */;
+			productRefGroup = 0A21CD972CC8434300BBC8B0;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0A21CD9F2CC8434300BBC8B0 /* SampleApp */,
+				0AB86E852CD819C20004CC66 /* SampleApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		0A21CD9E2CC8434300BBC8B0 /* Resources */ = {
+		0AB86E842CD819C20004CC66 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0AB787D72CC9358100DBD8FF /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0A21CD9C2CC8434300BBC8B0 /* Sources */ = {
+		0AB86E822CD819C20004CC66 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -165,71 +165,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0A21CDB92CC8434400BBC8B0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = J3L2NJGMGJ;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SampleApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kevinvitale.SampleApp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		0A21CDBA2CC8434400BBC8B0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = J3L2NJGMGJ;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SampleApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kevinvitale.SampleApp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		0A21CDBB2CC8434400BBC8B0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -346,6 +281,77 @@
 			};
 			name = Release;
 		};
+		0AB86E932CD819C30004CC66 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SampleApp/SampleApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J3L2NJGMGJ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SampleApp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Testing SDL Camera API";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevinvitale.SampleApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+			};
+			name = Debug;
+		};
+		0AB86E942CD819C30004CC66 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SampleApp/SampleApp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J3L2NJGMGJ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SampleApp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Testing SDL Camera API";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevinvitale.SampleApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -358,11 +364,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0A21CDB82CC8434400BBC8B0 /* Build configuration list for PBXNativeTarget "SampleApp" */ = {
+		0AB86E922CD819C30004CC66 /* Build configuration list for PBXNativeTarget "SampleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0A21CDB92CC8434400BBC8B0 /* Debug */,
-				0A21CDBA2CC8434400BBC8B0 /* Release */,
+				0AB86E932CD819C30004CC66 /* Debug */,
+				0AB86E942CD819C30004CC66 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -377,8 +383,9 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0AF72EB12CD7FF030072DDF4 /* SwiftSDL */ = {
+		0AB86E952CD819CD0004CC66 /* SwiftSDL */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = 0AF72EAE2CD7FE6C0072DDF4 /* XCLocalSwiftPackageReference "../../../SwiftSDL" */;
 			productName = SwiftSDL;
 		};
 /* End XCSwiftPackageProductDependency section */

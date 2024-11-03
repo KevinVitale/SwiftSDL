@@ -4,6 +4,11 @@ import SwiftSDL
   private var squareNode = SceneNode()
   private var squareSize = Size<Float>(x: 100, y: 100)
   
+  #if os(macOS)
+  @Argument(parsing: .allUnrecognized)
+  var ignored: [String]
+  #endif
+  
   public init() {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait")
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal")
@@ -14,13 +19,15 @@ import SwiftSDL
   public static let identifier: String = ""
   
   private var camera: CameraID? = nil
-
+  
   public func onReady(window: any Window) throws(SDL_Error) {
+    #if !os(tvOS)
     try SDL_Init(.camera)
     
     camera = try Cameras.matching { camera, _, _ in
-      camera.position == .frontFacing
+      camera.name.contains("FaceTime")
     }
+    #endif
   }
   
   public func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {
