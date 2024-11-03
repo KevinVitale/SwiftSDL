@@ -7,42 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A488C192CCC812A008ED5F3 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 0A488C182CCC812A008ED5F3 /* ArgumentParser */; };
 		0AB787D72CC9358100DBD8FF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0AB787D62CC9357D00DBD8FF /* README.md */; };
-		0ACC884A2CD596BB00018C5C /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88462CD596BB00018C5C /* Window.swift */; };
-		0ACC884B2CD596BB00018C5C /* Cameras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88432CD596BB00018C5C /* Cameras.swift */; };
-		0ACC884C2CD596BB00018C5C /* Sensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC882F2CD596BB00018C5C /* Sensor.swift */; };
-		0ACC884D2CD596BB00018C5C /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88292CD596BB00018C5C /* Events.swift */; };
-		0ACC884E2CD596BB00018C5C /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC881F2CD596BB00018C5C /* Game.swift */; };
-		0ACC884F2CD596BB00018C5C /* GUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88342CD596BB00018C5C /* GUID.swift */; };
-		0ACC88502CD596BB00018C5C /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88232CD596BB00018C5C /* Error.swift */; };
-		0ACC88512CD596BB00018C5C /* SDLInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88262CD596BB00018C5C /* SDLInit.swift */; };
-		0ACC88522CD596BB00018C5C /* BlendMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88402CD596BB00018C5C /* BlendMode.swift */; };
-		0ACC88532CD596BB00018C5C /* MessageBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88352CD596BB00018C5C /* MessageBox.swift */; };
-		0ACC88542CD596BB00018C5C /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC881E2CD596BB00018C5C /* App.swift */; };
-		0ACC88552CD596BB00018C5C /* Gamepads.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC882D2CD596BB00018C5C /* Gamepads.swift */; };
-		0ACC88562CD596BB00018C5C /* Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88272CD596BB00018C5C /* Version.swift */; };
-		0ACC88572CD596BB00018C5C /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88442CD596BB00018C5C /* Color.swift */; };
-		0ACC88582CD596BB00018C5C /* Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88332CD596BB00018C5C /* Geometry.swift */; };
-		0ACC88592CD596BB00018C5C /* IMGInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC882B2CD596BB00018C5C /* IMGInit.swift */; };
-		0ACC885A2CD596BB00018C5C /* FileIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88312CD596BB00018C5C /* FileIO.swift */; };
-		0ACC885B2CD596BB00018C5C /* Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88252CD596BB00018C5C /* Properties.swift */; };
-		0ACC885C2CD596BB00018C5C /* FlipMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88322CD596BB00018C5C /* FlipMode.swift */; };
-		0ACC885D2CD596BB00018C5C /* _Exported.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88482CD596BB00018C5C /* _Exported.swift */; };
-		0ACC885E2CD596BB00018C5C /* Pointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88242CD596BB00018C5C /* Pointer.swift */; };
-		0ACC885F2CD596BB00018C5C /* Texture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88382CD596BB00018C5C /* Texture.swift */; };
-		0ACC88602CD596BB00018C5C /* Surface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88412CD596BB00018C5C /* Surface.swift */; };
-		0ACC88612CD596BB00018C5C /* Joysticks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC882E2CD596BB00018C5C /* Joysticks.swift */; };
-		0ACC88622CD596BB00018C5C /* AudioDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88212CD596BB00018C5C /* AudioDevices.swift */; };
-		0ACC88632CD596BB00018C5C /* SpriteNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC883D2CD596BB00018C5C /* SpriteNode.swift */; };
-		0ACC88642CD596BB00018C5C /* SceneAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC883B2CD596BB00018C5C /* SceneAction.swift */; };
-		0ACC88652CD596BB00018C5C /* Displays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88452CD596BB00018C5C /* Displays.swift */; };
-		0ACC88662CD596BB00018C5C /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC88372CD596BB00018C5C /* Renderer.swift */; };
-		0ACC88672CD596BB00018C5C /* BaseScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC883A2CD596BB00018C5C /* BaseScene.swift */; };
-		0ACC88682CD596BB00018C5C /* SceneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACC883C2CD596BB00018C5C /* SceneNode.swift */; };
-		0AD7A2E12CCAD0DB00F67A71 /* SDL3.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A7D95382CC8894500FEDE66 /* SDL3.xcframework */; };
-		0AD7A2E22CCAD0DB00F67A71 /* SDL3.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0A7D95382CC8894500FEDE66 /* SDL3.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		0AD7A2E62CCAD10A00F67A71 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 0AD7A2E52CCAD10A00F67A71 /* Collections */; };
+		0AF72EB22CD7FF030072DDF4 /* SwiftSDL in Frameworks */ = {isa = PBXBuildFile; productRef = 0AF72EB12CD7FF030072DDF4 /* SwiftSDL */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,7 +18,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				0AD7A2E22CCAD0DB00F67A71 /* SDL3.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -61,39 +26,7 @@
 
 /* Begin PBXFileReference section */
 		0A21CDA02CC8434300BBC8B0 /* SampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0A7D95382CC8894500FEDE66 /* SDL3.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDL3.xcframework; path = "/Users/kevin/Developer/Apple/GitHub Code/SwiftSDL/Dependencies/SDL3.xcframework"; sourceTree = "<absolute>"; };
 		0AB787D62CC9357D00DBD8FF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		0ACC881E2CD596BB00018C5C /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		0ACC881F2CD596BB00018C5C /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
-		0ACC88212CD596BB00018C5C /* AudioDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDevices.swift; sourceTree = "<group>"; };
-		0ACC88232CD596BB00018C5C /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
-		0ACC88242CD596BB00018C5C /* Pointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pointer.swift; sourceTree = "<group>"; };
-		0ACC88252CD596BB00018C5C /* Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Properties.swift; sourceTree = "<group>"; };
-		0ACC88262CD596BB00018C5C /* SDLInit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDLInit.swift; sourceTree = "<group>"; };
-		0ACC88272CD596BB00018C5C /* Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version.swift; sourceTree = "<group>"; };
-		0ACC88292CD596BB00018C5C /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
-		0ACC882B2CD596BB00018C5C /* IMGInit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMGInit.swift; sourceTree = "<group>"; };
-		0ACC882D2CD596BB00018C5C /* Gamepads.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gamepads.swift; sourceTree = "<group>"; };
-		0ACC882E2CD596BB00018C5C /* Joysticks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Joysticks.swift; sourceTree = "<group>"; };
-		0ACC882F2CD596BB00018C5C /* Sensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sensor.swift; sourceTree = "<group>"; };
-		0ACC88312CD596BB00018C5C /* FileIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIO.swift; sourceTree = "<group>"; };
-		0ACC88322CD596BB00018C5C /* FlipMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlipMode.swift; sourceTree = "<group>"; };
-		0ACC88332CD596BB00018C5C /* Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geometry.swift; sourceTree = "<group>"; };
-		0ACC88342CD596BB00018C5C /* GUID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GUID.swift; sourceTree = "<group>"; };
-		0ACC88352CD596BB00018C5C /* MessageBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBox.swift; sourceTree = "<group>"; };
-		0ACC88372CD596BB00018C5C /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
-		0ACC88382CD596BB00018C5C /* Texture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Texture.swift; sourceTree = "<group>"; };
-		0ACC883A2CD596BB00018C5C /* BaseScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseScene.swift; sourceTree = "<group>"; };
-		0ACC883B2CD596BB00018C5C /* SceneAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneAction.swift; sourceTree = "<group>"; };
-		0ACC883C2CD596BB00018C5C /* SceneNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneNode.swift; sourceTree = "<group>"; };
-		0ACC883D2CD596BB00018C5C /* SpriteNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpriteNode.swift; sourceTree = "<group>"; };
-		0ACC88402CD596BB00018C5C /* BlendMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlendMode.swift; sourceTree = "<group>"; };
-		0ACC88412CD596BB00018C5C /* Surface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Surface.swift; sourceTree = "<group>"; };
-		0ACC88432CD596BB00018C5C /* Cameras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cameras.swift; sourceTree = "<group>"; };
-		0ACC88442CD596BB00018C5C /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
-		0ACC88452CD596BB00018C5C /* Displays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Displays.swift; sourceTree = "<group>"; };
-		0ACC88462CD596BB00018C5C /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
-		0ACC88482CD596BB00018C5C /* _Exported.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _Exported.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -122,9 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A488C192CCC812A008ED5F3 /* ArgumentParser in Frameworks */,
-				0AD7A2E62CCAD10A00F67A71 /* Collections in Frameworks */,
-				0AD7A2E12CCAD0DB00F67A71 /* SDL3.xcframework in Frameworks */,
+				0AF72EB22CD7FF030072DDF4 /* SwiftSDL in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				0A21CDA22CC8434300BBC8B0 /* SampleApp */,
-				0ACC88492CD596BB00018C5C /* SwiftSDL */,
-				0A21CDBD2CC8435600BBC8B0 /* Frameworks */,
 				0A21CDA12CC8434300BBC8B0 /* Products */,
 				0AB787D62CC9357D00DBD8FF /* README.md */,
 			);
@@ -149,149 +78,6 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
-		};
-		0A21CDBD2CC8435600BBC8B0 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				0A7D95382CC8894500FEDE66 /* SDL3.xcframework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		0ACC88202CD596BB00018C5C /* App */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC881E2CD596BB00018C5C /* App.swift */,
-				0ACC881F2CD596BB00018C5C /* Game.swift */,
-			);
-			path = App;
-			sourceTree = "<group>";
-		};
-		0ACC88222CD596BB00018C5C /* Audio */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88212CD596BB00018C5C /* AudioDevices.swift */,
-			);
-			path = Audio;
-			sourceTree = "<group>";
-		};
-		0ACC88282CD596BB00018C5C /* Basics */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88232CD596BB00018C5C /* Error.swift */,
-				0ACC88242CD596BB00018C5C /* Pointer.swift */,
-				0ACC88252CD596BB00018C5C /* Properties.swift */,
-				0ACC88262CD596BB00018C5C /* SDLInit.swift */,
-				0ACC88272CD596BB00018C5C /* Version.swift */,
-			);
-			path = Basics;
-			sourceTree = "<group>";
-		};
-		0ACC882A2CD596BB00018C5C /* Events */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88292CD596BB00018C5C /* Events.swift */,
-			);
-			path = Events;
-			sourceTree = "<group>";
-		};
-		0ACC882C2CD596BB00018C5C /* Image */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC882B2CD596BB00018C5C /* IMGInit.swift */,
-			);
-			path = Image;
-			sourceTree = "<group>";
-		};
-		0ACC88302CD596BB00018C5C /* Input */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC882D2CD596BB00018C5C /* Gamepads.swift */,
-				0ACC882E2CD596BB00018C5C /* Joysticks.swift */,
-				0ACC882F2CD596BB00018C5C /* Sensor.swift */,
-			);
-			path = Input;
-			sourceTree = "<group>";
-		};
-		0ACC88362CD596BB00018C5C /* Misc */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88312CD596BB00018C5C /* FileIO.swift */,
-				0ACC88322CD596BB00018C5C /* FlipMode.swift */,
-				0ACC88332CD596BB00018C5C /* Geometry.swift */,
-				0ACC88342CD596BB00018C5C /* GUID.swift */,
-				0ACC88352CD596BB00018C5C /* MessageBox.swift */,
-			);
-			path = Misc;
-			sourceTree = "<group>";
-		};
-		0ACC88392CD596BB00018C5C /* Rendering */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88372CD596BB00018C5C /* Renderer.swift */,
-				0ACC88382CD596BB00018C5C /* Texture.swift */,
-			);
-			path = Rendering;
-			sourceTree = "<group>";
-		};
-		0ACC883E2CD596BB00018C5C /* Scene */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC883A2CD596BB00018C5C /* BaseScene.swift */,
-				0ACC883B2CD596BB00018C5C /* SceneAction.swift */,
-				0ACC883C2CD596BB00018C5C /* SceneNode.swift */,
-				0ACC883D2CD596BB00018C5C /* SpriteNode.swift */,
-			);
-			path = Scene;
-			sourceTree = "<group>";
-		};
-		0ACC883F2CD596BB00018C5C /* ScenePrefabs */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ScenePrefabs;
-			sourceTree = "<group>";
-		};
-		0ACC88422CD596BB00018C5C /* Surfaces */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88402CD596BB00018C5C /* BlendMode.swift */,
-				0ACC88412CD596BB00018C5C /* Surface.swift */,
-			);
-			path = Surfaces;
-			sourceTree = "<group>";
-		};
-		0ACC88472CD596BB00018C5C /* Video */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88432CD596BB00018C5C /* Cameras.swift */,
-				0ACC88442CD596BB00018C5C /* Color.swift */,
-				0ACC88452CD596BB00018C5C /* Displays.swift */,
-				0ACC88462CD596BB00018C5C /* Window.swift */,
-			);
-			path = Video;
-			sourceTree = "<group>";
-		};
-		0ACC88492CD596BB00018C5C /* SwiftSDL */ = {
-			isa = PBXGroup;
-			children = (
-				0ACC88202CD596BB00018C5C /* App */,
-				0ACC88222CD596BB00018C5C /* Audio */,
-				0ACC88282CD596BB00018C5C /* Basics */,
-				0ACC882A2CD596BB00018C5C /* Events */,
-				0ACC882C2CD596BB00018C5C /* Image */,
-				0ACC88302CD596BB00018C5C /* Input */,
-				0ACC88362CD596BB00018C5C /* Misc */,
-				0ACC88392CD596BB00018C5C /* Rendering */,
-				0ACC883E2CD596BB00018C5C /* Scene */,
-				0ACC883F2CD596BB00018C5C /* ScenePrefabs */,
-				0ACC88422CD596BB00018C5C /* Surfaces */,
-				0ACC88472CD596BB00018C5C /* Video */,
-				0ACC88482CD596BB00018C5C /* _Exported.swift */,
-			);
-			name = SwiftSDL;
-			path = "/Users/kevin/Developer/Apple/GitHub Code/SwiftSDL/Sources/SwiftSDL";
-			sourceTree = "<absolute>";
 		};
 /* End PBXGroup section */
 
@@ -314,8 +100,7 @@
 			);
 			name = SampleApp;
 			packageProductDependencies = (
-				0AD7A2E52CCAD10A00F67A71 /* Collections */,
-				0A488C182CCC812A008ED5F3 /* ArgumentParser */,
+				0AF72EB12CD7FF030072DDF4 /* SwiftSDL */,
 			);
 			productName = SampleApp;
 			productReference = 0A21CDA02CC8434300BBC8B0 /* SampleApp.app */;
@@ -346,8 +131,7 @@
 			mainGroup = 0A21CD972CC8434300BBC8B0;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				0AD7A2E42CCAD10A00F67A71 /* XCRemoteSwiftPackageReference "swift-collections" */,
-				0A488C172CCC812A008ED5F3 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				0AF72EAE2CD7FE6C0072DDF4 /* XCLocalSwiftPackageReference "../../../SwiftSDL" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0A21CDA12CC8434300BBC8B0 /* Products */;
@@ -375,37 +159,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0ACC884A2CD596BB00018C5C /* Window.swift in Sources */,
-				0ACC884B2CD596BB00018C5C /* Cameras.swift in Sources */,
-				0ACC884C2CD596BB00018C5C /* Sensor.swift in Sources */,
-				0ACC884D2CD596BB00018C5C /* Events.swift in Sources */,
-				0ACC884E2CD596BB00018C5C /* Game.swift in Sources */,
-				0ACC884F2CD596BB00018C5C /* GUID.swift in Sources */,
-				0ACC88502CD596BB00018C5C /* Error.swift in Sources */,
-				0ACC88512CD596BB00018C5C /* SDLInit.swift in Sources */,
-				0ACC88522CD596BB00018C5C /* BlendMode.swift in Sources */,
-				0ACC88532CD596BB00018C5C /* MessageBox.swift in Sources */,
-				0ACC88542CD596BB00018C5C /* App.swift in Sources */,
-				0ACC88552CD596BB00018C5C /* Gamepads.swift in Sources */,
-				0ACC88562CD596BB00018C5C /* Version.swift in Sources */,
-				0ACC88572CD596BB00018C5C /* Color.swift in Sources */,
-				0ACC88582CD596BB00018C5C /* Geometry.swift in Sources */,
-				0ACC88592CD596BB00018C5C /* IMGInit.swift in Sources */,
-				0ACC885A2CD596BB00018C5C /* FileIO.swift in Sources */,
-				0ACC885B2CD596BB00018C5C /* Properties.swift in Sources */,
-				0ACC885C2CD596BB00018C5C /* FlipMode.swift in Sources */,
-				0ACC885D2CD596BB00018C5C /* _Exported.swift in Sources */,
-				0ACC885E2CD596BB00018C5C /* Pointer.swift in Sources */,
-				0ACC885F2CD596BB00018C5C /* Texture.swift in Sources */,
-				0ACC88602CD596BB00018C5C /* Surface.swift in Sources */,
-				0ACC88612CD596BB00018C5C /* Joysticks.swift in Sources */,
-				0ACC88622CD596BB00018C5C /* AudioDevices.swift in Sources */,
-				0ACC88632CD596BB00018C5C /* SpriteNode.swift in Sources */,
-				0ACC88642CD596BB00018C5C /* SceneAction.swift in Sources */,
-				0ACC88652CD596BB00018C5C /* Displays.swift in Sources */,
-				0ACC88662CD596BB00018C5C /* Renderer.swift in Sources */,
-				0ACC88672CD596BB00018C5C /* BaseScene.swift in Sources */,
-				0ACC88682CD596BB00018C5C /* SceneNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,7 +188,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kevinvitale.SampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "SampleApp/SampleApp-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -465,7 +217,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kevinvitale.SampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "SampleApp/SampleApp-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -610,35 +361,17 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		0A488C172CCC812A008ED5F3 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.0;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		0AF72EAE2CD7FE6C0072DDF4 /* XCLocalSwiftPackageReference "../../../SwiftSDL" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../SwiftSDL;
 		};
-		0AD7A2E42CCAD10A00F67A71 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-collections.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.4;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0A488C182CCC812A008ED5F3 /* ArgumentParser */ = {
+		0AF72EB12CD7FF030072DDF4 /* SwiftSDL */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0A488C172CCC812A008ED5F3 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
-			productName = ArgumentParser;
-		};
-		0AD7A2E52CCAD10A00F67A71 /* Collections */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0AD7A2E42CCAD10A00F67A71 /* XCRemoteSwiftPackageReference "swift-collections" */;
-			productName = Collections;
+			productName = SwiftSDL;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

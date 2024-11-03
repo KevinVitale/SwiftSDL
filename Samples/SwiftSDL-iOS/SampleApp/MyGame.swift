@@ -1,10 +1,12 @@
+import SwiftSDL
+
 @main public final class MyGame: Game {
   private var squareNode = SceneNode()
   private var squareSize = Size<Float>(x: 100, y: 100)
   
   public init() {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait")
-    SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1")
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal")
   }
   
   public static let name: String = ""
