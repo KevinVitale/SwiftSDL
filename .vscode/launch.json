@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftSDL}",
+            "name": "Debug sdl",
+            "program": "${workspaceFolder:SwiftSDL}/.build/debug/sdl",
+            "preLaunchTask": "swift: Build Debug sdl"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftSDL}",
+            "name": "Release sdl",
+            "program": "${workspaceFolder:SwiftSDL}/.build/release/sdl",
+            "preLaunchTask": "swift: Build Release sdl"
+        }
+    ]
+}

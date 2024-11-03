@@ -1,4 +1,3 @@
-import CSDL3
 import SwiftSDL
 
 extension SDL.Test {
