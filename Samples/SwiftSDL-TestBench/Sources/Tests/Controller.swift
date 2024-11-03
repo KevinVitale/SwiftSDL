@@ -19,7 +19,7 @@ extension SDL.Test {
 
     static let name: String = "SDL Test: Controller"
     
-    private var _scene = ControllerTestScene()
+    private var _scene = ControllerScene()
     
     func onInit() throws(SDL_Error) -> any Window {
       #if os(macOS)
@@ -44,7 +44,7 @@ extension SDL.Test {
       
       let display = try Displays.primary.get()
       let contentScale = (try? display.contentScale.get()) ?? 1
-      let screenSize = ControllerTestScene
+      let screenSize = ControllerScene
         .SceneLayout
         .screenSize(scaledBy: contentScale)
         .to(Sint64.self)
