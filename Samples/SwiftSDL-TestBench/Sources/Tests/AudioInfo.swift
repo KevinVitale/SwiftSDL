@@ -81,6 +81,5 @@ extension SDL.Test {
         print("  \(error)")
       }
     }
-    
   }
 }

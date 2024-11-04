@@ -1,14 +1,11 @@
-public final class RendererPtr: SDLPointer {
-  public static func destroy(_ pointer: OpaquePointer) {
-    SDL_DestroyRenderer(pointer)
-  }
-}
-
+// MARK: - Protocol
 @MainActor
-public protocol Renderer: SDLObjectProtocol where Pointer == RendererPtr { }
+public protocol Renderer: SDLObjectProtocol where Pointer == OpaquePointer { }
 
-extension SDLObject<RendererPtr>: Renderer { }
+extension SDLObject<OpaquePointer>: Renderer { }
+extension Unmanaged: Renderer where Instance: Renderer { }
 
+// MARK: - Create Renderer
 public func SDL_CreateRenderer<P: PropertyValue>(with properties: (String, value: P)..., window: (any Window)? = nil) throws(SDL_Error) -> some Renderer {
   try SDL_CreateRenderer(with: properties, window: window)
 }
@@ -30,25 +27,52 @@ public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, valu
     )
   }
 
-  guard let texture = SDL_CreateRendererWithProperties(rendererProperties) else {
+  guard let pointer = SDL_CreateRendererWithProperties(rendererProperties) else {
     throw SDL_Error.error
   }
   
-  return SDLObject(pointer: texture)
+  let object = SDLObject<OpaquePointer>(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
+  return SDLObject.unmanaged(pointer, tag: .custom("renderer"), SDL_DestroyRenderer)//.autorelease()
 }
 
+// MARK: - Computed Properties
 extension Renderer {
   public var name: Result<String, SDL_Error> {
     return self
       .resultOf(SDL_GetRendererName)
       .map({ String(cString: $0) })
   }
+  
+  public var viewport: Result<Rect<Int32>, SDL_Error> {
+    var rect = SDL_Rect()
+    return self
+      .resultOf(SDL_GetRenderViewport, .some(&rect))
+      .map({ _ in [rect.x, rect.y, rect.w, rect.h] })
+  }
+  
+  public var vsync: Result<Int32, SDL_Error> {
+    var vsync: Int32 = 0
+    return self
+      .resultOf(SDL_GetRenderVSync, .some(&vsync))
+      .map({ _ in vsync })
+  }
+  
+  @discardableResult
+  public func set(vsync: Int32) throws(SDL_Error) -> Self {
+    try self(SDL_SetRenderVSync, vsync)
+  }
+}
 
+// MARK: - Modes
+extension Renderer {
   @discardableResult
   public func set(blendMode: Flags.BlendMode) throws(SDL_Error) -> Self {
     try self(SDL_SetRenderDrawBlendMode, blendMode.rawValue)
   }
-  
+}
+
+// MARK: - Color Functions
+extension Renderer {
   @discardableResult
   public func set(color: SDL_Color) throws(SDL_Error) -> Self {
     let red = Float(color.r) / Float(UInt8.max)
@@ -66,12 +90,66 @@ extension Renderer {
     }
     return try self(SDL_RenderClear)
   }
-
+}
+  
+// MARK: - Drawing
+extension Renderer {
   @discardableResult
   public func present() throws(SDL_Error) -> Self {
     try self(SDL_RenderPresent)
   }
   
+  @discardableResult
+  public func draw(texture: (any Texture)?, position: Point<Float>) throws(SDL_Error) -> Self {
+    guard let texture = texture else { return self }
+    let size = try texture.size(as: Float.self)
+    return try self.draw(
+      texture: texture,
+      destinationRect: [
+        position.x, position.y,
+        size.x, size.y
+      ]
+    )
+  }
+  
+  @discardableResult
+  public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil) throws(SDL_Error) -> Self {
+    guard let texture = texture else { return self }
+    
+    let size = try texture.size(as: Float.self)
+    
+    var rect: SDL_FRect! = nil
+    switch dstRect {
+      case let dstRect?:
+        rect = [
+          dstRect.lowHalf.x, dstRect.lowHalf.y,
+          dstRect.highHalf.x, dstRect.highHalf.y
+        ]
+      default:
+        rect = [
+          0, 0,
+          size.x, size.y
+        ]
+    }
+    
+    return try self(SDL_RenderTexture, texture.pointer, nil, .some(&rect))
+  }
+  
+  @discardableResult
+  public func debug(text: String, position: Point<Float>, color: SDL_Color = .white, scale: Float = 1.0) throws(SDL_Error) -> Self {
+    try self
+      .set(color: color)
+      .set(scale: scale)
+    
+    guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
+      throw SDL_Error.error
+    }
+    return self
+  }
+}
+  
+// MARK: - Sizing Functions
+extension Renderer {
   @discardableResult
   public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
@@ -109,8 +187,10 @@ extension Renderer {
     }
     return self
   }
-
+}
   
+// MARK: - Fill Rects
+extension Renderer {
   @discardableResult
   public func fill(rects: SDL_FRect..., color: SDL_Color) throws(SDL_Error) -> Self {
     try self.fill(rects: rects, color: color)
@@ -129,77 +209,9 @@ extension Renderer {
   public func set(scale: Float) throws(SDL_Error) -> Self {
     try self(SDL_SetRenderScale, scale, scale)
   }
-  
-  @discardableResult
-  public func draw(texture: (any Texture)?, position: Point<Float>) throws(SDL_Error) -> Self {
-    guard let texture = texture else { return self }
-    let size = try texture.size(as: Float.self)
-    return try self.draw(
-      texture: texture,
-      destinationRect: [
-        position.x, position.y,
-        size.x, size.y
-      ]
-    )
-  }
-
-  @discardableResult
-  public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil) throws(SDL_Error) -> Self {
-    guard let texture = texture else { return self }
-      
-    let size = try texture.size(as: Float.self)
-    
-    var rect: SDL_FRect! = nil
-    switch dstRect {
-      case let dstRect?:
-        rect = [
-          dstRect.lowHalf.x, dstRect.lowHalf.y,
-          dstRect.highHalf.x, dstRect.highHalf.y
-        ]
-      default:
-        rect = [
-          0, 0,
-          size.x, size.y
-        ]
-    }
-
-    return try self(SDL_RenderTexture, texture.pointer, nil, .some(&rect))
-  }
-  
-  @discardableResult
-  public func debug(text: String, position: Point<Float>, color: SDL_Color = .white, scale: Float = 1.0) throws(SDL_Error) -> Self {
-    try self
-      .set(color: color)
-      .set(scale: scale)
-    
-    guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
-      throw SDL_Error.error
-    }
-    return self
-  }
 }
 
-extension Renderer {
-  public var vsync: Result<Int32, SDL_Error> {
-    var vsync: Int32 = 0
-    return self
-      .resultOf(SDL_GetRenderVSync, .some(&vsync))
-      .map({ _ in vsync })
-  }
-  
-  public var viewport: Result<Rect<Int32>, SDL_Error> {
-    var rect = SDL_Rect()
-    return self
-      .resultOf(SDL_GetRenderViewport, .some(&rect))
-      .map({ _ in [rect.x, rect.y, rect.w, rect.h] })
-  }
-  
-  @discardableResult
-  public func set(vsync: Int32) throws(SDL_Error) -> Self {
-    try self(SDL_SetRenderVSync, vsync)
-  }
-}
-
+// MARK: - Logical Presentation
 extension SDL_RendererLogicalPresentation: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
   public static let disabled = SDL_LOGICAL_PRESENTATION_DISABLED
   public static let stretch = SDL_LOGICAL_PRESENTATION_STRETCH

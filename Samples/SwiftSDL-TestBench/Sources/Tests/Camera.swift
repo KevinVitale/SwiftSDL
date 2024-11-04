@@ -1,3 +1,4 @@
+/*
 extension SDL.Test {
   final class Camera: Game {
     private enum CodingKeys: String, CodingKey {
@@ -129,3 +130,5 @@ extension SDL.Test {
     }
   }
 }
+
+*/

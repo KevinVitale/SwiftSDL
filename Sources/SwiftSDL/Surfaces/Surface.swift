@@ -1,25 +1,35 @@
-public final class SurfacePtr: SDLPointer {
-  public static func destroy(_ pointer: UnsafeMutablePointer<SDL_Surface>) {
-    SDL_DestroySurface(pointer)
+// MARK: - Protocol
+@dynamicMemberLookup
+public protocol Surface: SDLObjectProtocol where Pointer == UnsafeMutablePointer<SDL_Surface> { }
+
+// MARK: - Extensions
+extension SDLObject<UnsafeMutablePointer<SDL_Surface>>: Surface { }
+extension Unmanaged: Surface where Instance: Surface { }
+
+extension SDLObject where Pointer == UnsafeMutablePointer<SDL_Surface> {
+  static func unmanaged(_ pointer: Pointer) -> Unmanaged<SDLObject<Pointer>> {
+    let managed = SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
+    return Unmanaged.passRetained(managed)
   }
 }
 
-@dynamicMemberLookup
-public protocol Surface: SDLObjectProtocol where Pointer == SurfacePtr { }
 
-extension SDLObject<SurfacePtr>: Surface { }
-
+// MARK: - Subscript
 extension Surface {
-  public subscript<T>(dynamicMember keyPath: KeyPath<SDL_Surface, T>) -> T {
-    self.pointer.withMemoryRebound(to: SDL_Surface.self, capacity: 1) {
-      $0.pointee[keyPath: keyPath]
-    }
+  public subscript<T>(dynamicMember keyPath: KeyPath<Self.Pointer.Pointee, T>) -> T {
+    self.pointer.pointee[keyPath: keyPath]
   }
-  
+}
+
+// MARK: - Computed Properties
+extension Surface {
   public var size: Size<Int32> {
     [self.w, self.h]
   }
-  
+}
+
+// MARK: - Color Functions
+extension Surface {
   @discardableResult
   public func clear(color: SDL_Color? = nil) throws(SDL_Error) -> Self {
     let bgColor = color ?? .black
@@ -36,12 +46,18 @@ extension Surface {
   public func map(color: SDL_Color) throws(SDL_Error) -> Uint32 {
     try self(SDL_MapSurfaceRGBA, color.r, color.g, color.b, color.a)
   }
+}
   
+// MARK: - Modes
+extension Surface {
   @discardableResult
   public func flip(_ flip: SDL_FlipMode) throws(SDL_Error) -> Self {
     try self(SDL_FlipSurface, flip)
   }
-  
+}
+
+// MARK: - Fill Rects
+extension Surface {
   @discardableResult
   public func fill(rects: SDL_Rect..., color: SDL_Color) throws(SDL_Error) -> Self {
     try self.fill(rects: rects, color: color)
@@ -58,13 +74,14 @@ extension Surface {
   }
 }
 
+// MARK: - Load Bitmaps
 @discardableResult
 public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SDL_Error) -> any Surface {
   guard let pointer = SDL_LoadBMP(file) else {
     throw SDL_Error.error
   }
   
-  return SDLObject(pointer: pointer)
+  return SDLObject.unmanaged(pointer) //.autorelease()
 }
 
 @discardableResult
@@ -88,5 +105,5 @@ public func SDL_Load(
     throw SDL_Error.error
   }
   
-  return SDLObject(pointer: pointer)
+  return SDLObject.unmanaged(pointer) //.autorelease()
 }

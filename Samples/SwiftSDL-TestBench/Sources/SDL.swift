@@ -19,21 +19,20 @@ extension SDL {
       abstract: "Run a variety SDL tests reimplemented using SwiftSDL.",
       subcommands: [
         AudioInfo.self,
-        Camera.self,
-        Controller.self,
-        Geometry.self
+        // Camera.self,
+        // Controller.self,
+        Geometry.self,
+        Sandbox.self
       ]
     )
   }
 }
 
-extension Game {
-  static func load(bitmap: String) throws(SDL_Error) -> any Surface {
-    try SDL_Load(
-      bitmap: bitmap,
-      searchingBundles: Bundle.resourceBundles(matching: {
-        $0.lastPathComponent.contains("SwiftSDL-TestBench")
-      })
-    )
-  }
+func Load(bitmap: String) throws(SDL_Error) -> any Surface {
+  try SDL_Load(
+    bitmap: bitmap,
+    searchingBundles: Bundle.resourceBundles(matching: {
+      $0.lastPathComponent.contains("SwiftSDL-TestBench")
+    })
+  )
 }

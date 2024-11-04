@@ -5,7 +5,7 @@ public protocol Game: AnyObject, AsyncParsableCommand {
   static var identifier: String { get }
   
   static var windowFlags: [SDL_WindowCreateFlag] { get }
-
+  
   @MainActor
   func onInit() throws(SDL_Error) -> any Window
   
@@ -13,7 +13,7 @@ public protocol Game: AnyObject, AsyncParsableCommand {
   func onReady(window: any Window) throws(SDL_Error)
   
   @MainActor
-  func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error)
+  func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
   
   @MainActor
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
@@ -52,13 +52,13 @@ extension Game {
   @MainActor
   public func onQuit(_ result: SDL_Error?) {
     /*
-    defer {
-      #if DEBUG
-      if result != nil {
-        print(SDL_Error.callStackDescription)
-      }
-      #endif
-    }
+     defer {
+     #if DEBUG
+     if result != nil {
+     print(SDL_Error.callStackDescription)
+     }
+     #endif
+     }
      */
     SDL_Quit()
   }
@@ -66,7 +66,7 @@ extension Game {
 
 extension Game {
   @MainActor public func run() async throws {
-    App.shared.game = AnyGame(self)
+    App.game = self
     
     guard SDL_SetAppMetadata(
       Self.name,
@@ -80,34 +80,22 @@ extension Game {
       SDL_EnterAppMainCallbacks(argc, argv, { state, argc, argv in
         /* onInit */
         do {
-          let game = App.shared.game.base as! any Game
-          let window = try game.onInit()
-          
-          let appState = App.State(game: App.shared.game, window: AnyWindow(window))
-          state?.pointee = Unmanaged.passRetained(appState).toOpaque()
-          
-          try game.onReady(window: window)
-          
+          App.window = try App.game.onInit()
+          try App.game.onReady(window: App.window)
           return .continue
         } catch {
           return .failure
         }
       }, /* onIterate */ { state in
         do {
-          let ticks = Tick(value: Double(SDL_GetTicksNS()), unit: .nanoseconds)
-          if App.shared.ticks.value == .infinity {
-            App.shared.ticks = ticks
+          let ticks = SDL_GetTicksNS()
+          if App.ticks == .max {
+            App.ticks = ticks
           }
           
-          let delta = Tick(
-            value: ticks.value - App.shared.ticks.value,
-            unit: .nanoseconds
-          )
-          
-          App.shared.ticks = ticks
-          
-          let appState = Unmanaged<App.State>.fromOpaque(state!).takeUnretainedValue()
-          try appState.game.onUpdate(window: appState.window, delta)
+          let delta = ticks - App.ticks
+          App.ticks = ticks
+          try App.game.onUpdate(window: App.window, delta)
           
           return .continue
         } catch {
@@ -118,13 +106,10 @@ extension Game {
           return .failure
         }
         do {
-          guard event.eventType != .quit else {
+          guard event.type != SDL_EVENT_QUIT.rawValue else {
             return .success
           }
-          
-          let appState = Unmanaged<App.State>.fromOpaque(state!).takeUnretainedValue()
-          try appState.game.onEvent(window: appState.window, event)
-          
+          try App.game.onEvent(window: App.window, event)
           return .continue
         } catch {
           return .failure
@@ -135,14 +120,9 @@ extension Game {
           debugPrint(error)
         }
         
-        let appStatePtr = Unmanaged<App.State>.fromOpaque(state!)
-        let window = appStatePtr.takeUnretainedValue().window
-        let game = appStatePtr.takeUnretainedValue().game
-        
-        try? game.onShutdown(window: window)
-        game.onQuit(error)
-        
-        appStatePtr.release() // destroys 'window'
+        defer { App.window = nil }
+        try? App.game.onShutdown(window: App.window)
+        App.game.onQuit(error)
       })
       
       return 0

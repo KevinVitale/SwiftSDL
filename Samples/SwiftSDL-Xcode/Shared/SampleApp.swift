@@ -1,7 +1,7 @@
 import SwiftSDL
 
 @main public final class MyGame: Game {
-  private var squareNode = SceneNode()
+  private var squareNode: SceneNode!
   private var squareSize = Size<Float>(x: 100, y: 100)
   
   #if os(macOS)
@@ -11,6 +11,7 @@ import SwiftSDL
   
   public init() {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait")
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal")
   }
   
@@ -18,9 +19,11 @@ import SwiftSDL
   public static let version: String = ""
   public static let identifier: String = ""
   
-  private var camera: CameraID? = nil
+  // private var camera: CameraID? = nil
   
   public func onReady(window: any Window) throws(SDL_Error) {
+    squareNode = .init()
+    /*
     #if !os(tvOS)
     try SDL_Init(.camera)
     
@@ -28,13 +31,14 @@ import SwiftSDL
       camera.name.contains("FaceTime")
     }
     #endif
+     */
   }
   
-  public func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {
+  public func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
     do {
       let surface = try window.surface.get()
       try surface.clear(color: .gray)
-      try camera?.draw(to: surface)
+      // try camera?.draw(to: surface)
       try self.drawSquare(surface: surface)
       try window.updateSurface()
     }
@@ -71,6 +75,6 @@ import SwiftSDL
   }
   
   public func onShutdown(window: any Window) throws(SDL_Error) {
-    camera?.close()
+    // camera?.close()
   }
 }

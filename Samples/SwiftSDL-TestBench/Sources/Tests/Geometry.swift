@@ -22,34 +22,40 @@ extension SDL.Test {
         case "mul": return .mul
         default: return .none
       }
-    }) var blendMode: Flags.BlendMode = .none
+    }) var blendMode: Flags.BlendMode = .blend
     
     @Flag(name: [
       .customLong("use-texture"),
       .customShort("t")
     ]) var useTexture: Bool = false
     
-    private var icon: (any Texture)!
+    private var renderer: (any Renderer)! = nil
+    private var icon: (any Texture)! = nil
     private var trianglePos: Point<Int32> = .zero
     private var triangleAngle: Float = .zero
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      // let windows = try SDLBufferPointer(SDL_GetWindows)
+
       if !options.title.isEmpty {
         try window.set(title: options.title)
       }
       
-      let renderer = try window.createRenderer()
-      try _loadTexture(renderer)
-
+      renderer = try window.createRenderer()
+      let icon = try renderer.texture(from: try Load(bitmap: "icon.bmp"))
+      try icon.set(blendMode: blendMode.rawValue)
+      
+      self.icon = icon
+      
       if options.vsync {
         try renderer.set(vsync: SDL_RENDERER_VSYNC_ADAPTIVE)
       }
     }
     
-    func onUpdate(window: any Window, _ delta: Tick) throws(SwiftSDL.SDL_Error) {
-      let renderer = try window.renderer.get()
+    func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
+      // let renderer = try window.renderer.get()
       
-      // Clears th framebuffer (uses 'blendMode' option passed in at runtime).
+      // Clears the framebuffer (uses 'blendMode' option passed in at runtime).
       try renderer
         .set(blendMode: blendMode)
         .clear(color: .init(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF))
@@ -95,14 +101,14 @@ extension SDL.Test {
     }
     
     func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      icon?.destroy()
+      renderer = nil
     }
     
     @MainActor private func _loadTexture(_ renderer: any Renderer) throws(SDL_Error) {
-      let surface = try Self.load(bitmap: "icon.bmp")
+      let surface = try Load(bitmap: "icon.bmp")
       self.icon = try renderer.texture(from: surface)
       try self.icon(SDL_SetTextureBlendMode, blendMode.rawValue)
-      surface.destroy()
+      // surface.destroy()
     }
     
     @MainActor private func _drawGeometry(_ renderer: any Renderer) throws(SDL_Error) {

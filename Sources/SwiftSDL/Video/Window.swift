@@ -1,25 +1,20 @@
-public final class WindowPtr: SDLPointer {
-  public static func destroy(_ pointer: OpaquePointer) {
-    SDL_DestroyWindow(pointer)
-  }
-}
-
 @MainActor
-public protocol Window: SDLObjectProtocol where Pointer == WindowPtr { }
+public protocol Window: SDLObjectProtocol where Pointer == OpaquePointer { }
 
-extension SDLObject<WindowPtr>: Window { }
+extension SDLObject<OpaquePointer>: Window { }
+extension Unmanaged: Window where Instance: Window { }
 
 extension Window {
   public var surface: Result<any Surface, SDL_Error> {
     self
       .resultOf(SDL_GetWindowSurface)
-      .map(SDLObject.init(pointer:))
+      .map({ SDLObject($0, tag: .custom("surface")) })
   }
   
   public var renderer: Result<any Renderer, SDL_Error> {
     self
       .resultOf(SDL_GetRenderer)
-      .map(SDLObject.init(pointer:))
+      .map({ SDLObject($0, tag: .custom("renderer")) })
   }
   
   @discardableResult
@@ -36,7 +31,7 @@ extension Window {
   public func createRenderer<P: PropertyValue>(with properties: [(String, value: P)] = []) throws(SDL_Error) -> any Renderer {
     try self
       .resultOf(SDL_CreateRenderer, nil)
-      .map(SDLObject<RendererPtr>.init(pointer:))
+      .map({ SDLObject.unmanaged($0, tag: .custom("window renderer"), SDL_DestroyRenderer)/*.autorelease()*/ })
       .get()
   }
 
@@ -98,12 +93,11 @@ public func SDL_CreateWindow(with properties: [SDL_WindowCreateFlag]) throws(SDL
     }
   }
   
-  guard let window = SDL_CreateWindowWithProperties(windowProperties) else {
+  guard let pointer = SDL_CreateWindowWithProperties(windowProperties) else {
     throw SDL_Error.error
   }
   
-  
-  return SDLObject(pointer: window)
+  return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
 }
 
 @discardableResult
@@ -122,7 +116,7 @@ public func SDL_GetWindows() throws(SDL_Error) -> [any Window] {
     }
   }
     .compactMap(\.self)
-    .map(SDLObject.init(pointer:))
+    .map({ SDLObject.unmanaged($0, tag: .custom("tag"), SDL_DestroyWindow) })
 }
 
 struct __SDL_WindowCreateFlags: RawRepresentable {

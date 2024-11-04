@@ -7,6 +7,10 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
     self.label = label
   }
   
+  deinit {
+    print("\(Self.self) \(#function)")
+  }
+  
   public var label: String = ""
   public var id = UUID()
   
@@ -100,6 +104,13 @@ extension SceneNode {
         case .none: return nil
         case .parent(let parent): return parent
       }
+    }
+    
+    internal var scene: (any SceneProtocol)? {
+      guard case(.parent(let parent)) = self, let parent = parent as? SceneProtocol else {
+        return parent?.scene
+      }
+      return parent
     }
     
     subscript<Value>(dynamicMember keyPath: KeyPath<SceneNode, Value>) -> Value? {

@@ -1,3 +1,4 @@
+/*
 public final class CameraPtr: SDLPointer {
   public static func destroy(_ pointer: OpaquePointer) {
     SDL_CloseCamera(pointer)
@@ -322,3 +323,5 @@ extension SDL_CameraPosition: @retroactive CaseIterable, @retroactive CustomDebu
   }
 }
 
+
+*/

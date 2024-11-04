@@ -1,10 +1,7 @@
-final class App {
-  private init() { }
-  
-  @MainActor static let shared = App()
-  
-  var game: AnyGame!
-  var ticks = Tick(value: .infinity, unit: .nanoseconds)
+enum App {
+  @MainActor static weak var game: (any Game)!
+  @MainActor static var window: (any Window)!
+  @MainActor static var ticks: Uint64 = .max
 }
 
 public struct SDL_AppMetadataFlags: RawRepresentable, Sendable {
@@ -63,10 +60,6 @@ extension App {
     init(game: AnyGame, window: AnyWindow) {
       self._game = game
       self._window = window
-    }
-    
-    deinit {
-      window.destroy()
     }
     
     private let _game: AnyGame

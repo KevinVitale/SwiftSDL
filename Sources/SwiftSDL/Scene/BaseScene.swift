@@ -56,6 +56,17 @@ open class BaseScene<Graphics>: SceneNode, SceneProtocol {
   
   @MainActor
   open func draw(_ graphics: Graphics) throws(SDL_Error) {
+    for child in children {
+      if let child = child as? SpriteNode<Graphics> {
+        try child.draw(graphics)
+      }
+    }
+  }
+}
+
+extension SceneNode {
+  public var scene: (any SceneProtocol)? {
+    parent.scene
   }
 }
 

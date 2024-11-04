@@ -1,3 +1,4 @@
+/*
 public final class JoystickPtr: SDLPointer {
   public static func destroy(_ pointer: OpaquePointer) {
     print("Closing joystick...")
@@ -450,3 +451,5 @@ fileprivate func SDL_VirtualJoystickCleanup(_ userData: UnsafeMutableRawPointer?
     .fromOpaque(userData)
     .takeRetainedValue()
 }
+
+*/
