@@ -53,8 +53,6 @@ extension SDL.Test {
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      // let renderer = try window.renderer.get()
-      
       // Clears the framebuffer (uses 'blendMode' option passed in at runtime).
       try renderer
         .set(blendMode: blendMode)

@@ -1,4 +1,3 @@
-/*
 extension SDL.Test {
   final class Camera: Game {
     private enum CodingKeys: String, CodingKey {
@@ -26,6 +25,7 @@ extension SDL.Test {
     
     static let name: String = "SDL Test: Camera"
     
+    private var renderer: (any Renderer)!
     private var camera: CameraID? = nil
     private var texture: (any Texture)?
     
@@ -53,7 +53,7 @@ extension SDL.Test {
       }
     }
     
-    func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {
+    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
       guard useAcceleration else {
         try _surfaceDrawing(window)
         return
@@ -73,7 +73,7 @@ extension SDL.Test {
     }
     
     func onShutdown(window: any Window) throws(SDL_Error) {
-      texture?.destroy()
+      texture = nil
       camera?.close()
     }
     
@@ -85,23 +85,20 @@ extension SDL.Test {
     }
     
     @MainActor private func _renderDrawing(_ window: any Window) throws(SDL_Error) {
-      do {
-        let renderer = Result { try window.renderer.get() }
-        _ = try renderer
-          .flatMapError { _ in Result { try window.createRenderer() } }
-          .flatMap { renderer in
-            Result {
-              let outputSize = try renderer.outputSize(as: Float.self)
-              try camera?.stream(to: &texture, renderer: renderer)
-              try renderer.draw(texture: texture, destinationRect: [0, 0, outputSize.x, outputSize.y])
-              try renderer.present()
-              return renderer
-            }
-          }
-          .get()
-      } catch {
-        throw error as! SDL_Error
+      if self.renderer == nil {
+        do { self.renderer = try window.renderer.get() }
+        catch { print(error) }
       }
+      
+      if self.renderer == nil {
+        do { self.renderer = try window.createRenderer() }
+        catch { print(error) }
+      }
+      
+      let outputSize = try renderer.outputSize(as: Float.self)
+      try camera?.stream(to: &texture, renderer: renderer)
+      try renderer.draw(texture: texture, destinationRect: [0, 0, outputSize.x, outputSize.y])
+      try renderer.present()
     }
     
     private func _printCameraInfoMatchingOriginalTestBench() throws(SDL_Error) {
@@ -130,5 +127,3 @@ extension SDL.Test {
     }
   }
 }
-
-*/

@@ -19,7 +19,7 @@ extension SDL {
       abstract: "Run a variety SDL tests reimplemented using SwiftSDL.",
       subcommands: [
         AudioInfo.self,
-        // Camera.self,
+        Camera.self,
         // Controller.self,
         Geometry.self,
         Sandbox.self

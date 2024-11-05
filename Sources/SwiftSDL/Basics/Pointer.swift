@@ -22,42 +22,30 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol {
   private let tag: Tag
   
   required init(_ pointer: Pointer, tag: Tag, destroy: @escaping (Pointer) -> Void = { _ in }) {
-    print("\(type(of: Pointer.self)): \(#function), \(tag)")
+    // print("\(type(of: Pointer.self)): \(#function), \(tag)")
     self.destroy = destroy
     self.pointer = pointer
     self.tag = tag
   }
 
   deinit {
+    /*
     #if DEBUG
     print("\(type(of: Pointer.self)): \(#function), \(tag)")
     #endif
+     */
     self.destroy(pointer)
   }
 }
 
-public final class SDLBufferPointer<Value>: SDLObjectProtocol {
-  public typealias Pointer = UnsafeMutablePointer<Value>
-  
-  public let pointer: Pointer
-  private let count: Int32
-  
-  public required init(_ allocate: (UnsafeMutablePointer<Int32>) -> Pointer?) throws(SDL_Error) {
-    var count: Int32 = 0
-    guard let pointer = allocate(&count) else {
-      throw SDL_Error.error
-    }
-    
-    self.count = count
-    self.pointer = pointer
+public func SDL_BufferPointer<Value>(_ allocate: (UnsafeMutablePointer<Int32>) -> UnsafeMutablePointer<Value>?) throws(SDL_Error) -> [Value] {
+  var count: Int32 = 0
+  guard let pointer = allocate(&count) else {
+    throw SDL_Error.error
   }
-  
-  deinit {
-    #if DEBUG
-    print("\(type(of: Value.self)): \(#function)")
-    #endif
-    SDL_free(pointer)
-  }
+  defer { SDL_free(pointer) }
+  let bufferPtr = UnsafeMutableBufferPointer.init(start: pointer, count: Int(count))
+  return Array(bufferPtr)
 }
 
 extension SDLObjectProtocol {

@@ -1,24 +1,11 @@
-/*
-public final class CameraPtr: SDLPointer {
-  public static func destroy(_ pointer: OpaquePointer) {
-    SDL_CloseCamera(pointer)
-  }
-}
-
 public enum Cameras {
   public static var connected: Result<[CameraID], SDL_Error> {
-    var cameraCount: Int32 = 0
-    guard let camerasPtr = SDL_GetCameras(&cameraCount) else {
-      return .failure(.error)
+    Result {
+      try SDL_BufferPointer(SDL_GetCameras).map {
+        CameraID.connected($0)
+      }
     }
-    defer { SDL_free(camerasPtr) }
-    
-    var cameras = [CameraID](repeating: .invalid, count: Int(cameraCount))
-    for index in 0..<Int(cameraCount) {
-      cameras[index] = .connected(camerasPtr[index])
-    }
-    
-    return .success(cameras)
+    .mapError { $0 as! SDL_Error }
   }
   
   public typealias MatchingCallback = (
@@ -45,12 +32,14 @@ public enum Cameras {
 
 @dynamicMemberLookup
 public enum CameraID: Decodable, CustomDebugStringConvertible {
+  public typealias CameraPtr = SDLObject<OpaquePointer>
+  
   private enum CodingKeys: String, CodingKey {
     case cameraID
   }
   
   case connected(SDL_CameraID)
-  case open(pointer: CameraPtr.Value, frame: (surface: (any Surface)?, timestamp: UInt64), spec: SDL_CameraSpec?)
+  case open(pointer: CameraPtr.Pointer, frame: (surface: (any Surface)?, timestamp: UInt64), spec: SDL_CameraSpec?)
   case invalid
   
   /*
@@ -154,7 +143,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
       return
     }
     self = .connected(id)
-    CameraPtr.destroy(pointer)
+    // CameraPtr.destroy(pointer)
   }
   
   public var debugDescription: String {
@@ -187,7 +176,9 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
         || texture?.w != surface.w
         || texture?.h != surface.h {
       
-      texture?.destroy()
+      // try texture?(SDL_DestroyTexture)
+      // SDL_DestroyTexture(texture?.pointer)
+      // texture?.destroy()
       
       let colorSpace = try surface(SDL_GetSurfaceColorspace)
       let textureProperties = SDL_CreateProperties()
@@ -216,7 +207,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     }
     SDL_ReleaseCameraFrame(pointer, frame.0?.pointer)
     
-    let surface = SDLObject<SurfacePtr>(pointer: nextFrame)
+    let surface: any Surface = SDLObject(nextFrame, tag: .custom("next frame") /* destroy: 'SDLReleaseCameraFrame' already handles it */)
     self = .open(pointer: pointer, frame: (surface, timestamped), spec: self.spec)
     return (surface, timestamped)
   }
@@ -322,6 +313,3 @@ extension SDL_CameraPosition: @retroactive CaseIterable, @retroactive CustomDebu
     }
   }
 }
-
-
-*/
