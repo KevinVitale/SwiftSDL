@@ -2,14 +2,6 @@
 public protocol Texture: SDLObjectProtocol where Pointer == UnsafeMutablePointer<SDL_Texture> { }
 
 extension SDLObject<UnsafeMutablePointer<SDL_Texture>>: Texture { }
-extension Unmanaged: Texture where Instance: Texture { }
-
-extension SDLObject where Pointer == UnsafeMutablePointer<SDL_Texture> {
-  static func unmanaged(_ pointer: Pointer) -> Unmanaged<SDLObject<Pointer>> {
-    let managed = SDLObject(pointer, tag: .custom("texture"), destroy: SDL_DestroyTexture)
-    return Unmanaged.passRetained(managed)
-  }
-}
 
 public func SDL_CreateTexture<P: PropertyValue>(with properties: (String, value: P)..., renderer: any Renderer) throws(SDL_Error) -> some Texture {
   try SDL_CreateTexture(with: properties, renderer: renderer)
@@ -29,7 +21,7 @@ public func SDL_CreateTexture<P: PropertyValue>(with properties: [(String, value
     throw SDL_Error.error
   }
   
-  return SDLObject.unmanaged(pointer, tag: .custom("texture"), SDL_DestroyTexture)//.autorelease()
+  return SDLObject(pointer, tag: .custom("texture"), destroy: SDL_DestroyTexture)
 }
 
 extension Texture {
@@ -76,7 +68,7 @@ extension Renderer {
       throw SDL_Error.error
     }
     
-    return SDLObject.unmanaged(pointer)//.autorelease()
+    return SDLObject(pointer, tag: .custom("texture (from surface)"), destroy: SDL_DestroyTexture)
   }
   
   public func texture(from bitmap: inout [UInt8]) throws(SDL_Error) -> any Texture {
@@ -88,7 +80,7 @@ extension Renderer {
       throw SDL_Error.error
     }
     
-    let surface = SDLObject.unmanaged(pointer)//.autorelease()
+    let surface: any Surface = SDLObject(pointer, tag: .custom("surface (bitmap)"), destroy: SDL_DestroySurface)
     return try self.texture(from: surface)
   }
 }

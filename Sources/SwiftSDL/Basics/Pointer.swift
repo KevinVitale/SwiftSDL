@@ -1,19 +1,16 @@
-public protocol SDLObjectProtocol {
+public protocol SDLObjectProtocol: AnyObject {
   associatedtype Pointer: Hashable
   var pointer: Pointer { get }
-}
-
-extension Unmanaged: SDLObjectProtocol where Instance: SDLObjectProtocol {
-  public typealias Pointer = Instance.Pointer
-  
-  public var pointer: Pointer {
-    self.takeUnretainedValue().pointer
-  }
 }
 
 public protocol SDLPointer {
   associatedtype Pointer: Hashable
 }
+
+/*
+ Explore this
+ https://github.com/swiftlang/swift/blob/main/docs/OptimizationTips.rst#advice-use-unmanaged-references-to-avoid-reference-counting-overhead
+ */
 
 public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol {
   enum Tag {
@@ -36,11 +33,6 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol {
     print("\(type(of: Pointer.self)): \(#function), \(tag)")
     #endif
     self.destroy(pointer)
-  }
-  
-  static func unmanaged(_ pointer: Pointer, tag: Tag, _ destroy: @escaping (Pointer) -> Void = { _ in }) -> Unmanaged<SDLObject<Pointer>> {
-    let managed = Self(pointer, tag: tag, destroy: destroy)
-    return Unmanaged.passRetained(managed)
   }
 }
 

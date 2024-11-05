@@ -101,6 +101,7 @@ extension SDL.Test {
     }
     
     func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      icon = nil
       renderer = nil
     }
     

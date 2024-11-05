@@ -4,14 +4,6 @@ public protocol Surface: SDLObjectProtocol where Pointer == UnsafeMutablePointer
 
 // MARK: - Extensions
 extension SDLObject<UnsafeMutablePointer<SDL_Surface>>: Surface { }
-extension Unmanaged: Surface where Instance: Surface { }
-
-extension SDLObject where Pointer == UnsafeMutablePointer<SDL_Surface> {
-  static func unmanaged(_ pointer: Pointer) -> Unmanaged<SDLObject<Pointer>> {
-    let managed = SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
-    return Unmanaged.passRetained(managed)
-  }
-}
 
 
 // MARK: - Subscript
@@ -81,7 +73,7 @@ public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SD
     throw SDL_Error.error
   }
   
-  return SDLObject.unmanaged(pointer) //.autorelease()
+  return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
 }
 
 @discardableResult
@@ -105,5 +97,5 @@ public func SDL_Load(
     throw SDL_Error.error
   }
   
-  return SDLObject.unmanaged(pointer) //.autorelease()
+  return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
 }

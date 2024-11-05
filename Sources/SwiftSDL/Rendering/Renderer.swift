@@ -3,7 +3,6 @@
 public protocol Renderer: SDLObjectProtocol where Pointer == OpaquePointer { }
 
 extension SDLObject<OpaquePointer>: Renderer { }
-extension Unmanaged: Renderer where Instance: Renderer { }
 
 // MARK: - Create Renderer
 public func SDL_CreateRenderer<P: PropertyValue>(with properties: (String, value: P)..., window: (any Window)? = nil) throws(SDL_Error) -> some Renderer {
@@ -31,8 +30,7 @@ public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, valu
     throw SDL_Error.error
   }
   
-  let object = SDLObject<OpaquePointer>(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
-  return SDLObject.unmanaged(pointer, tag: .custom("renderer"), SDL_DestroyRenderer)//.autorelease()
+  return SDLObject(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
 }
 
 // MARK: - Computed Properties

@@ -2,7 +2,6 @@
 public protocol Window: SDLObjectProtocol where Pointer == OpaquePointer { }
 
 extension SDLObject<OpaquePointer>: Window { }
-extension Unmanaged: Window where Instance: Window { }
 
 extension Window {
   public var surface: Result<any Surface, SDL_Error> {
@@ -31,7 +30,7 @@ extension Window {
   public func createRenderer<P: PropertyValue>(with properties: [(String, value: P)] = []) throws(SDL_Error) -> any Renderer {
     try self
       .resultOf(SDL_CreateRenderer, nil)
-      .map({ SDLObject.unmanaged($0, tag: .custom("window renderer"), SDL_DestroyRenderer)/*.autorelease()*/ })
+      .map({ SDLObject($0, tag: .custom("window renderer"), destroy: SDL_DestroyRenderer)/*.autorelease()*/ })
       .get()
   }
 
@@ -116,7 +115,7 @@ public func SDL_GetWindows() throws(SDL_Error) -> [any Window] {
     }
   }
     .compactMap(\.self)
-    .map({ SDLObject.unmanaged($0, tag: .custom("tag"), SDL_DestroyWindow) })
+    .map({ SDLObject($0, tag: .custom("tag"), destroy: SDL_DestroyWindow) })
 }
 
 struct __SDL_WindowCreateFlags: RawRepresentable {
