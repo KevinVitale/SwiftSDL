@@ -20,7 +20,7 @@ extension SDL {
       subcommands: [
         AudioInfo.self,
         Camera.self,
-        // Controller.self,
+        Controller.self,
         Geometry.self,
         Sandbox.self
       ]

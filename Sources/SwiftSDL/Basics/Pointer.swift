@@ -18,22 +18,21 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol {
   }
   
   public let pointer: Pointer
+  
   private let destroy: (Pointer) -> Void
   private let tag: Tag
   
   required init(_ pointer: Pointer, tag: Tag, destroy: @escaping (Pointer) -> Void = { _ in }) {
-    // print("\(type(of: Pointer.self)): \(#function), \(tag)")
+    print("\(type(of: Pointer.self)): \(#function), \(tag)")
     self.destroy = destroy
     self.pointer = pointer
     self.tag = tag
   }
 
   deinit {
-    /*
     #if DEBUG
     print("\(type(of: Pointer.self)): \(#function), \(tag)")
     #endif
-     */
     self.destroy(pointer)
   }
 }

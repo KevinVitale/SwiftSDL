@@ -32,14 +32,14 @@ public enum Cameras {
 
 @dynamicMemberLookup
 public enum CameraID: Decodable, CustomDebugStringConvertible {
-  public typealias CameraPtr = SDLObject<OpaquePointer>
+  public typealias CameraPtr = OpaquePointer
   
   private enum CodingKeys: String, CodingKey {
     case cameraID
   }
   
   case connected(SDL_CameraID)
-  case open(pointer: CameraPtr.Pointer, frame: (surface: (any Surface)?, timestamp: UInt64), spec: SDL_CameraSpec?)
+  case open(pointer: CameraPtr, frame: (surface: (any Surface)?, timestamp: UInt64), spec: SDL_CameraSpec?)
   case invalid
   
   /*
@@ -143,7 +143,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
       return
     }
     self = .connected(id)
-    // CameraPtr.destroy(pointer)
+    SDL_CloseCamera(pointer)
   }
   
   public var debugDescription: String {
@@ -175,10 +175,6 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     if let surface = frame.surface, texture == nil
         || texture?.w != surface.w
         || texture?.h != surface.h {
-      
-      // try texture?(SDL_DestroyTexture)
-      // SDL_DestroyTexture(texture?.pointer)
-      // texture?.destroy()
       
       let colorSpace = try surface(SDL_GetSurfaceColorspace)
       let textureProperties = SDL_CreateProperties()

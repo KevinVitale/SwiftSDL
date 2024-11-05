@@ -41,6 +41,13 @@ extension Renderer {
       .map({ String(cString: $0) })
   }
   
+  public var color: Result<SDL_Color, SDL_Error> {
+    var r: UInt8 = 0, g: UInt8 = 0, b: UInt8 = 0, a: UInt8 = 0
+    return self
+      .resultOf(SDL_GetRenderDrawColor, .some(&r), .some(&g), .some(&b), .some(&a))
+      .map({ _ in SDL_Color(r: r, g: g, b: b, a: a) })
+  }
+  
   public var viewport: Result<Rect<Int32>, SDL_Error> {
     var rect = SDL_Rect()
     return self
@@ -134,15 +141,18 @@ extension Renderer {
   }
   
   @discardableResult
-  public func debug(text: String, position: Point<Float>, color: SDL_Color = .white, scale: Float = 1.0) throws(SDL_Error) -> Self {
+  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .white, scale: Float = 1.0) throws(SDL_Error) -> Self {
+    let color = try color.get()
+    
     try self
-      .set(color: color)
+      .set(color: fillColor)
       .set(scale: scale)
     
     guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
       throw SDL_Error.error
     }
-    return self
+    
+    return try set(color: color)
   }
 }
   
@@ -195,12 +205,16 @@ extension Renderer {
   }
   
   @discardableResult
-  public func fill(rects: [SDL_FRect], color: SDL_Color) throws(SDL_Error) -> Self {
-    try self(
-      SDL_RenderFillRects,
-      rects.withUnsafeBufferPointer(\.baseAddress),
-      Int32(rects.count)
-    )
+  public func fill(rects: [SDL_FRect], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
+    let color = try color.get()
+    return try self
+      .set(color: fillColor)
+      .callAsFunction(
+        SDL_RenderFillRects,
+        rects.withUnsafeBufferPointer(\.baseAddress),
+        Int32(rects.count)
+      )
+      .set(color: color)
   }
   
   @discardableResult
