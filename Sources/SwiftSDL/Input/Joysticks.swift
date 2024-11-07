@@ -17,7 +17,7 @@ public enum Joysticks {
     hatsCount: Int32 = .zero,
     buttons: [SDL_GamepadButton] = SDL_GamepadButton.allCases,
     axises: [SDL_GamepadAxis] = SDL_GamepadAxis.allCases,
-    name: String = "Virtual Joystick",
+    name: String = "",
     touchpads: [SDL_VirtualJoystickTouchpadDesc] = [],
     sensors: [SDL_VirtualJoystickSensorDesc] = [],
     userdata: SDL_VirtualJoystickDesc.UserData.DataType = .init(),
