@@ -19,7 +19,7 @@ extension SDL.Test {
     static let name: String = "SDL Test: Controller"
     
     private var renderer: (any Renderer)!
-    private var state = State()
+    private var state: State!
     
     func onInit() throws(SDL_Error) -> any Window {
       print("Applying SDL Hints...")
@@ -44,33 +44,90 @@ extension SDL.Test {
     
     func onReady(window: any Window) throws(SDL_Error) {
       renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
-      
-      let surfaceFront = try Load(bitmap: "gamepad_front.bmp")
-      state.gamepadFront = try renderer.texture(from: surfaceFront)
-      
-      let surfaceRear = try Load(bitmap: "gamepad_back.bmp")
-      state.gamepadRear = try renderer.texture(from: surfaceRear)
+      state = try State(renderer: renderer)
     }
 
     func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+      SDL_Delay(16)
       try renderer
         .clear(color: .white)
         .fill(rects: [0, 400, 100, 100], color: .green)
         .debug(text: state.display.title, position: state.display.textPosition, color: .black)
-        .draw(texture: state.gamepadTexture, position: Layout.gamepadImagePosition)
+        .draw(texture: state.display.gamepadTexture, position: Layout.gamepadImagePosition)
         .present()
     }
     
     func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {
+      var event = event
+      try renderer(SDL_ConvertEventToRenderCoordinates, .some(&event))
+      
       switch event.eventType {
-        case .keyUp: state.display = .front
-        case .keyDown: state.display = .back
+        case .joystickAdded: ()
+          print("Joystick Added:", event.jdevice.which)
+        case .joystickRemoved: ()
+          print("Joystick Removed:", event.jdevice.which)
+        case .joystickAxisMotion: ()
+        case .joystickButtonDown: ()
+        case .joystickButtonUp: ()
+        case .joystickHatMotion: ()
+          
+        case .gamepadAdded: ()
+          print("Gamepad Added:", event.gdevice.which)
+        case .gamepadRemoved: ()
+          print("Gamepad Removed:", event.gdevice.which)
+        case .gamepadRemapped: ()
+        case .gamepadSteamHandleUpdated: ()
+        case .gamepadButtonDown: fallthrough
+        case .gamepadButtonUp: ()
+          
+        case .mouseButtonDown: ()
+        case .mouseButtonUp: ()
+        case .mouseMotion: ()
+
+        case .keyDown:
+          guard case(.open) = state.joystick else {
+            if event.key.key == SDLK_A {
+              try state.joystick = Joysticks
+                .attachVirtual(
+                  type: .gamepad,
+                  touchpads: [.init(nfingers: 1, padding: (0, 0, 0))],
+                  sensors: [.init(type: .accelerometer, rate: 0)]
+                )
+                .open()
+            }
+
+            /*
+            if event.key.key == SDLK_ESCAPE {
+              state.display = .detached
+            } else {
+              state.display = event.key.down ? .back(state.gamepadRear) : .front(state.gamepadFront)
+            }
+             */
+            break;
+          }
+          
+          if event.key.key >= SDLK_0 && event.key.key <= SDLK_9 {
+            let playerIndex = (event.key.key - SDLK_0)
+            try state.joystick.set(playerIndex: playerIndex)
+          }
+          else if event.key.key == SDLK_D {
+            if state.joystick.isVirtual {
+              print("Closing virtual joystick...")
+              try state.joystick.close()
+            }
+          }
+          else if event.key.key == SDLK_R && ((UInt32(event.key.mod) & SDL_KMOD_CTRL) != 0) {
+          }
+        case .keyUp: ()
+
+        case .textInput: ()
+          
         default: ()
       }
     }
     
     func onShutdown(window: any Window) throws(SDL_Error) {
-      state = .init()
+      state = nil
       renderer = nil
     }
     
@@ -93,11 +150,49 @@ extension SDL.Test {
 }
 
 extension SDL.Test.Controller {
+  struct State {
+    @MainActor init(renderer: any Renderer) throws(SDL_Error) {
+      let surfaceFront = try Load(bitmap: "gamepad_front.bmp")
+      gamepadFront = try renderer.texture(from: surfaceFront)
+      
+      let surfaceRear = try Load(bitmap: "gamepad_back.bmp")
+      gamepadRear = try renderer.texture(from: surfaceRear)
+    }
+    
+    private(set) var display: Display = .detached
+    private(set) var showRear: Bool = false
+    
+    private var gamepadFront: (any Texture)!
+    private var gamepadRear: (any Texture)!
+    
+    var joystick: JoystickID = .invalid {
+      willSet {
+        print(newValue.guid)
+      }
+      didSet {
+        guard case(.open) = joystick else {
+          display = .detached
+          return
+        }
+        
+        display = showRear ? .back(gamepadRear) : .front(gamepadFront)
+      }
+    }
+  }
+  
   enum Display {
     case detached
-    case front
-    case back
+    case front((any Texture)!)
+    case back((any Texture)!)
     
+    var gamepadTexture: (any Texture)! {
+      switch self {
+        case .detached: return nil
+        case .front(let texture): return texture
+        case .back(let texture): return texture
+      }
+    }
+
     @MainActor
     var title: String {
       switch self {
@@ -113,21 +208,6 @@ extension SDL.Test.Controller {
       let height = (Layout.titleHeight / 2) - (Float(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2)
       
       return [width, height]
-    }
-  }
-  
-  struct State {
-    var gamepadFront: (any Texture)!
-    var gamepadRear: (any Texture)!
-    
-    var display: Display = .detached
-    
-    var gamepadTexture: (any Texture)! {
-      switch display {
-        case .detached: return nil
-        case .front: return gamepadFront
-        case .back: return gamepadRear
-      }
     }
   }
   

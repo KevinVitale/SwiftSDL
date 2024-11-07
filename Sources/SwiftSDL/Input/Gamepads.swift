@@ -1,4 +1,12 @@
-extension SDL_GamepadType {
+public enum Gamepads {
+  public static var connected: Result<[JoystickID], SDL_Error> {
+    Result {
+      try SDL_BufferPointer(SDL_GetGamepads).map {
+        JoystickID.connected($0)
+      }
+    }
+    .mapError { $0 as! SDL_Error }
+  }
 }
 
 extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
