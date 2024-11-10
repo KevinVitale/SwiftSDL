@@ -105,6 +105,16 @@ extension Renderer {
   }
   
   @discardableResult
+  public func draw(into callback: (Self) throws -> Void) throws(SDL_Error) -> any Renderer {
+    do {
+      try callback(self)
+      return self
+    } catch {
+      throw error as! SDL_Error
+    }
+  }
+
+  @discardableResult
   public func draw(texture: (any Texture)?, position: Point<Float>) throws(SDL_Error) -> Self {
     guard let texture = texture else { return self }
     let size = try texture.size(as: Float.self)

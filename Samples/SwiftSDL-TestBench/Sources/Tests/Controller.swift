@@ -51,9 +51,17 @@ extension SDL.Test {
       SDL_Delay(16)
       try renderer
         .clear(color: .white)
-        .fill(rects: [0, 400, 100, 100], color: .green)
-        .debug(text: state.display.title, position: state.display.textPosition, color: .black)
-        .draw(texture: state.display.gamepadTexture, position: Layout.gamepadImagePosition)
+        .debug(text: state.gamepadDisplay.joystickIDText, position: state.gamepadDisplay.joystickIDTextPosition, color: .black)
+        .debug(text: state.gamepadDisplay.title, position: state.gamepadDisplay.titleTextPosition, color: .black)
+        .debug(text: state.gamepadDisplay.subtitle, position: state.gamepadDisplay.subtitleTextPosition, color: .black)
+        .debug(text: state.gamepadDisplay.miscIDText, position: state.gamepadDisplay.miscTextPosition, color: .black)
+        .debug(text: state.gamepadDisplay.serialText, position: state.gamepadDisplay.serialTextPosition, color: .black)
+        .draw(into: { renderer in
+          for i in 0..<10 {
+            try renderer.fill(rects: [Float(i * 10), 400, 100, 100], color: i % 2 == 0 ? .green : .red)
+          }
+        })
+        .draw(texture: state.gamepadDisplay.gamepadTexture, position: Layout.gamepadImagePosition)
         .present()
     }
     
@@ -94,6 +102,8 @@ extension SDL.Test {
                   sensors: [.init(type: .accelerometer, rate: 0)]
                 )
                 .open()
+              
+              print("Is Gamepad:", SDL_IsGamepad(state.joystick.id))
             }
 
             /*
@@ -159,54 +169,124 @@ extension SDL.Test.Controller {
       gamepadRear = try renderer.texture(from: surfaceRear)
     }
     
-    private(set) var display: Display = .detached
+    private(set) var gamepadDisplay: GamepadDisplay = .detached
     private(set) var showRear: Bool = false
     
     private var gamepadFront: (any Texture)!
     private var gamepadRear: (any Texture)!
     
-    var joystick: JoystickID = .invalid {
+    var joystick: Joystick = .invalid {
       willSet {
         print(newValue.guid)
       }
       didSet {
         guard case(.open) = joystick else {
-          display = .detached
+          gamepadDisplay = .detached
           return
         }
         
-        display = showRear ? .back(gamepadRear) : .front(gamepadFront)
+        gamepadDisplay = showRear ? .back(joystick, gamepadRear) : .front(joystick, gamepadFront)
       }
     }
   }
   
-  enum Display {
+  enum GamepadDisplay {
     case detached
-    case front((any Texture)!)
-    case back((any Texture)!)
+    case front(Joystick, (any Texture)!)
+    case back(Joystick, (any Texture)!)
     
     var gamepadTexture: (any Texture)! {
       switch self {
         case .detached: return nil
-        case .front(let texture): return texture
-        case .back(let texture): return texture
+        case .front(_, let texture): return texture
+        case .back(_, let texture): return texture
+      }
+    }
+    
+    private var joystick: Joystick? {
+      switch self {
+        case .detached: return nil
+        case .front(let joystick, _): return joystick
+        case .back(let joystick, _): return joystick
       }
     }
 
     @MainActor
     var title: String {
       switch self {
-        case .back: return "Back"
-        case .front: return "Front"
+        case .back(let joystick, _): return (try? joystick.name.get()) ?? "Back"
+        case .front(let joystick, _): return (try? joystick.name.get()) ?? "Front"
         case .detached: return "Waiting for gamepad, press A to add a virtual controller"
       }
     }
     
     @MainActor
-    var textPosition: Point<Float> {
-      let width = (Layout.sceneWidth / 2) - (Float(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) * Float(SDL_strlen(title)) / 2)
-      let height = (Layout.titleHeight / 2) - (Float(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2)
+    var subtitle: String {
+      guard joystick != nil else {
+        return ""
+      }
+      return "Click on the gamepad image below to generate input"
+    }
+    
+    @MainActor
+    var joystickIDText: String {
+      guard let joystick = joystick else {
+        return ""
+      }
+      return "(\(joystick.id))"
+    }
+    
+    @MainActor
+    var miscIDText: String {
+      guard let joystick = joystick else {
+        return ""
+      }
+
+      let vID = String(joystick.vendorID, radix: 16)
+      let pID = String(joystick.productID, radix: 16)
+      return "VID: 0x\(vID), PID: 0x\(pID)"
+    }
+    
+    @MainActor
+    var serialText: String {
+      guard let joystick = joystick, !joystick.isVirtual else {
+        return ""
+      }
       
+      return "Serial: \(joystick.serial)"
+    }
+
+    @MainActor
+    var joystickIDTextPosition: Point<Float> {
+      let width: Float = Layout.sceneWidth - (Layout.fontCharacterSize * Float(SDL_strlen(joystickIDText))) - 8
+      let height: Float = 8
+      return [width, height]
+    }
+    
+    @MainActor
+    var titleTextPosition: Point<Float> {
+      let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(title)) / 2)
+      let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2)
+      return [width, height]
+    }
+    
+    @MainActor
+    var subtitleTextPosition: Point<Float> {
+      let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(subtitle)) / 2)
+      let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2) + (Layout.fontCharacterSize + 2.0) + 2.0
+      return [width, height]
+    }
+    
+    @MainActor
+    var miscTextPosition: Point<Float> {
+      let width = Layout.sceneWidth - 8.0 - (Layout.fontCharacterSize * Float(SDL_strlen(miscIDText)))
+      let height = Layout.sceneHeight - 8.0 - Layout.fontCharacterSize
+      return [width, height]
+    }
+    @MainActor
+    var serialTextPosition: Point<Float> {
+      let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(miscIDText)) / 2)
+      let height = Layout.sceneHeight - 8.0 - Layout.fontCharacterSize
       return [width, height]
     }
   }
@@ -270,6 +350,15 @@ extension SDL.Test.Controller {
       let scaledSize = Size(x: sceneWidth, y: sceneHeight).to(Float.self) * scale
       let size: Size<Float> = [SDL_ceilf(scaledSize.x), SDL_ceilf(scaledSize.y)]
       return size.to(Sint64.self)
+    }
+  }
+}
+
+extension SDL.Test.Controller {
+  final class Button: SpriteNode<any Renderer> {
+    enum State: Equatable {
+      case highlighted
+      case pressed
     }
   }
 }

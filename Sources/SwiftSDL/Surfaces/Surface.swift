@@ -5,7 +5,6 @@ public protocol Surface: SDLObjectProtocol where Pointer == UnsafeMutablePointer
 // MARK: - Extensions
 extension SDLObject<UnsafeMutablePointer<SDL_Surface>>: Surface { }
 
-
 // MARK: - Subscript
 extension Surface {
   public subscript<T>(dynamicMember keyPath: KeyPath<Self.Pointer.Pointee, T>) -> T {

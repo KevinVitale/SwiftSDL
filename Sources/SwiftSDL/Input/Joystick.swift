@@ -1,4 +1,4 @@
-public enum JoystickID: Decodable {
+public enum Joystick {
   public typealias JoystickPtr = OpaquePointer
   
   private enum CodingKeys: String, CodingKey {
@@ -8,17 +8,6 @@ public enum JoystickID: Decodable {
   case connected(SDL_JoystickID)
   case open(pointer: JoystickPtr)
   case invalid
-  
-  public init(from decoder: any Decoder) throws {
-    let decoder = try decoder.container(keyedBy: CodingKeys.self)
-    let joystickID = try decoder.decode(SDL_JoystickID.self, forKey: .joystickID)
-    let available = try Cameras.connected.get()
-    guard available.contains(where: { $0.id == joystickID }) else {
-      self = .invalid
-      return
-    }
-    self = .connected(joystickID)
-  }
   
   public var id: SDL_JoystickID {
     switch self {
@@ -118,6 +107,9 @@ public enum JoystickID: Decodable {
   }
   
   public mutating func close() throws(SDL_Error) {
+    print("Closing joystick...")
+    defer { print("Joystick closed!") }
+    
     guard case(.open(let pointer)) = self else {
       return
     }
@@ -148,7 +140,7 @@ public enum JoystickID: Decodable {
   }
 }
 
-extension JoystickID: CustomDebugStringConvertible {
+extension Joystick: CustomDebugStringConvertible {
   public var debugDescription: String {
     guard case(.success(let name)) = name else {
       return "INVALID JOYSTICK DEVICE"

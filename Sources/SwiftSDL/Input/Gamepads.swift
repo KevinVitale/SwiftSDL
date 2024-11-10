@@ -1,11 +1,57 @@
 public enum Gamepads {
-  public static var connected: Result<[JoystickID], SDL_Error> {
+  public static var connected: Result<[Joystick], SDL_Error> {
     Result {
       try SDL_BufferPointer(SDL_GetGamepads).map {
-        JoystickID.connected($0)
+        Joystick.connected($0)
       }
     }
     .mapError { $0 as! SDL_Error }
+  }
+}
+
+extension SDL_GamepadType: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
+  public static let unknown = SDL_GAMEPAD_TYPE_UNKNOWN
+  public static let standard = SDL_GAMEPAD_TYPE_STANDARD
+  public static let xbox360 = SDL_GAMEPAD_TYPE_XBOX360
+  public static let xboxone = SDL_GAMEPAD_TYPE_XBOXONE
+  public static let ps3 = SDL_GAMEPAD_TYPE_PS3
+  public static let ps4 = SDL_GAMEPAD_TYPE_PS4
+  public static let ps5 = SDL_GAMEPAD_TYPE_PS5
+  public static let joyconSwitchPro = SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO
+  public static let joyconLeft = SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT
+  public static let joyconRight = SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT
+  public static let joyconPair = SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR
+  
+  public static var allCases: [SDL_GamepadType] {
+    [
+      .standard,
+      .xbox360,
+      .xboxone,
+      .ps3,
+      .ps4,
+      .ps5,
+      .joyconSwitchPro,
+      .joyconLeft,
+      .joyconRight,
+      .joyconPair
+    ]
+  }
+  
+  public var debugDescription: String {
+    switch self {
+      case SDL_GAMEPAD_TYPE_UNKNOWN: return "Unknown"
+      case SDL_GAMEPAD_TYPE_STANDARD: return "Standard"
+      case SDL_GAMEPAD_TYPE_XBOX360: return "Xbox 360"
+      case SDL_GAMEPAD_TYPE_XBOXONE: return "Xbox One"
+      case SDL_GAMEPAD_TYPE_PS3: return "PS3"
+      case SDL_GAMEPAD_TYPE_PS4: return "PS4"
+      case SDL_GAMEPAD_TYPE_PS5: return "PS5"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO: return "Switch Pro"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT: return "Joycon (L)"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT: return "Joycon (R)"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: return "Joycons"
+      default: return "Unknown SDL_GamepadType: \(self.rawValue)"
+    }
   }
 }
 

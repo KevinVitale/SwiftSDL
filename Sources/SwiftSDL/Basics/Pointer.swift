@@ -3,10 +3,6 @@ public protocol SDLObjectProtocol: AnyObject {
   var pointer: Pointer { get }
 }
 
-public protocol SDLPointer {
-  associatedtype Pointer: Hashable
-}
-
 /*
  Explore this
  https://github.com/swiftlang/swift/blob/main/docs/OptimizationTips.rst#advice-use-unmanaged-references-to-avoid-reference-counting-overhead
