@@ -60,15 +60,27 @@ extension Texture {
   public func set(blendMode: SDL_BlendMode) throws(SDL_Error) -> Self {
     try self(SDL_SetTextureBlendMode, blendMode)
   }
+  
+  var colorMod: Result<SDL_Color, SDL_Error> {
+    var r: Uint8 = 0, g: Uint8 = 0, b: Uint8 = 0
+    return self
+      .resultOf(SDL_GetTextureColorMod, .some(&r), .some(&g), .some(&b))
+      .map({ _ in SDL_Color(r: r, g: g, b: b, a: 255) })
+  }
+  
+  @discardableResult
+  func set(colorMod color: SDL_Color) throws(SDL_Error) -> Self {
+    try self(SDL_SetTextureColorMod, color.r, color.g, color.b)
+  }
 }
 
 extension Renderer {
-  public func texture(from surface: any Surface) throws(SDL_Error) -> any Texture {
+  public func texture(from surface: any Surface, tag: String? = nil) throws(SDL_Error) -> any Texture {
     guard case(.some(let pointer)) = try self(SDL_CreateTextureFromSurface, surface.pointer) else {
       throw SDL_Error.error
     }
     
-    return SDLObject(pointer, tag: .custom("texture (from surface)"), destroy: SDL_DestroyTexture)
+    return SDLObject(pointer, tag: .custom(tag ?? "texture (from surface)"), destroy: SDL_DestroyTexture)
   }
   
   public func texture(from bitmap: inout [UInt8]) throws(SDL_Error) -> any Texture {

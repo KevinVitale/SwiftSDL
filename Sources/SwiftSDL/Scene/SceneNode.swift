@@ -16,7 +16,11 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   
   public var rotation: Measurement<UnitAngle> = .init(value: 0, unit: .degrees)
   public var speed: Double = 1
-  public var scale: Double = 1
+  public var scale: Double {
+    get { _scale * (parent.scale ?? 1) }
+    set { _scale = newValue }
+  }
+  private var _scale: Double = 1
   
   public var isHidden: Bool = false
   public var isPaused: Bool = false
@@ -62,12 +66,26 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
     addChildren(children)
   }
   
+  @discardableResult
+  public func child(matching label: String) -> Child? {
+    children.filter({
+      $0.label.contains(label)
+    })
+    .first
+  }
+  
   public func removeChildren(_ otherChildren: Child...) {
     otherChildren
       .filter({ $0.parent == self })
       .forEach({ $0.removeFromParent(); children.remove($0) })
   }
   
+  public func removeAllChildren() {
+    children
+      .filter({ $0.parent == self })
+      .forEach({ $0.removeFromParent(); children.remove($0) })
+  }
+
   public func removeFromParent() {
     parent = .none
   }
@@ -90,12 +108,12 @@ extension SceneNode {
   @dynamicMemberLookup
   public enum Parent: Decodable, Hashable, CustomDebugStringConvertible {
     case none
-    case parent(SceneNode)
+    case parent(SceneNode?)
     
     public var debugDescription: String {
       switch self {
         case .none: return "orphaned"
-        case .parent(let parent): return "\(parent)"
+        case .parent(let parent): return parent?.debugDescription ?? ""
       }
     }
     

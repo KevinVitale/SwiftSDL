@@ -4,6 +4,10 @@ public protocol Window: SDLObjectProtocol where Pointer == OpaquePointer { }
 extension SDLObject<OpaquePointer>: Window { }
 
 extension Window {
+  public var id: Result<SDL_WindowID, SDL_Error> {
+    self.resultOf(SDL_GetWindowID)
+  }
+  
   public var surface: Result<any Surface, SDL_Error> {
     self
       .resultOf(SDL_GetWindowSurface)

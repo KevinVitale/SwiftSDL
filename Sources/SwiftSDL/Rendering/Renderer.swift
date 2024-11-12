@@ -231,6 +231,13 @@ extension Renderer {
   public func set(scale: Float) throws(SDL_Error) -> Self {
     try self(SDL_SetRenderScale, scale, scale)
   }
+  
+  public var scale: Result<(Float, Float), SDL_Error> {
+    var scaleX: Float = 0, scaleY: Float = 0
+    return self
+      .resultOf(SDL_GetRenderScale, .some(&scaleX), .some(&scaleY))
+      .map({ _ in (scaleX, scaleY) })
+  }
 }
 
 // MARK: - Logical Presentation

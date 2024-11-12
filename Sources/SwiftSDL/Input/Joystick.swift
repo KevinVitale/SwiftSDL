@@ -1,15 +1,16 @@
-public enum Joystick {
+public enum Joystick: Identifiable {
+  public typealias ID = SDL_JoystickID
   public typealias JoystickPtr = OpaquePointer
   
-  private enum CodingKeys: String, CodingKey {
-    case joystickID
-  }
-  
-  case connected(SDL_JoystickID)
+  case connected(ID)
   case open(pointer: JoystickPtr)
   case invalid
   
   public var id: SDL_JoystickID {
+    joystickID
+  }
+  
+  public var joystickID: ID {
     switch self {
       case .connected(let id): return id
       case .open(let ptr): return SDL_GetJoystickID(ptr)
@@ -17,47 +18,83 @@ public enum Joystick {
     }
   }
   
-  public var guid: SDL_GUID {
+  public var gamepadID: ID {
+    switch self {
+      case .connected(let id): return id
+      case .open(let ptr): return SDL_GetGamepadID(ptr)
+      case .invalid: return .zero
+    }
+  }
+
+  public var joystickGUID: SDL_GUID {
     guard case(.open(let ptr)) = self else {
-      return SDL_GetJoystickGUIDForID(id)
+      return SDL_GetJoystickGUIDForID(joystickID)
     }
     
     return SDL_GetJoystickGUID(ptr)
   }
   
-  public var isVirtual: Bool {
-    SDL_IsJoystickVirtual(id)
+  public var gamepadGUID: SDL_GUID {
+    SDL_GetGamepadGUIDForID(gamepadID)
+  }
+
+  public var isVirtualJoystick: Bool {
+    SDL_IsJoystickVirtual(joystickID)
   }
   
-  public var isGamepad: Bool {
-    SDL_IsGamepad(id)
+  public var isGamepadSupported: Bool {
+    SDL_IsGamepad(joystickID)
   }
   
-  public var type: SDL_JoystickType {
+  public var joystickType: SDL_JoystickType {
     guard case(.open(let ptr)) = self else {
-      return SDL_GetJoystickTypeForID(id)
+      return SDL_GetJoystickTypeForID(joystickID)
     }
     
     return SDL_GetJoystickType(ptr)
   }
   
-  public var vendorID: UInt16 {
+  public var gamepadType: SDL_GamepadType {
     guard case(.open(let ptr)) = self else {
-      return SDL_GetJoystickVendorForID(id)
+      return SDL_GetGamepadTypeForID(gamepadID)
+    }
+    
+    return SDL_GetGamepadType(ptr)
+  }
+
+  public var joystickVendorID: UInt16 {
+    guard case(.open(let ptr)) = self else {
+      return SDL_GetJoystickVendorForID(joystickID)
     }
     
     return SDL_GetJoystickVendor(ptr)
   }
   
-  public var productID: UInt16 {
+  public var gamepadVendorID: UInt16 {
     guard case(.open(let ptr)) = self else {
-      return SDL_GetJoystickProductForID(id)
+      return SDL_GetGamepadVendorForID(gamepadID)
+    }
+    
+    return SDL_GetGamepadVendor(ptr)
+  }
+
+  public var joystickProductID: UInt16 {
+    guard case(.open(let ptr)) = self else {
+      return SDL_GetJoystickProductForID(joystickID)
     }
     
     return SDL_GetJoystickProduct(ptr)
   }
   
-  public var serial: String {
+  public var gamepadProductID: UInt16 {
+    guard case(.open(let ptr)) = self else {
+      return SDL_GetGamepadProductForID(gamepadID)
+    }
+    
+    return SDL_GetGamepadProduct(ptr)
+  }
+
+  public var joystickSerial: String {
     guard case(.open(let ptr)) = self else {
       return ""
     }
@@ -69,18 +106,30 @@ public enum Joystick {
     return String(cString: serial)
   }
   
-  public var name: Result<String, SDL_Error> {
+  public var gamepadSerial: String {
+    guard case(.open(let ptr)) = self else {
+      return ""
+    }
+    
+    guard let serial = SDL_GetGamepadSerial(ptr) else {
+      return ""
+    }
+    
+    return String(cString: serial)
+  }
+
+  public var joystickName: Result<String, SDL_Error> {
     func nameFormatted(_ name: UnsafePointer<CChar>!) -> String {
       let name = String(cString: name)
-      switch (name.isEmpty, isVirtual) {
-        case (true, true): return "Virtual Joystick (\(type))"
-        case (true, false): return "Unknown Joystick \(type)"
+      switch (name.isEmpty, isVirtualJoystick) {
+        case (true, true): return "Virtual Joystick (\(joystickType))"
+        case (true, false): return "Unknown Joystick \(joystickType)"
         default: return name
       }
     }
     
     guard case(.open(let ptr)) = self else {
-      guard let name = SDL_GetJoystickNameForID(id) else {
+      guard let name = SDL_GetJoystickNameForID(joystickID) else {
         return .failure(.error)
       }
       return .success(nameFormatted(name))
@@ -93,20 +142,57 @@ public enum Joystick {
     return .success(nameFormatted(name))
   }
   
+  public var gamepadName: Result<String, SDL_Error> {
+    func nameFormatted(_ name: UnsafePointer<CChar>!) -> String {
+      let name = String(cString: name)
+      switch (name.isEmpty, isVirtualJoystick) {
+        case (true, true): return "Virtual Joystick (\(gamepadType))"
+        case (true, false): return "Unknown Joystick \(gamepadType)"
+        default: return name
+      }
+    }
+    
+    guard case(.open(let ptr)) = self else {
+      guard let name = SDL_GetGamepadNameForID(joystickID) else {
+        return .failure(.error)
+      }
+      return .success(nameFormatted(name))
+    }
+    
+    guard let name = SDL_GetGamepadName(ptr) else {
+      return .failure(.error)
+    }
+    
+    return .success(nameFormatted(name))
+  }
+
   @discardableResult
-  public func open() throws(SDL_Error) -> Self {
+  public func openJoystick() throws(SDL_Error) -> Self {
     switch self {
       case .open: return self
       default:
-        print("Opening \((try? name.get()) ?? "")...")
-        guard let pointer = SDL_OpenJoystick(id) else {
+        print("Opening \((try? joystickName.get()) ?? "")...")
+        guard let pointer = SDL_OpenJoystick(joystickID) else {
           throw SDL_Error.error
         }
         return .open(pointer: pointer)
     }
   }
   
-  public mutating func close() throws(SDL_Error) {
+  @discardableResult
+  public func openGamepad() throws(SDL_Error) -> Self {
+    switch self {
+      case .open: return self
+      default:
+        print("Opening \((try? joystickName.get()) ?? "")...")
+        guard let pointer = SDL_OpenJoystick(joystickID) else {
+          throw SDL_Error.error
+        }
+        return .open(pointer: pointer)
+    }
+  }
+
+  public mutating func closeJoystick() throws(SDL_Error) {
     print("Closing joystick...")
     defer { print("Joystick closed!") }
     
@@ -114,9 +200,9 @@ public enum Joystick {
       return
     }
     
-    guard !self.isVirtual else {
+    guard !self.isVirtualJoystick else {
       print("Detaching virtual device...")
-      if !SDL_DetachVirtualJoystick(id) {
+      if !SDL_DetachVirtualJoystick(gamepadID) {
         throw SDL_Error.error
       }
       
@@ -125,28 +211,151 @@ public enum Joystick {
       return
     }
     
-    self = .connected(id)
+    self = .invalid
     SDL_CloseJoystick(pointer)
   }
   
-  public func set<PlayerIndex: FixedWidthInteger>(playerIndex: PlayerIndex) throws(SDL_Error) {
-    guard case(.open(let pointer)) = self, isGamepad else {
+  public mutating func closeGamepad() throws(SDL_Error) {
+    print("Closing gamepad...")
+    defer { print("Gamepad closed!") }
+    
+    guard case(.open(let pointer)) = self else {
       return
     }
     
-    guard SDL_SetGamepadPlayerIndex(pointer, Int32(playerIndex)) else {
-      throw SDL_Error.error
+    guard !self.isVirtualJoystick else {
+      print("Detaching virtual device...")
+      if !SDL_DetachVirtualJoystick(gamepadID) {
+        throw SDL_Error.error
+      }
+      
+      self = .invalid
+      SDL_CloseGamepad(pointer)
+      return
     }
+    
+    self = .invalid
+    SDL_CloseGamepad(pointer)
   }
 }
-
-extension Joystick: CustomDebugStringConvertible {
+ 
+ extension Joystick: CustomDebugStringConvertible {
   public var debugDescription: String {
-    guard case(.success(let name)) = name else {
+    guard case(.success(let name)) = joystickName else {
       return "INVALID JOYSTICK DEVICE"
     }
     return name
   }
+}
+ 
+ public enum Joysticks {
+  @discardableResult
+  @available(*, deprecated, renamed: "SDL_AttachVirtualJoystick", message: "")
+  public static func attachVirtual(
+    type: SDL_JoystickType,
+    vendorID: UInt16 = .zero,
+    productID: UInt16 = .zero,
+    ballsCount: Int32 = .zero,
+    hatsCount: Int32 = .zero,
+    buttons: [SDL_GamepadButton] = SDL_GamepadButton.allCases,
+    axises: [SDL_GamepadAxis] = SDL_GamepadAxis.allCases,
+    name: String = "",
+    touchpads: [SDL_VirtualJoystickTouchpadDesc] = [],
+    sensors: [SDL_VirtualJoystickSensorDesc] = [],
+    userdata: SDL_VirtualJoystickDesc.UserData.DataType = .init(),
+    update: ((SDL_VirtualJoystickDesc.UserData.DataType) -> Void)? = nil,
+    setPlayerIndex: ((SDL_VirtualJoystickDesc.UserData.DataType, Int32) -> Void)? = nil,
+    rumble: ((SDL_VirtualJoystickDesc.UserData.DataType, Uint16, Uint16) -> Bool)? = nil,
+    rumbleTriggers: ((SDL_VirtualJoystickDesc.UserData.DataType, Uint16, Uint16) -> Bool)? = nil,
+    setLED: ((SDL_VirtualJoystickDesc.UserData.DataType, Uint8, Uint8, Uint8) -> Bool)? = nil,
+    sendEffect: ((SDL_VirtualJoystickDesc.UserData.DataType, UnsafeRawPointer?, Int32) -> Bool)? = nil,
+    setSensorsEnabled: ((SDL_VirtualJoystickDesc.UserData.DataType, Bool) -> Bool)? = nil,
+    cleanup: ((SDL_VirtualJoystickDesc.UserData.DataType) -> Void)? = nil
+  ) throws(SDL_Error) -> Joystick {
+    var desc = SDL_VirtualJoystickDesc(
+      type: type,
+      vendorID: vendorID,
+      productID: productID,
+      ballsCount: ballsCount,
+      hatsCount: hatsCount,
+      buttons: buttons,
+      axises: axises,
+      name: name,
+      touchpads: touchpads,
+      sensors: sensors,
+      userdata: userdata,
+      update: update,
+      setPlayerIndex: setPlayerIndex,
+      rumble: rumble,
+      rumbleTriggers: rumbleTriggers,
+      setLED: setLED,
+      sendEffect: sendEffect,
+      setSensorsEnabled: setSensorsEnabled,
+      cleanup: cleanup
+    )
+    
+    let virtualID = SDL_AttachVirtualJoystick(&desc)
+    guard virtualID != .zero else {
+      throw SDL_Error.error
+    }
+    
+    return .connected(virtualID)
+  }
+}
+
+public func SDL_AttachVirtualJoystick(
+  type: SDL_JoystickType,
+  vendorID: UInt16 = .zero,
+  productID: UInt16 = .zero,
+  ballsCount: Int32 = .zero,
+  hatsCount: Int32 = .zero,
+  buttons: [SDL_GamepadButton] = SDL_GamepadButton.allCases,
+  axises: [SDL_GamepadAxis] = SDL_GamepadAxis.allCases,
+  name: String = "",
+  touchpads: [SDL_VirtualJoystickTouchpadDesc] = [],
+  sensors: [SDL_VirtualJoystickSensorDesc] = [],
+  userdata: SDL_VirtualJoystickDesc.UserData.DataType = .init(),
+  update: ((SDL_VirtualJoystickDesc.UserData.DataType) -> Void)? = nil,
+  setPlayerIndex: ((SDL_VirtualJoystickDesc.UserData.DataType, Int32) -> Void)? = nil,
+  rumble: ((SDL_VirtualJoystickDesc.UserData.DataType, Uint16, Uint16) -> Bool)? = nil,
+  rumbleTriggers: ((SDL_VirtualJoystickDesc.UserData.DataType, Uint16, Uint16) -> Bool)? = nil,
+  setLED: ((SDL_VirtualJoystickDesc.UserData.DataType, Uint8, Uint8, Uint8) -> Bool)? = nil,
+  sendEffect: ((SDL_VirtualJoystickDesc.UserData.DataType, UnsafeRawPointer?, Int32) -> Bool)? = nil,
+  setSensorsEnabled: ((SDL_VirtualJoystickDesc.UserData.DataType, Bool) -> Bool)? = nil,
+  cleanup: ((SDL_VirtualJoystickDesc.UserData.DataType) -> Void)? = nil
+) throws(SDL_Error) -> SDL_JoystickID {
+  var desc = SDL_VirtualJoystickDesc(
+    type: type,
+    vendorID: vendorID,
+    productID: productID,
+    ballsCount: ballsCount,
+    hatsCount: hatsCount,
+    buttons: buttons,
+    axises: axises,
+    name: name,
+    touchpads: touchpads,
+    sensors: sensors,
+    userdata: userdata,
+    update: update,
+    setPlayerIndex: setPlayerIndex,
+    rumble: rumble,
+    rumbleTriggers: rumbleTriggers,
+    setLED: setLED,
+    sendEffect: sendEffect,
+    setSensorsEnabled: setSensorsEnabled,
+    cleanup: cleanup
+  )
+  
+  let virtualID = SDL_AttachVirtualJoystick(&desc)
+  guard virtualID != .zero else {
+    throw SDL_Error.error
+  }
+  
+  return virtualID
+}
+
+public func SDL_ConnectedJoystickIDs() throws(SDL_Error) -> [SDL_JoystickID] {
+  try SDL_BufferPointer(SDL_GetJoysticks)
 }
 
 extension SDL_JoystickType: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
@@ -192,3 +401,4 @@ extension SDL_JoystickType: @retroactive CaseIterable, @retroactive CustomDebugS
     ]
   }
 }
+

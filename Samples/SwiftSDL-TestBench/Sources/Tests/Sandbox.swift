@@ -9,14 +9,11 @@ extension SDL.Test {
     private var renderer: (any Renderer)!
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      /* Enable input debug logging */
+      SDL_SetLogPriority(Int32(SDL_LOG_CATEGORY_INPUT.rawValue), SDL_LOG_PRIORITY_DEBUG);
+      
       _applyHints()
       renderer = try window.createRenderer()
-      
-      let controller = try SDL_AttachVirtualJoystick(
-        type: .gamepad,
-        touchpads: [.init(nfingers: 1, padding: (0, 0, 0))],
-        sensors: [.init(type: .accelerometer, rate: 0)]
-      )
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
