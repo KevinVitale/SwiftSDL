@@ -115,7 +115,7 @@ extension Renderer {
   }
 
   @discardableResult
-  public func draw(texture: (any Texture)?, position: Point<Float>) throws(SDL_Error) -> Self {
+  public func draw(texture: (any Texture)?, position: Point<Float>, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
     guard let texture = texture else { return self }
     let size = try texture.size(as: Float.self)
     return try self.draw(
@@ -123,12 +123,14 @@ extension Renderer {
       destinationRect: [
         position.x, position.y,
         size.x, size.y
-      ]
+      ],
+      rotatedBy: angle,
+      direction: flip
     )
   }
   
   @discardableResult
-  public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil) throws(SDL_Error) -> Self {
+  public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
     guard let texture = texture else { return self }
     
     let size = try texture.size(as: Float.self)
@@ -147,7 +149,7 @@ extension Renderer {
         ]
     }
     
-    return try self(SDL_RenderTexture, texture.pointer, nil, .some(&rect))
+    return try self(SDL_RenderTextureRotated, texture.pointer, nil, .some(&rect), angle, nil, flip)
   }
   
   @discardableResult

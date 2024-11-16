@@ -5,6 +5,7 @@ public protocol Game: AnyObject, AsyncParsableCommand {
   static var identifier: String { get }
   
   static var windowFlags: [SDL_WindowCreateFlag] { get }
+  static var initFlags: [Flags.InitSDL] { get }
   
   @MainActor
   func onInit() throws(SDL_Error) -> any Window
@@ -36,12 +37,20 @@ extension Game {
       .width(1024), .height(640)
     ]
   }
+  
+  public static var initFlags: [Flags.InitSDL] {
+    [
+      .video,
+      .joystick,
+      .gamepad
+    ]
+  }
 }
 
 extension Game {
   @MainActor
   public func onInit() throws(SDL_Error) -> any Window {
-    try SDL_Init(.video)
+    try SDL_Init(Self.initFlags)
     
     let window = try SDL_CreateWindow(with: Self.windowFlags)
     let _ = try window.size(as: Float.self)
@@ -109,6 +118,11 @@ extension Game {
           guard event.type != SDL_EVENT_QUIT.rawValue else {
             return .success
           }
+          
+          if (0x600..<0x800).contains(event.type) {
+            try GameControllers.shared.handle(event)
+          }
+          
           try App.game.onEvent(window: App.window, event)
           return .continue
         } catch {

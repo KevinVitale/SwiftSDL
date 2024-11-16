@@ -8,7 +8,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   }
   
   deinit {
-    print("\(Self.self) \(#function)")
+    // print("\(Self.self) \(#function)")
   }
   
   public var label: String = ""

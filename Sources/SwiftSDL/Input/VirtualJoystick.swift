@@ -57,8 +57,8 @@ extension SDL_VirtualJoystickDesc {
     setSensorsEnabled: ((UserData.DataType, Bool) -> Bool)? = nil,
     cleanup: ((UserData.DataType) -> Void)? = nil
   ) {
-    var touchpads = touchpads
-    var sensors = sensors
+    let touchpads = touchpads
+    let sensors = sensors
     let userData = UserData(
       userdata,
       update: update,
@@ -87,8 +87,8 @@ extension SDL_VirtualJoystickDesc {
       button_mask: UInt32(buttons.reduce(0) { $0 | $1.rawValue }),
       axis_mask: UInt32(axises.reduce(0) { $0 | $1.rawValue }),
       name: name,
-      touchpads: touchpads.withUnsafeMutableBufferPointer(\.baseAddress),
-      sensors: sensors.withUnsafeMutableBufferPointer(\.baseAddress),
+      touchpads: touchpads.withUnsafeBufferPointer(\.baseAddress),
+      sensors: sensors.withUnsafeBufferPointer(\.baseAddress),
       userdata: Unmanaged.passRetained(userData).toOpaque(),
       Update: SDL_VirtualJoystickUpdate,
       SetPlayerIndex: SDL_VirtualJoystickSetPlayerIndex,

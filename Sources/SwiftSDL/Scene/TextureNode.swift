@@ -24,6 +24,10 @@ open class TextureNode: SceneNode {
     self.position = position
     try texture.set(colorMod: color)
   }
+  
+  public var texture: any Texture {
+    return _texture
+  }
 }
 
 extension Renderer {

@@ -68,6 +68,10 @@ extension Flags {
 }
 
 public func SDL_Init(_ flags: Flags.InitSDL...) throws(SDL_Error) {
+  try SDL_Init(flags)
+}
+
+public func SDL_Init(_ flags: [Flags.InitSDL]) throws(SDL_Error) {
   guard SDL_Init(flags.reduce(0) { $0 | $1.rawValue }) else {
     throw SDL_Error.error
   }

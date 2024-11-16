@@ -61,7 +61,7 @@ extension Texture {
     try self(SDL_SetTextureBlendMode, blendMode)
   }
   
-  var colorMod: Result<SDL_Color, SDL_Error> {
+  public var colorMod: Result<SDL_Color, SDL_Error> {
     var r: Uint8 = 0, g: Uint8 = 0, b: Uint8 = 0
     return self
       .resultOf(SDL_GetTextureColorMod, .some(&r), .some(&g), .some(&b))
@@ -69,7 +69,7 @@ extension Texture {
   }
   
   @discardableResult
-  func set(colorMod color: SDL_Color) throws(SDL_Error) -> Self {
+  public func set(colorMod color: SDL_Color) throws(SDL_Error) -> Self {
     try self(SDL_SetTextureColorMod, color.r, color.g, color.b)
   }
 }

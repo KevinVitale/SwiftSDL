@@ -51,11 +51,30 @@ extension SDL.Test {
             print("Virtual joystick attached...")
           }
           
-          if SDL_IsGamepad(joystickID) {
-            print("Opening gamepad...", SDL_OpenGamepad(joystickID) != nil ? "success" : "failure", separator: "")
+          print("Opening \(SDL_IsGamepad(joystickID) ? "gamepad..." : "joystick...")")
+          let OpenFunc = SDL_IsGamepad(joystickID) ? SDL_OpenGamepad : SDL_OpenJoystick
+          let pointer = OpenFunc(joystickID)
+          
+          print("\(pointer != nil ? "Open Success" : "Open Failure")")
+          
+          if let joystickName = SDL_GetJoystickName(pointer) {
+            print("Joystick Name: \(String(cString: joystickName))")
           }
-          else {
-            print("Opening joystick...", SDL_OpenJoystick(joystickID) != nil ? "success" : "failure", separator: "")
+          
+          if let gamepadName = SDL_GetGamepadName(pointer) {
+            print("Gamepad Name: \(String(cString: gamepadName))")
+          }
+
+          for sensor in SDL_SensorType.allCases {
+            if SDL_GamepadHasSensor(pointer, sensor) {
+              print("Enabled \(sensor) at ".appendingFormat("%.2f", SDL_GetGamepadSensorDataRate(pointer, sensor)))
+              SDL_SetGamepadSensorEnabled(pointer, sensor, true)
+            }
+          }
+          
+          if let mapping = SDL_GetGamepadMapping(pointer) {
+            print("Mapping: \(String(cString: mapping))")
+            SDL_free(mapping)
           }
         }
       }
@@ -75,7 +94,7 @@ extension SDL.Test {
       _applyHints()
       
       print("Initializing SDL (v\(SDL_Version()))...")
-      try SDL_Init(.video, .gamepad)
+      try SDL_Init(.video, .joystick, .gamepad)
       
       print("Calculate the size of the window....")
       let display = try Displays.primary.get()
@@ -105,10 +124,24 @@ extension SDL.Test {
         .clear(color: .white)
         .draw(node: gamepad)
         .draw(into: {
-          if joystickID != .zero {
+          if joystickID != .zero,
+             let joystick = SDL_GetJoystickFromID(joystickID),
+             let btnTexture = gamepad?.btn.texture,
+             let arrowTexture = gamepad?.arrow.texture
+          {
             try $0.debug(text: title.text, position: title.position, color: .black)
             try $0.debug(text: subtitle.text, position: subtitle.position, color: .black )
+            try $0.debug(text: controllerID.text, position: controllerID.position, color: .black )
+            try $0.debug(text: gamepadType.text, position: gamepadType.position, color: .black )
+            try $0.debug(text: steamHandle.text, position: steamHandle.position, color: .black )
             try $0.debug(text: serial.text, position: serial.position, color: .black )
+            try $0.debug(text: buttonsTitle.text, position: buttonsTitle.position, color: .black )
+            try $0.debug(text: axisTitle.text, position: axisTitle.position, color: .black )
+            try $0.debug(text: vendorID.text, position: vendorID.position, color: .black )
+            try $0.debug(text: productID.text, position: productID.position, color: .black )
+            
+            try drawButtonColumnUI(btnTexture: btnTexture, joystick: joystick, renderer: $0)
+            try drawAxesColumnUI(arrowTexture: arrowTexture, joystick: joystick, renderer: $0)
           }
           else {
             try $0.debug(
@@ -126,17 +159,45 @@ extension SDL.Test {
       try renderer(SDL_ConvertEventToRenderCoordinates, .some(&event))
       
       switch event.eventType {
+        case .keyDown:
+          if event.key.key == SDLK_A {
+            // Attach a virtual joystick...
+            /* self.joystickID = */ try SDL_AttachVirtualJoystick(
+              type: .gamepad,
+              name: "Virtual Controller",
+              touchpads: [.init(nfingers: 1, padding: (0, 0, 0))],
+              sensors: [
+                .init(type: .accelerometer, rate: 0),
+                .init(type: .gyroscope, rate: 0),
+              ]
+            )
+            // self.gamepad = try .init(id: joystickID, renderer: renderer)
+          }
+          
+          else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(joystickID) {
+            // self.joystickID = .zero
+          }
+        default: ()
+      }
+      
+      /*
+      switch event.eventType {
         case .joystickAdded:
-          joystickID = event.jdevice.which
-          gamepad = try .init(id: joystickID, renderer: renderer)
-
+          let joystickID = event.jdevice.which
+          // Check to ensure we're not re-adding an existing joystick...
+          // (a virtual joystick may already have been added...)
+          if SDL_GetJoystickFromID(joystickID) == nil {
+            self.joystickID = joystickID
+            self.gamepad = try .init(id: joystickID, renderer: renderer)
+          }
+          
         case .joystickRemoved:
           if let joystickID = try SDL_ConnectedJoystickIDs().first {
             self.joystickID = joystickID
-            gamepad = try .init(id: joystickID, renderer: renderer)
+            self.gamepad = try .init(id: joystickID, renderer: renderer)
           }
           else {
-            joystickID = .zero
+            self.joystickID = .zero
           }
           
         case .joystickAxisMotion: ()
@@ -155,23 +216,24 @@ extension SDL.Test {
           
         case .keyDown: ()
           if event.key.key == SDLK_A {
-            joystickID = try SDL_AttachVirtualJoystick(
+            // Attach a virtual joystick...
+            self.joystickID = try SDL_AttachVirtualJoystick(
               type: .gamepad,
               touchpads: [.init(nfingers: 1, padding: (0, 0, 0))],
               sensors: [.init(type: .accelerometer, rate: 0)]
             )
-            
-            gamepad = try .init(id: joystickID, renderer: renderer)
+            self.gamepad = try .init(id: joystickID, renderer: renderer)
           }
           
           else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(joystickID) {
-            joystickID = .zero
+            self.joystickID = .zero
           }
         case .keyUp: ()
         case .textInput: ()
           
         default: ()
       }
+       */
     }
     
     func onShutdown(window: any Window) throws(SDL_Error) {
@@ -193,6 +255,97 @@ extension SDL.Test {
       SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
       SDL_SetHint(SDL_HINT_JOYSTICK_LINUX_DEADZONES, "1");
       SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")
+    }
+  }
+}
+
+
+extension SDL.Test.Controller {
+  @MainActor
+  private func drawButtonColumnUI(
+    btnTexture: any Texture,
+    joystick: OpaquePointer,
+    renderer: any Renderer
+  ) throws(SDL_Error) {
+    let buttonCount = SDL_GetNumJoystickButtons(joystick)
+    for btnIdx in 0..<buttonCount {
+      var xPos = buttonsTitle.position.x
+      var yPos = buttonsTitle.position.y + (Layout.lineHeight + 2) + ((Layout.lineHeight + 4) * Float(btnIdx))
+      let text = "".appendingFormat("%2d:", btnIdx)
+      try renderer.debug(text: text, position: [xPos, yPos], color: .black)
+      
+      xPos += 2 + (Layout.fontCharacterSize * Float(SDL_strlen(text)))
+      yPos -= 2
+      
+      if SDL_GetJoystickButton(joystick, Int32(btnIdx)) {
+        try btnTexture.set(colorMod: .init(r: 10, g: 255, b: 21, a: 255))
+        try renderer.draw(texture: btnTexture, position: [xPos, yPos])
+      }
+      else {
+        try btnTexture.set(colorMod: .white)
+        try renderer.draw(texture: btnTexture, position: [xPos, yPos])
+      }
+    }
+  }
+  
+  @MainActor
+  private func drawAxesColumnUI(
+    arrowTexture: any Texture,
+    joystick: OpaquePointer,
+    renderer: any Renderer
+  ) throws(SDL_Error) {
+    let axisCount = SDL_GetNumJoystickAxes(joystick)
+    for axisIdx in 0..<axisCount {
+      var xPos = axisTitle.position.x - 8
+      var yPos = axisTitle.position.y + (Layout.lineHeight + 2) + ((Layout.lineHeight + 4) * Float(axisIdx))
+      let text = "".appendingFormat("%2d:", axisIdx)
+      try renderer.debug(text: text, position: [xPos, yPos], color: .black)
+      
+      /* 'RenderJoystickAxisHighlight' ???
+       let pressedColor = SDL_Color(r: 175, g: 238, b: 238, a: 255)
+       let highlightColor = SDL_Color(r: 224, g: 255, b: 255, a: 255)
+       try renderer.fill(rects: [
+       xPos + Layout.fontCharacterSize * Float(SDL_strlen(axisTitle.text)) + 2,
+       yPos + Layout.fontCharacterSize / 2,
+       100,
+       100
+       ], color: pressedColor)
+       */
+      
+      xPos += 2 + (Layout.fontCharacterSize * Float(SDL_strlen(text)))
+      yPos -= 2
+      
+      let value = SDL_GetJoystickAxis(joystick, axisIdx)
+      
+      // Left-Arrow (With Highlight State)
+      if value == Int16.min {
+        try arrowTexture.set(colorMod: .init(r: 10, g: 255, b: 21, a: 255))
+        try renderer.draw(texture: arrowTexture, position: [xPos, yPos])
+      }
+      else {
+        try arrowTexture.set(colorMod: .white)
+        try renderer.draw(texture: arrowTexture, position: [xPos, yPos], direction: .horizontal)
+      }
+      
+      // Axis Divider Fill
+      let arwSize = try arrowTexture.size(as: Float.self)
+      try renderer.fill(rects: [
+        xPos + 52,
+        yPos,
+        4.0,
+        arwSize.y
+      ], color: .init(r: 200, g: 200, b: 200, a: 255)
+      )
+      
+      // Right-Arrow (With Highlight State)
+      if value == Int16.max {
+        try arrowTexture.set(colorMod: .init(r: 10, g: 255, b: 21, a: 255))
+        try renderer.draw(texture: arrowTexture, position: [xPos + 102, yPos])
+      }
+      else {
+        try arrowTexture.set(colorMod: .white)
+        try renderer.draw(texture: arrowTexture, position: [xPos + 102, yPos])
+      }
     }
   }
 }
@@ -231,6 +384,52 @@ extension SDL.Test.Controller {
   }
   
   @MainActor
+  private var controllerID: (text: String, position: Point<Float>) {
+    let text = "(\(joystickID))"
+    
+    let width = Layout.sceneWidth - (Layout.fontCharacterSize * Float(SDL_strlen(text))) - 8
+    let height: Float = 8.0
+    
+    return (text, [width, height])
+  }
+  
+  @MainActor
+  private var gamepadType: (text: String, position: Point<Float>) {
+    guard SDL_IsGamepad(joystickID),
+          let pointer = SDL_GetGamepadFromID(joystickID) else
+    {
+      return ("", .zero)
+    }
+    
+    let text = SDL_GetGamepadType(pointer).debugDescription
+    
+    let width = Layout.typeFrame.x + (Layout.typeFrame.z / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(text))) / 2
+    let height = Layout.typeFrame.y + (Layout.typeFrame.w / 2) - (Layout.fontCharacterSize / 2)
+    
+    return (text, [width, height])
+  }
+  
+  @MainActor
+  private var steamHandle: (text: String, position: Point<Float>) {
+    guard SDL_IsGamepad(joystickID),
+          let pointer = SDL_GetGamepadFromID(joystickID) else
+    {
+      return ("", .zero)
+    }
+    
+    let handle = SDL_GetGamepadSteamHandle(pointer)
+    guard handle != 0 else {
+      return ("", .zero)
+    }
+    
+    let text = "Steam: 0x\(String(handle, radix: 16, uppercase: true))"
+    let width = Layout.sceneWidth - 8 - (Layout.fontCharacterSize * Float(SDL_strlen(text)))
+    let height = Layout.sceneHeight - 2 * (8 + Layout.lineHeight)
+    
+    return (text, [width, height])
+  }
+  
+  @MainActor
   private var placeholder: (text: String, position: Point<Float>) {
     let placeholder = "Waiting for gamepad, press A to add a virtual controller"
     let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(placeholder)) / 2)
@@ -241,17 +440,59 @@ extension SDL.Test.Controller {
   
   @MainActor
   private var serial: (text: String, position: Point<Float>) {
-    guard let pointer = SDL_GetJoystickFromID(joystickID),
-          let serialPtr = SDL_GetJoystickSerial(pointer) else {
+    let GetDeviceFunc = SDL_IsGamepad(joystickID) ? SDL_GetGamepadFromID : SDL_GetJoystickFromID
+    let GetSerialFunc = SDL_IsGamepad(joystickID) ? SDL_GetGamepadSerial : SDL_GetJoystickSerial
+    
+    guard let pointer = GetDeviceFunc(joystickID),
+          let serialPtr = GetSerialFunc(pointer) else {
       return ("", .zero)
     }
     
-    let serial = String(cString: serialPtr)
+    let serial = "Serial: \(String(cString: serialPtr))"
     let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(serial)) / 2)
-    let height = Layout.sceneHeight - 8.0 - Layout.fontCharacterSize
+    let height = Layout.sceneHeight - 8.0 - Layout.lineHeight
     
-    print(serial)
     return(serial, [width, height])
+  }
+  
+  @MainActor
+  private var buttonsTitle: (text: String, position: Point<Float>) {
+    let buttonsTitle = "BUTTONS"
+    let width = Layout.panelWidth + Layout.panelSpacing + Layout.gamepadWidth + Layout.panelSpacing + 8
+    let height = Layout.titleHeight + 8
+    
+    return (buttonsTitle, [width, height])
+  }
+  
+  @MainActor
+  private var axisTitle: (text: String, position: Point<Float>) {
+    let axesTitle = "AXES"
+    let width = Layout.panelWidth + Layout.panelSpacing + Layout.gamepadWidth + Layout.panelSpacing + 96
+    let height = Layout.titleHeight + 8
+    
+    return (axesTitle, [width, height])
+  }
+
+  @MainActor
+  private var vendorID: (text: String, position: Point<Float>) {
+    let vID = SDL_GetJoystickVendorForID(joystickID)
+    let text = "VID: 0x".appendingFormat("%.4X", vID)
+    
+    let width = Layout.sceneWidth - 8 - (Layout.fontCharacterSize * Float(SDL_strlen(text))) - (Layout.fontCharacterSize * Float(SDL_strlen(productID.text) + 2))
+    let height = Layout.sceneHeight - 8.0 - Layout.lineHeight
+    
+    return (text, [width, height])
+  }
+  
+  @MainActor
+  private var productID: (text: String, position: Point<Float>) {
+    let pID = SDL_GetJoystickProductForID(joystickID)
+    let text = "PID: 0x".appendingFormat("%.4X", pID)
+    
+    let width = Layout.sceneWidth - 8 - (Layout.fontCharacterSize * Float(SDL_strlen(text)))
+    let height = Layout.sceneHeight - 8.0 - Layout.lineHeight
+    
+    return (text, [width, height])
   }
 }
 
@@ -384,57 +625,21 @@ final class GamepadNode: TextureNode {
         renderer: renderer
       )
     )?.zPosition = 6
-    
-    for i in SDL_GamepadButton.allCases {
-      print(i.debugDescription.capitalized)
-    }
   }
   
   var front: TextureNode { child(matching: "Gamepad (Front)") as! TextureNode }
   var back: TextureNode { child(matching: "Gamepad (Back)") as! TextureNode }
   var btn: TextureNode { child(matching: "Button (Small)") as! TextureNode }
+  var arrow: TextureNode { child(matching: "Axis (Arrow)") as! TextureNode }
 }
 
 extension SDL.Test.Controller {
-  @MainActor
-  static var joystickIDTextPosition: Point<Float> {
-    let width: Float = Layout.sceneWidth - (Layout.fontCharacterSize * Float(SDL_strlen(""))) - 8
-    let height: Float = 8
-    return [width, height]
-  }
-  
-  @MainActor
-  static var titleTextPosition: Point<Float> {
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen("")) / 2)
-    let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2)
-    return [width, height]
-  }
-  
-  @MainActor
-  static var subtitleTextPosition: Point<Float> {
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen("")) / 2)
-    let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2) + (Layout.fontCharacterSize + 2.0) + 2.0
-    return [width, height]
-  }
-  
-  @MainActor
-  static var miscTextPosition: Point<Float> {
-    let width = Layout.sceneWidth - 8.0 - (Layout.fontCharacterSize * Float(SDL_strlen("")))
-    let height = Layout.sceneHeight - 8.0 - Layout.fontCharacterSize
-    return [width, height]
-  }
-  @MainActor
-  static var serialTextPosition: Point<Float> {
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen("")) / 2)
-    let height = Layout.sceneHeight - 8.0 - Layout.fontCharacterSize
-    return [width, height]
-  }
-  
   struct Layout {
     static let titleHeight: Float = 48.0
     static let panelSpacing: Float = 25.0
     static let panelWidth: Float = 250.0
-    static let minimumButtonWidth: Float = 96.0
+    static let lineHeight: Float = fontCharacterSize + 2.0
+    // static let minimumButtonWidth: Float = 96.0
     static let buttonMargin: Float = 16.0
     static let buttonPadding: Float = 12.0
     static let gamepadWidth: Float = 512.0
@@ -446,31 +651,19 @@ extension SDL.Test.Controller {
     }
     
     static var titleFrame: Rect<Float> {
-      var width = gamepadWidth
-      var height = Self.fontCharacterSize + 2.0 * Self.buttonMargin
-      var xPos = Self.panelWidth + Self.panelSpacing
-      var yPos = Self.titleHeight / 2 - height / 2
-      
-      width = Self.panelWidth - 2 * Self.buttonMargin
-      height = Self.fontCharacterSize + 2 * Self.buttonMargin
-      xPos = Self.buttonMargin
-      yPos = Self.titleHeight / 2 - height / 2
-      
+      let width = gamepadWidth
+      let height = Self.fontCharacterSize + 2.0 * Self.buttonMargin
+      let xPos = Self.panelWidth + Self.panelSpacing
+      let yPos = Self.titleHeight / 2 - height / 2
       return Rect(lowHalf: [xPos, yPos], highHalf: [width, height])
     }
     
-    static var gamepadDisplayArea: Rect<Float> {
-      [
-        0, Self.titleHeight,
-        Self.panelWidth, Self.gamepadHeight
-      ]
-    }
-    
-    static var gamepadTypeDisplayArea: Rect<Float> {
-      [
-        0, Self.titleHeight,
-        Self.panelWidth, Self.gamepadHeight
-      ]
+    static var typeFrame: Rect<Float> {
+      let width = Self.panelWidth - 2 * Self.buttonMargin
+      let height = Self.fontCharacterSize + 2 * Self.buttonMargin
+      let xPos = Self.buttonMargin
+      let yPos = Self.titleHeight / 2 - height / 2
+      return Rect(lowHalf: [xPos, yPos], highHalf: [width, height])
     }
     
     @MainActor
@@ -490,14 +683,10 @@ extension SDL.Test.Controller {
       let size: Size<Float> = [SDL_ceilf(scaledSize.x), SDL_ceilf(scaledSize.y)]
       return size.to(Sint64.self)
     }
-  }
-}
-
-extension SDL.Test.Controller {
-  final class Button: SpriteNode<any Renderer> {
-    enum State: Equatable {
-      case highlighted
-      case pressed
-    }
+    
+    @MainActor
+    static var touchpadFrame: Rect<Float> {
+      [148.0, 20.0, 216.0, 118.0]
+    };
   }
 }
