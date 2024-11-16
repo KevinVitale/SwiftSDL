@@ -86,7 +86,7 @@ extension SDL_VirtualJoystickDesc {
       padding2: (.zero, .zero),
       button_mask: UInt32(buttons.reduce(0) { $0 | $1.rawValue }),
       axis_mask: UInt32(axises.reduce(0) { $0 | $1.rawValue }),
-      name: name,
+      name: withUnsafePointer(to: name, \.pointee),
       touchpads: touchpads.withUnsafeBufferPointer(\.baseAddress),
       sensors: sensors.withUnsafeBufferPointer(\.baseAddress),
       userdata: Unmanaged.passRetained(userData).toOpaque(),

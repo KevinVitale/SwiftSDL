@@ -1,16 +1,16 @@
 public protocol SceneProtocol: SceneNode {
   init(_ label: String, size: Size<Float>, bgColor: SDL_Color, blendMode: SDL_BlendMode)
   
-  @MainActor var window: (any Window)? { get}
+  var window: (any Window)? { get}
   
   var size: Size<Float> { get set }
   var bgColor: SDL_Color { get set }
   var blendMode: SDL_BlendMode { get set }
   
-  @MainActor func attach(to window: any Window) throws(SDL_Error)
-  @MainActor func update(at delta: Tick) throws(SDL_Error)
-  @MainActor func handle(_ event: SDL_Event) throws(SDL_Error)
-  @MainActor func shutdown() throws(SDL_Error)
+  func attach(to window: any Window) throws(SDL_Error)
+  func update(at delta: Tick) throws(SDL_Error)
+  func handle(_ event: SDL_Event) throws(SDL_Error)
+  func shutdown() throws(SDL_Error)
 }
 
 open class BaseScene<Graphics>: SceneNode, SceneProtocol {
@@ -54,7 +54,6 @@ open class BaseScene<Graphics>: SceneNode, SceneProtocol {
   open func shutdown() throws(SDL_Error) {
   }
   
-  @MainActor
   open func draw(_ graphics: Graphics) throws(SDL_Error) {
     for child in children {
       if let child = child as? SpriteNode<Graphics> {

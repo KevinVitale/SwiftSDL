@@ -77,14 +77,14 @@ extension SDL.Test {
       camera?.close()
     }
     
-    @MainActor private func _surfaceDrawing(_ window: any Window) throws(SDL_Error) {
+    private func _surfaceDrawing(_ window: any Window) throws(SDL_Error) {
       let surface = try window.surface.get()
       try surface.clear(color: .gray)
       try camera?.draw(to: surface)
       try window.updateSurface()
     }
     
-    @MainActor private func _renderDrawing(_ window: any Window) throws(SDL_Error) {
+    private func _renderDrawing(_ window: any Window) throws(SDL_Error) {
       if self.renderer == nil {
         do { self.renderer = try window.renderer.get() }
         catch { print(error) }

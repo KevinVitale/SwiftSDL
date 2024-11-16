@@ -1,5 +1,4 @@
 // MARK: - Protocol
-@MainActor
 public protocol Renderer: SDLObjectProtocol where Pointer == OpaquePointer { }
 
 extension SDLObject<OpaquePointer>: Renderer { }

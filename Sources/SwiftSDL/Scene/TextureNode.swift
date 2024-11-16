@@ -16,7 +16,6 @@ open class TextureNode: SceneNode {
     try super.init(from: decoder)
   }
   
-  @MainActor
   public convenience init(_ label: String = "", position: Point<Float> = .zero, surface: any Surface, colorMod color: SDL_Color = .white, renderer: any Renderer) throws(SDL_Error) {
     let texture = try renderer.texture(from: surface, tag: label)
     let size = try texture.size(as: Float.self)

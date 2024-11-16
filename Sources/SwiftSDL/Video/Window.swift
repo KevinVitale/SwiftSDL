@@ -1,4 +1,3 @@
-@MainActor
 public protocol Window: SDLObjectProtocol where Pointer == OpaquePointer { }
 
 extension SDLObject<OpaquePointer>: Window { }

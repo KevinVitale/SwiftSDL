@@ -47,7 +47,6 @@ import SwiftSDL
     }
   }
   
-  @MainActor
   private func drawSquare(surface: any Surface) throws(SDL_Error) {
     let squareFrame: SDL_FRect = [
       squareNode.position.x, squareNode.position.y,

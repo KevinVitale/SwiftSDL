@@ -1,38 +1,3 @@
-//
-//  Gamepad.swift
-//  SwiftSDL
-//
-//  Created by Kevin Vitale on 11/11/24.
-//
-// https://wiki.libsdl.org/SDL3/CategoryGamepad
-
-/*
-public enum Gamepad: Identifiable {
-  public typealias ID = SDL_JoystickID
-  public typealias GamepadPtr = OpaquePointer
-  
-  case connected(SDL_JoystickID)
-  case open(pointer: GamepadPtr)
-  case invalid
-  
-  public var id: ID {
-    switch self {
-      case .connected(let id): return id
-      case .open(let ptr): return SDL_GetGamepadID(ptr)
-      case .invalid: return .zero
-    }
-  }
-  
-  public var guid: SDL_GUID {
-    SDL_GetGamepadGUIDForID(id)
-  }
-}
- */
-
-public func SDL_ConnectedGamepadIDs() throws(SDL_Error) -> [SDL_JoystickID] {
-  try SDL_BufferPointer(SDL_GetGamepads)
-}
-
 extension SDL_GamepadType: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
   public static let unknown = SDL_GAMEPAD_TYPE_UNKNOWN
   public static let standard = SDL_GAMEPAD_TYPE_STANDARD

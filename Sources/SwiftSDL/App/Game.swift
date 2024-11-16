@@ -1,28 +1,15 @@
-public protocol Game: AnyObject, AsyncParsableCommand {
-  /// A game's window's title can be automatically set using this `name` value.
+public protocol Game: AnyObject, ParsableCommand {
   static var name: String { get }
   static var version: String { get }
   static var identifier: String { get }
   
   static var windowFlags: [SDL_WindowCreateFlag] { get }
-  static var initFlags: [Flags.InitSDL] { get }
   
-  @MainActor
   func onInit() throws(SDL_Error) -> any Window
-  
-  @MainActor
   func onReady(window: any Window) throws(SDL_Error)
-  
-  @MainActor
   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
-  
-  @MainActor
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
-  
-  @MainActor
   func onShutdown(window: any Window) throws(SDL_Error)
-  
-  @MainActor
   func onQuit(_ result: SDL_Error?)
 }
 
@@ -37,20 +24,14 @@ extension Game {
       .width(1024), .height(640)
     ]
   }
-  
-  public static var initFlags: [Flags.InitSDL] {
-    [
-      .video,
-      .joystick,
-      .gamepad
-    ]
-  }
 }
 
+nonisolated(unsafe)
+fileprivate var GameControllers: [GameController] = []
+
 extension Game {
-  @MainActor
   public func onInit() throws(SDL_Error) -> any Window {
-    try SDL_Init(Self.initFlags)
+    try SDL_Init(.video)
     
     let window = try SDL_CreateWindow(with: Self.windowFlags)
     let _ = try window.size(as: Float.self)
@@ -58,23 +39,13 @@ extension Game {
     return window
   }
   
-  @MainActor
   public func onQuit(_ result: SDL_Error?) {
-    /*
-     defer {
-     #if DEBUG
-     if result != nil {
-     print(SDL_Error.callStackDescription)
-     }
-     #endif
-     }
-     */
     SDL_Quit()
   }
 }
 
 extension Game {
-  @MainActor public func run() async throws {
+  public func run() throws {
     App.game = self
     
     guard SDL_SetAppMetadata(
@@ -120,7 +91,31 @@ extension Game {
           }
           
           if (0x600..<0x800).contains(event.type) {
-            try GameControllers.shared.handle(event)
+            print(event.eventType)
+            switch event.eventType {
+              case .joystickAdded:   fallthrough
+              case .joystickRemoved: fallthrough
+              case .gamepadAdded:    fallthrough
+              case .gamepadRemoved:
+                let gameControllers = GameControllers
+                GameControllers = try SDL_ConnectedJoystickIDs().map(\.gameController)
+                
+                let difference = GameControllers
+                  .difference(from: gameControllers, by: { existing, new in existing.id == new.id })
+                  .inferringMoves()
+                
+                difference
+                  .forEach {
+                    switch($0) {
+                      case .insert(let offset, let gameController, _):
+                        print("Added:", offset, gameController, gameController.joystickName, gameController.gamepadName)
+                      case .remove(let offset, let gameController, _):
+                        print("Removed:", offset, gameController, gameController.joystickName, gameController.gamepadName)
+                    }
+                  }
+
+              default: ()
+            }
           }
           
           try App.game.onEvent(window: App.window, event)
@@ -142,4 +137,7 @@ extension Game {
       return 0
     }, nil)
   }
+}
+
+public protocol GameDelegate: AnyObject {
 }

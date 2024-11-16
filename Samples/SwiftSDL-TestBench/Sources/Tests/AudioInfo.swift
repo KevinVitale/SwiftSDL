@@ -1,5 +1,5 @@
 extension SDL.Test {
-  final class AudioInfo: AsyncParsableCommand {
+  final class AudioInfo: ParsableCommand {
     private enum CodingKeys: String, CodingKey {
       case options
     }

@@ -1,6 +1,6 @@
 @_exported import SwiftSDL
 
-@main struct SDL: AsyncParsableCommand {
+@main struct SDL: ParsableCommand {
   static let configuration = CommandConfiguration(
     groupedSubcommands: [
       .init(name: "test", subcommands: [Test.self])
@@ -9,7 +9,7 @@
 }
 
 extension SDL {
-  struct Test: AsyncParsableCommand {
+  struct Test: ParsableCommand {
     struct Options: ParsableArguments {
       @Flag(help: "Enable vertical synchronization.") var vsync: Bool = false
       @Option(help: "Specify the window's title") var title: String = ""

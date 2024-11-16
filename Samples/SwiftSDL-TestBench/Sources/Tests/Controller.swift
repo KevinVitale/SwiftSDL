@@ -87,14 +87,26 @@ extension SDL.Test {
     }
     
     func onInit() throws(SDL_Error) -> any Window {
+      print("Applying SDL Hints...")
+      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1")
+      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1")
+      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1")
+      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1")
+      SDL_SetHint(SDL_HINT_JOYSTICK_ROG_CHAKRAM, "1")
+      SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1")
+      SDL_SetHint(SDL_HINT_JOYSTICK_LINUX_DEADZONES, "1")
+      SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")
+      
       /* Enable input debug logging */
       SDL_SetLogPriority(Int32(SDL_LOG_CATEGORY_INPUT.rawValue), SDL_LOG_PRIORITY_DEBUG);
-      
-      print("Applying SDL Hints...")
-      _applyHints()
-      
+
       print("Initializing SDL (v\(SDL_Version()))...")
-      try SDL_Init(.video, .joystick, .gamepad)
+      try SDL_Init(.video, .joystick)
+      
+      var num_joysticks: Int32 = 0
+      SDL_free(SDL_GetJoysticks(&num_joysticks));
+      print(num_joysticks)
+
       
       print("Calculate the size of the window....")
       let display = try Displays.primary.get()
@@ -158,11 +170,12 @@ extension SDL.Test {
       var event = event
       try renderer(SDL_ConvertEventToRenderCoordinates, .some(&event))
       
+      /*
       switch event.eventType {
         case .keyDown:
           if event.key.key == SDLK_A {
             // Attach a virtual joystick...
-            /* self.joystickID = */ try SDL_AttachVirtualJoystick(
+            try SDL_AttachVirtualJoystick(
               type: .gamepad,
               name: "Virtual Controller",
               touchpads: [.init(nfingers: 1, padding: (0, 0, 0))],
@@ -171,7 +184,6 @@ extension SDL.Test {
                 .init(type: .gyroscope, rate: 0),
               ]
             )
-            // self.gamepad = try .init(id: joystickID, renderer: renderer)
           }
           
           else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(joystickID) {
@@ -179,6 +191,7 @@ extension SDL.Test {
           }
         default: ()
       }
+       */
       
       /*
       switch event.eventType {
@@ -240,28 +253,11 @@ extension SDL.Test {
       joystickID = .zero
       renderer = nil
     }
-    
-    private func _applyHints() {
-#if os(macOS)
-      // Wired 360 controller wasn't reported...related?
-      // See this issue: https://github.com/libsdl-org/SDL/issues/11002
-      SDL_SetHint(SDL_HINT_JOYSTICK_MFI, "0")
-#endif
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");
-      SDL_SetHint(SDL_HINT_JOYSTICK_ROG_CHAKRAM, "1");
-      SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-      SDL_SetHint(SDL_HINT_JOYSTICK_LINUX_DEADZONES, "1");
-      SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")
-    }
   }
 }
 
 
 extension SDL.Test.Controller {
-  @MainActor
   private func drawButtonColumnUI(
     btnTexture: any Texture,
     joystick: OpaquePointer,
@@ -288,7 +284,6 @@ extension SDL.Test.Controller {
     }
   }
   
-  @MainActor
   private func drawAxesColumnUI(
     arrowTexture: any Texture,
     joystick: OpaquePointer,
@@ -351,7 +346,6 @@ extension SDL.Test.Controller {
 }
 
 extension SDL.Test.Controller {
-  @MainActor
   private var title: (text: String, position: Point<Float>) {
     let isVirtual = SDL_IsJoystickVirtual(joystickID)
     let isGamepad = SDL_IsGamepad(joystickID)
@@ -370,7 +364,6 @@ extension SDL.Test.Controller {
     return (displayName, [width, height])
   }
   
-  @MainActor
   private var subtitle: (text: String, position: Point<Float>) {
     guard SDL_IsJoystickVirtual(joystickID) else {
       return ("", .zero)
@@ -383,7 +376,6 @@ extension SDL.Test.Controller {
     return (subtitle, [width, height])
   }
   
-  @MainActor
   private var controllerID: (text: String, position: Point<Float>) {
     let text = "(\(joystickID))"
     
@@ -393,7 +385,6 @@ extension SDL.Test.Controller {
     return (text, [width, height])
   }
   
-  @MainActor
   private var gamepadType: (text: String, position: Point<Float>) {
     guard SDL_IsGamepad(joystickID),
           let pointer = SDL_GetGamepadFromID(joystickID) else
@@ -409,7 +400,6 @@ extension SDL.Test.Controller {
     return (text, [width, height])
   }
   
-  @MainActor
   private var steamHandle: (text: String, position: Point<Float>) {
     guard SDL_IsGamepad(joystickID),
           let pointer = SDL_GetGamepadFromID(joystickID) else
@@ -429,7 +419,6 @@ extension SDL.Test.Controller {
     return (text, [width, height])
   }
   
-  @MainActor
   private var placeholder: (text: String, position: Point<Float>) {
     let placeholder = "Waiting for gamepad, press A to add a virtual controller"
     let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(placeholder)) / 2)
@@ -438,7 +427,6 @@ extension SDL.Test.Controller {
     return (placeholder, [width, height])
   }
   
-  @MainActor
   private var serial: (text: String, position: Point<Float>) {
     let GetDeviceFunc = SDL_IsGamepad(joystickID) ? SDL_GetGamepadFromID : SDL_GetJoystickFromID
     let GetSerialFunc = SDL_IsGamepad(joystickID) ? SDL_GetGamepadSerial : SDL_GetJoystickSerial
@@ -455,7 +443,6 @@ extension SDL.Test.Controller {
     return(serial, [width, height])
   }
   
-  @MainActor
   private var buttonsTitle: (text: String, position: Point<Float>) {
     let buttonsTitle = "BUTTONS"
     let width = Layout.panelWidth + Layout.panelSpacing + Layout.gamepadWidth + Layout.panelSpacing + 8
@@ -464,7 +451,6 @@ extension SDL.Test.Controller {
     return (buttonsTitle, [width, height])
   }
   
-  @MainActor
   private var axisTitle: (text: String, position: Point<Float>) {
     let axesTitle = "AXES"
     let width = Layout.panelWidth + Layout.panelSpacing + Layout.gamepadWidth + Layout.panelSpacing + 96
@@ -473,7 +459,6 @@ extension SDL.Test.Controller {
     return (axesTitle, [width, height])
   }
 
-  @MainActor
   private var vendorID: (text: String, position: Point<Float>) {
     let vID = SDL_GetJoystickVendorForID(joystickID)
     let text = "VID: 0x".appendingFormat("%.4X", vID)
@@ -484,7 +469,6 @@ extension SDL.Test.Controller {
     return (text, [width, height])
   }
   
-  @MainActor
   private var productID: (text: String, position: Point<Float>) {
     let pID = SDL_GetJoystickProductForID(joystickID)
     let text = "PID: 0x".appendingFormat("%.4X", pID)
@@ -511,7 +495,6 @@ final class GamepadNode: TextureNode {
   
   private var joystickID: SDL_JoystickID = .zero
   
-  @MainActor
   convenience init(id joystickID: SDL_JoystickID, renderer: any Renderer) throws(SDL_Error) {
     self.init("Gamepad")
     self.joystickID = joystickID
@@ -666,25 +649,21 @@ extension SDL.Test.Controller {
       return Rect(lowHalf: [xPos, yPos], highHalf: [width, height])
     }
     
-    @MainActor
     static let sceneWidth = panelWidth
     + panelSpacing
     + gamepadWidth
     + panelSpacing
     + panelWidth
     
-    @MainActor
     static let sceneHeight = titleHeight
     + gamepadHeight
     
-    @MainActor
     static func screenSize(scaledBy scale: Float = 1.0) -> Size<Sint64> {
       let scaledSize = Size(x: sceneWidth, y: sceneHeight).to(Float.self) * scale
       let size: Size<Float> = [SDL_ceilf(scaledSize.x), SDL_ceilf(scaledSize.y)]
       return size.to(Sint64.self)
     }
     
-    @MainActor
     static var touchpadFrame: Rect<Float> {
       [148.0, 20.0, 216.0, 118.0]
     };

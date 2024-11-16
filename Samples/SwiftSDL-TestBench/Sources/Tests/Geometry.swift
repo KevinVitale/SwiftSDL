@@ -103,14 +103,14 @@ extension SDL.Test {
       renderer = nil
     }
     
-    @MainActor private func _loadTexture(_ renderer: any Renderer) throws(SDL_Error) {
+    private func _loadTexture(_ renderer: any Renderer) throws(SDL_Error) {
       let surface = try Load(bitmap: "icon.bmp")
       self.icon = try renderer.texture(from: surface)
       try self.icon(SDL_SetTextureBlendMode, blendMode.rawValue)
       // surface.destroy()
     }
     
-    @MainActor private func _drawGeometry(_ renderer: any Renderer) throws(SDL_Error) {
+    private func _drawGeometry(_ renderer: any Renderer) throws(SDL_Error) {
       var verts: [SDL_Vertex] = Array(repeating: .init(), count: 3)
       let viewport = try renderer.viewport.get().to(Float.self)
       
