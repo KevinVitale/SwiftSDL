@@ -19,7 +19,7 @@ Below is a basic example of how you can use SwiftSDL to initialize an SDL window
 
 | `Example.swift`  | Output  |
 |---|---|
-|<pre width="0" lang="swift">import SwiftSDL&#13;&#13;@main final class Example: Game {&#13;  func onReady(window: any Window) throws(SDL_Error) { }&#13;  func onUpdate(window: any Window, _ delta: Tick) throws(SDL_Error) {&#13;    let surface = try window.surface.get()&#13;    try surface.clear(color: .red)&#13;    try window.updateSurface()&#13;  }&#13;  func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) { }&#13;  func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) { }&#13;}</pre> | <img align="right" width="100%" alt="Screenshot 2024-10-26 at 2 30 44 PM" src="https://github.com/user-attachments/assets/8868d4b8-b714-4c87-90d0-ef82dd46b02f"> |
+|<pre width="0" lang="swift">import SwiftSDL&#13;&#13;@main final class Example: Game {&#13;  func onReady(window: any Window) throws(SDL_Error) { }&#13;  func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {&#13;    let surface = try window.surface.get()&#13;    try surface.clear(color: .red)&#13;    try window.updateSurface()&#13;  }&#13;  func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) { }&#13;  func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) { }&#13;}</pre> | <img align="right" width="100%" alt="Screenshot 2024-10-26 at 2 30 44 PM" src="https://github.com/user-attachments/assets/8868d4b8-b714-4c87-90d0-ef82dd46b02f"> |
 
 ## Installation
 
@@ -79,23 +79,7 @@ let package = Package(
 ### Windows
 
 ### iOS
-Due to platform differences, integrating SDL on iOS requires an **Objective-C to Swift Bridging Header**. The library includes a sample project to demonstrate this setup.
-
-1. **Create a Bridging Header**:
-    - In your iOS project, create a bridging header file (e.g., `YourApp-Bridging-Header.h`) and include SDL's necessary headers:
-
-    ```objective-c
-    #include "SDL.h"
-    #include "SDL_main.h"
-    ```
-
-2. **Link the SDL Framework**:
-    - Make sure to link the SDL framework in your Xcode project. This is necessary for building and running the iOS version of the app.
-
-3. **Sample App**:
-    - The library includes a sample iOS app in the `Examples/iOS` directory. Open the project in Xcode, ensure the bridging header is set up correctly, and build the app to see how SDL can be used in iOS apps.
-
-![](Samples/SwiftSDL-iOS/ios-example.gif)
+![](https://github.com/KevinVitale/SwiftSDL/blob/main/Samples/SwiftSDL-Xcode/ios-example.gif)
 
 ## Contributions
 
