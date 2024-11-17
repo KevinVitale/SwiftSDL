@@ -1,3 +1,4 @@
+@discardableResult
 public func SDL_AttachVirtualJoystick(
   type: SDL_JoystickType,
   vendorID: UInt16 = .zero,
@@ -148,6 +149,106 @@ public enum GameController: Hashable {
     return String(cString: name)
   }
   
+  public func gamepad(has button: SDL_GamepadButton) -> Bool {
+    SDL_GamepadHasButton(gamepad, button)
+  }
+  
+  public func gamepad(has axis: SDL_GamepadAxis) -> Bool {
+    SDL_GamepadHasAxis(gamepad, axis)
+  }
+  
+  public func gamepad(has sensor: SDL_SensorType) -> Bool {
+    SDL_GamepadHasSensor(gamepad, sensor)
+  }
+  
+  public func gamepad(enables sensor: SDL_SensorType) -> Bool {
+    SDL_GamepadSensorEnabled(gamepad, sensor)
+  }
+  
+  @discardableResult
+  public func gamepad(activate sensor: SDL_SensorType) -> Bool {
+    guard !gamepad(enables: sensor) else { return true }
+    print("Activating: \(sensor)")
+    return SDL_SetGamepadSensorEnabled(gamepad, sensor, true)
+  }
+  
+  @discardableResult
+  public func gamepad(deactivate sensor: SDL_SensorType) -> Bool {
+    SDL_SetGamepadSensorEnabled(gamepad, sensor, false)
+  }
+
+  public func gamepad(query axis: SDL_GamepadAxis) -> Sint16 {
+    SDL_GetGamepadAxis(gamepad, axis)
+  }
+  
+  public func gamepad(query button: SDL_GamepadButton) -> Bool {
+    SDL_GetGamepadButton(gamepad, button)
+  }
+  
+  public func gamepad(rate sensor: SDL_SensorType) -> Float {
+    SDL_GetGamepadSensorDataRate(gamepad, sensor)
+  }
+  
+  public func gamepad(query sensor: SDL_SensorType) -> SDL_SensorData {
+    guard sensor != .invalid, sensor != .unknown else {
+      return .none
+    }
+    
+    var data = Array(repeating: Float.zero, count: 3)
+    SDL_GetGamepadSensorData(gamepad, sensor, .some(&data), 3)
+
+    switch sensor {
+      case .accelerometer: fallthrough
+      case .leftAccelerometer: fallthrough
+      case .rightAccelerometer:
+        return .accelerometer(
+          x: data[0],
+          y: data[1],
+          z: data[2]
+        )
+      case .gyroscope: fallthrough
+      case .leftGyroscope: fallthrough
+      case .rightGyroscope:
+        return .gyroscope(
+          pitch: data[0],
+          yaw: data[1],
+          roll: data[2]
+        )
+        
+      default: return .none
+    }
+  }
+
+  public func gamepadAxes() -> [SDL_GamepadAxis] {
+    var axes = [SDL_GamepadAxis]()
+    for axis in SDL_GamepadAxis.allCases {
+      if gamepad(has: axis) {
+        axes.append(axis)
+      }
+    }
+    return axes
+  }
+  
+  public func gamepadButtons() -> [SDL_GamepadButton] {
+    var buttons = [SDL_GamepadButton]()
+    for button in SDL_GamepadButton.allCases {
+      if gamepad(has: button) {
+        buttons.append(button)
+      }
+    }
+    return buttons
+  }
+  
+  public func gamepadSensors() -> [SDL_SensorType] {
+    var sensors = [SDL_SensorType]()
+    for sensor in SDL_SensorType.allCases {
+      if gamepad(has: sensor) {
+        sensors.append(sensor)
+      }
+    }
+    return sensors
+  }
+  
   public var guid: SDL_GUID {
     guard case(.open) = self else {
       return SDL_GetJoystickGUIDForID(id)
@@ -228,6 +329,7 @@ public struct SDL_GamepadMapping: CaseIterable {
         let value = String($0[separatorIndex...].dropFirst())
         return (key: key, value: value)
       }) {
+      print(key, value, separator: " : ")
       self.keyValues[key] = value
     }
   }
@@ -238,10 +340,15 @@ public struct SDL_GamepadMapping: CaseIterable {
     keyValues["platform"] ?? ""
   }
   
-  private var keyValues: [String: String] = [:]
-  
   public let wrappedValue: String
   
+  private var keyValues: [String: String] = [:]
+  
+  public subscript(key: String) -> String? {
+    get { keyValues[key] }
+    set { keyValues[key] = newValue }
+  }
+
   public static var allCases: [Self] {
     do {
       return try SDL_BufferPointer(SDL_GetGamepadMappings)

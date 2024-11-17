@@ -26,8 +26,12 @@ extension SDL.Test {
       }
     }
     
+    private var gameController: GameController {
+      gameControllers.last ?? .invalid
+    }
+    
     private var joystickID: SDL_JoystickID {
-      gameControllers.last?.id ?? .zero
+      gameController.id
     }
     
     func onInit() throws(SDL_Error) -> any Window {
@@ -48,7 +52,12 @@ extension SDL.Test {
       try SDL_Init(.video, .joystick)
       
       for mapping in SDL_GamepadMapping.allCases {
-        print(mapping.guid, mapping.name, mapping.platform)
+        print(
+          mapping.guid,
+          mapping.name,
+          mapping.platform,
+          mapping["a"] as Any
+        )
       }
 
       print("Calculate the size of the window....")
@@ -113,11 +122,26 @@ extension SDL.Test {
       var event = event
       try renderer(SDL_ConvertEventToRenderCoordinates, .some(&event))
       
-      /*
+      if (0x600..<0x800).contains(event.type) {
+        for button in gameController.gamepadButtons() {
+          print("Button: \(button)", gameController.gamepad(query: button))
+        }
+
+        for axis in gameController.gamepadAxes() {
+          print("Axis: \(axis)", gameController.gamepad(query: axis))
+        }
+        
+        for sensor in gameController.gamepadSensors() {
+          gameController.gamepad(activate: sensor)
+          print("Sensor Rate: \(sensor)", gameController.gamepad(rate: sensor))
+          print("Sensor Data: \(sensor)", gameController.gamepad(query: sensor))
+        }
+      }
+
+      
       switch event.eventType {
         case .keyDown:
           if event.key.key == SDLK_A {
-            // Attach a virtual joystick...
             try SDL_AttachVirtualJoystick(
               type: .gamepad,
               name: "Virtual Controller",
@@ -129,13 +153,12 @@ extension SDL.Test {
             )
           }
           
-          else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(joystickID) {
-            // self.joystickID = .zero
+          else if event.key.key == SDLK_D, gameController.isVirtual {
+            var gameController = self.gameController
+            gameController.close()
           }
         default: ()
       }
-       */
-      
     }
     
     func onShutdown(window: any Window) throws(SDL_Error) {

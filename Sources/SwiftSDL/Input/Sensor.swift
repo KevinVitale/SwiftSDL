@@ -35,3 +35,9 @@ extension SDL_SensorType: @retroactive CaseIterable, @retroactive CustomDebugStr
     ]
   }
 }
+
+public enum SDL_SensorData {
+  case accelerometer(x: Float, y: Float, z: Float)
+  case gyroscope(pitch: Float, yaw: Float, roll: Float)
+  case none
+}
