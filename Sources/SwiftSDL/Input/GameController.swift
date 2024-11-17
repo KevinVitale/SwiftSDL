@@ -175,11 +175,11 @@ public enum GameController: Hashable {
     }
     
     if SDL_IsGamepad(id) {
-      print("Closing gamepad...")
+      print("Closing gamepad:", gamepadName)
       SDL_CloseGamepad(gamepad)
     }
     else {
-      print("Closing joystick...")
+      print("Closing joystick:", joystickName)
       SDL_CloseJoystick(joystick)
     }
     

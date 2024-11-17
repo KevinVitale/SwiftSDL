@@ -142,7 +142,6 @@ extension Game {
         try? App.game.onShutdown(window: App.window)
         
         for var gameController in GameControllers {
-          print("Closing:", gameController)
           gameController.close()
         }
         GameControllers = []

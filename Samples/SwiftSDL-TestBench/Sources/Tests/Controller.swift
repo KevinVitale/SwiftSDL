@@ -27,7 +27,7 @@ extension SDL.Test {
     }
     
     private var joystickID: SDL_JoystickID {
-      gameControllers.first?.id ?? .zero
+      gameControllers.last?.id ?? .zero
     }
     
     func onInit() throws(SDL_Error) -> any Window {
@@ -80,7 +80,8 @@ extension SDL.Test {
         .clear(color: .white)
         .draw(node: gamepad)
         .draw(into: {
-          if let gameController = gameControllers.first,
+          if joystickID != .zero,
+             let joystick = SDL_GetJoystickFromID(joystickID),
              let btnTexture = gamepad?.btn.texture,
              let arrowTexture = gamepad?.arrow.texture
           {
@@ -95,8 +96,8 @@ extension SDL.Test {
             try $0.debug(text: vendorID.text, position: vendorID.position, color: .black )
             try $0.debug(text: productID.text, position: productID.position, color: .black )
             
-            try drawButtonColumnUI(btnTexture: btnTexture, joystick: gameController.joystick!, renderer: $0)
-            try drawAxesColumnUI(arrowTexture: arrowTexture, joystick: gameController.joystick!, renderer: $0)
+            try drawButtonColumnUI(btnTexture: btnTexture, joystick: joystick, renderer: $0)
+            try drawAxesColumnUI(arrowTexture: arrowTexture, joystick: joystick, renderer: $0)
           }
           else {
             try $0.debug(
