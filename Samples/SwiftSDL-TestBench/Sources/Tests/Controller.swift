@@ -146,11 +146,15 @@ extension SDL.Test {
     
     func did(connect gameController: inout GameController) throws(SDL_Error) {
       try gameController.open()
-      gamepad = try .init(id: gameController.id, renderer: renderer)
+      self.gamepad = try .init(id: gameController.id, renderer: renderer)
     }
     
     func will(remove gameController: GameController) {
-      gamepad = nil
+      if joystickID != .zero, let gamepad = try? GamepadNode(id: joystickID, renderer: renderer) {
+        self.gamepad = gamepad
+      } else {
+        self.gamepad = nil
+      }
     }
   }
 }
