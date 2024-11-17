@@ -148,6 +148,14 @@ public enum GameController: Hashable {
     return String(cString: name)
   }
   
+  public var guid: SDL_GUID {
+    guard case(.open) = self else {
+      return SDL_GetJoystickGUIDForID(id)
+    }
+    
+    return SDL_GetJoystickGUID(joystick)
+  }
+
   public mutating func open() throws(SDL_Error) {
     guard case(.connected) = self else {
       return
@@ -196,3 +204,57 @@ extension SDL_JoystickID {
   }
 }
 
+@propertyWrapper
+public struct SDL_GamepadMapping: CaseIterable {
+  public init(guid: SDL_GUID) throws {
+    guard let mapping = SDL_GetGamepadMappingForGUID(guid) else {
+      throw SDL_Error.error
+    }
+    defer { SDL_free(mapping) }
+    self.init(wrappedValue: String(cString: mapping))
+  }
+  
+  public init(wrappedValue mapping: String) {
+    self.wrappedValue = mapping
+    var components = Array(mapping.split(separator: ","))
+    
+    self.guid = SDL_StringToGUID(String(components.removeFirst()))
+    self.name = String(components.removeFirst())
+    
+    for (key, value) in components
+      .map({
+        let separatorIndex = $0.firstIndex(of: ":")!
+        let key = String($0[..<separatorIndex])
+        let value = String($0[separatorIndex...].dropFirst())
+        return (key: key, value: value)
+      }) {
+      self.keyValues[key] = value
+    }
+  }
+
+  public let guid: SDL_GUID
+  public let name: String
+  public var platform: String {
+    keyValues["platform"] ?? ""
+  }
+  
+  private var keyValues: [String: String] = [:]
+  
+  public let wrappedValue: String
+  
+  public static var allCases: [Self] {
+    do {
+      return try SDL_BufferPointer(SDL_GetGamepadMappings)
+        .compactMap({
+          guard let mappings = $0 else {
+            return nil
+          }
+          return String(cString: mappings)
+        })
+        .map(Self.init(wrappedValue:))
+    }
+    catch {
+      return []
+    }
+  }
+}

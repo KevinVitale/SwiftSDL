@@ -9,7 +9,7 @@ extension SDL.Test {
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       try window(SDL_HideWindow)
-      try SDL_Init(.joystick)
+      try SDL_Init(.joystick, .gamepad)
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
@@ -21,14 +21,9 @@ extension SDL.Test {
     func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
     }
     
-    func did(add gameController: inout GameController) throws(SDL_Error) {
+    func did(connect gameController: inout GameController) throws(SDL_Error) {
+      try gameController.open()
       print("Added:", gameController, gameController.joystickName, gameController.gamepadName)
-      
-      if gameControllers.count >= 2 {
-        for var gameController in gameControllers {
-          try gameController.open()
-        }
-      }
     }
     
     func will(remove gameController: GameController) {

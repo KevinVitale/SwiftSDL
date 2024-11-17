@@ -197,11 +197,11 @@ extension SDL_GamepadAxis: @retroactive CaseIterable, @retroactive CustomDebugSt
     switch self {
       case SDL_GAMEPAD_AXIS_INVALID: return "invalid"
       case SDL_GAMEPAD_AXIS_LEFTX: return "left x"
-      case SDL_GAMEPAD_AXIS_LEFTY: return ""
-      case SDL_GAMEPAD_AXIS_RIGHTX: return ""
-      case SDL_GAMEPAD_AXIS_RIGHTY: return ""
-      case SDL_GAMEPAD_AXIS_LEFT_TRIGGER: return ""
-      case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER: return ""
+      case SDL_GAMEPAD_AXIS_LEFTY: return "left y"
+      case SDL_GAMEPAD_AXIS_RIGHTX: return "right x"
+      case SDL_GAMEPAD_AXIS_RIGHTY: return "right y"
+      case SDL_GAMEPAD_AXIS_LEFT_TRIGGER: return "left trigger"
+      case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER: return "right trigger"
       case SDL_GAMEPAD_AXIS_COUNT: return "\(SDL_GAMEPAD_AXIS_COUNT.rawValue)"
       default: return "Unknown SDL_GamepadAxis: \(self.rawValue)"
     }

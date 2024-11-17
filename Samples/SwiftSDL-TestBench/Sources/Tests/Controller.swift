@@ -47,11 +47,10 @@ extension SDL.Test {
       print("Initializing SDL (v\(SDL_Version()))...")
       try SDL_Init(.video, .joystick)
       
-      var num_joysticks: Int32 = 0
-      SDL_free(SDL_GetJoysticks(&num_joysticks));
-      print(num_joysticks)
+      for mapping in SDL_GamepadMapping.allCases {
+        print(mapping.guid, mapping.name, mapping.platform)
+      }
 
-      
       print("Calculate the size of the window....")
       let display = try Displays.primary.get()
       let contentScale = (try? display.contentScale.get()) ?? 1
