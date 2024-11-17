@@ -11,7 +11,13 @@ public protocol Game: AnyObject, ParsableCommand {
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
   func onShutdown(window: any Window) throws(SDL_Error)
   func onQuit(_ result: SDL_Error?)
+  
+  func did(connect gameController: inout GameController) throws(SDL_Error)
+  func will(remove gameController: GameController)
 }
+
+nonisolated(unsafe)
+internal var GameControllers: [GameController] = []
 
 extension Game {
   public static var name: String { "\(Self.self)" }
@@ -24,12 +30,11 @@ extension Game {
       .width(1024), .height(640)
     ]
   }
-}
-
-nonisolated(unsafe)
-fileprivate var GameControllers: [GameController] = []
-
-extension Game {
+  
+  public var gameControllers: [GameController] {
+    GameControllers
+  }
+  
   public func onInit() throws(SDL_Error) -> any Window {
     try SDL_Init(.video)
     
@@ -42,6 +47,9 @@ extension Game {
   public func onQuit(_ result: SDL_Error?) {
     SDL_Quit()
   }
+  
+  public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
+  public func will(remove gameController: GameController) { /* no-op */ }
 }
 
 extension Game {
@@ -91,26 +99,27 @@ extension Game {
           }
           
           if (0x600..<0x800).contains(event.type) {
-            print(event.eventType)
             switch event.eventType {
               case .joystickAdded:   fallthrough
               case .joystickRemoved: fallthrough
               case .gamepadAdded:    fallthrough
               case .gamepadRemoved:
                 let gameControllers = GameControllers
-                GameControllers = try SDL_ConnectedJoystickIDs().map(\.gameController)
+                GameControllers = try SDL_BufferPointer(SDL_GetJoysticks).map(\.gameController)
                 
                 let difference = GameControllers
                   .difference(from: gameControllers, by: { existing, new in existing.id == new.id })
                   .inferringMoves()
                 
-                difference
+                try difference
                   .forEach {
                     switch($0) {
-                      case .insert(let offset, let gameController, _):
-                        print("Added:", offset, gameController, gameController.joystickName, gameController.gamepadName)
-                      case .remove(let offset, let gameController, _):
-                        print("Removed:", offset, gameController, gameController.joystickName, gameController.gamepadName)
+                      case .insert(_, var gameController, _):
+                        try App.game.did(connect: &gameController)
+                        
+                      case .remove(_, var gameController, _):
+                        App.game.will(remove: gameController)
+                        gameController.close()
                     }
                   }
 

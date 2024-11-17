@@ -93,10 +93,6 @@ extension SDL_JoystickType: @retroactive CaseIterable, @retroactive CustomDebugS
   }
 }
 
-public func SDL_ConnectedJoystickIDs() throws(SDL_Error) -> [SDL_JoystickID] {
-  try SDL_BufferPointer(SDL_GetJoysticks)
-}
-
 public enum GameController: Hashable {
   case connected(SDL_JoystickID)
   case open(OpaquePointer)
@@ -157,7 +153,7 @@ public enum GameController: Hashable {
       return
     }
     
-    print("Opening \(SDL_IsGamepad(id) ? "#\(self) gamepad..." : "#\(id) joystick...")")
+    print("Opening \(SDL_IsGamepad(id) ? "#\(id) gamepad..." : "#\(id) joystick...")")
     let OpenFunc = SDL_IsGamepad(id) ? SDL_OpenGamepad : SDL_OpenJoystick
     
     guard let pointer = OpenFunc(id) else {
@@ -165,6 +161,7 @@ public enum GameController: Hashable {
     }
     
     self = .open(pointer)
+    GameControllers = try SDL_BufferPointer(SDL_GetJoysticks).map(\.gameController)
   }
   
   public mutating func close() {
