@@ -20,70 +20,14 @@ extension SDL.Test {
     
     private var renderer: (any Renderer)!
     
-    private var joystickID: SDL_JoystickID = .zero {
-      willSet {
-        guard joystickID != .zero, joystickID != newValue else {
-          return
-        }
-        
-        if SDL_IsJoystickVirtual(joystickID) {
-          print("Detaching virtual joystick...")
-          SDL_DetachVirtualJoystick(joystickID)
-        }
-        
-        if let pointer = SDL_GetJoystickFromID(joystickID) {
-          if SDL_IsGamepad(joystickID) {
-            print("Closing gamepad...")
-          }
-          else {
-            print("Closing joystick...")
-          }
-          
-          SDL_CloseJoystick(pointer)
-        }
-      }
-      didSet {
-        if joystickID == .zero {
-          gamepad = nil
-        }
-        else {
-          if SDL_IsJoystickVirtual(joystickID) {
-            print("Virtual joystick attached...")
-          }
-          
-          print("Opening \(SDL_IsGamepad(joystickID) ? "gamepad..." : "joystick...")")
-          let OpenFunc = SDL_IsGamepad(joystickID) ? SDL_OpenGamepad : SDL_OpenJoystick
-          let pointer = OpenFunc(joystickID)
-          
-          print("\(pointer != nil ? "Open Success" : "Open Failure")")
-          
-          if let joystickName = SDL_GetJoystickName(pointer) {
-            print("Joystick Name: \(String(cString: joystickName))")
-          }
-          
-          if let gamepadName = SDL_GetGamepadName(pointer) {
-            print("Gamepad Name: \(String(cString: gamepadName))")
-          }
-
-          for sensor in SDL_SensorType.allCases {
-            if SDL_GamepadHasSensor(pointer, sensor) {
-              print("Enabled \(sensor) at ".appendingFormat("%.2f", SDL_GetGamepadSensorDataRate(pointer, sensor)))
-              SDL_SetGamepadSensorEnabled(pointer, sensor, true)
-            }
-          }
-          
-          if let mapping = SDL_GetGamepadMapping(pointer) {
-            print("Mapping: \(String(cString: mapping))")
-            SDL_free(mapping)
-          }
-        }
-      }
-    }
-    
     private var gamepad: GamepadNode? {
       willSet {
         gamepad?.removeAllChildren()
       }
+    }
+    
+    private var joystickID: SDL_JoystickID {
+      gameControllers.first?.id ?? .zero
     }
     
     func onInit() throws(SDL_Error) -> any Window {
@@ -136,8 +80,7 @@ extension SDL.Test {
         .clear(color: .white)
         .draw(node: gamepad)
         .draw(into: {
-          if joystickID != .zero,
-             let joystick = SDL_GetJoystickFromID(joystickID),
+          if let gameController = gameControllers.first,
              let btnTexture = gamepad?.btn.texture,
              let arrowTexture = gamepad?.arrow.texture
           {
@@ -152,8 +95,8 @@ extension SDL.Test {
             try $0.debug(text: vendorID.text, position: vendorID.position, color: .black )
             try $0.debug(text: productID.text, position: productID.position, color: .black )
             
-            try drawButtonColumnUI(btnTexture: btnTexture, joystick: joystick, renderer: $0)
-            try drawAxesColumnUI(arrowTexture: arrowTexture, joystick: joystick, renderer: $0)
+            try drawButtonColumnUI(btnTexture: btnTexture, joystick: gameController.joystick!, renderer: $0)
+            try drawAxesColumnUI(arrowTexture: arrowTexture, joystick: gameController.joystick!, renderer: $0)
           }
           else {
             try $0.debug(
@@ -193,65 +136,20 @@ extension SDL.Test {
       }
        */
       
-      /*
-      switch event.eventType {
-        case .joystickAdded:
-          let joystickID = event.jdevice.which
-          // Check to ensure we're not re-adding an existing joystick...
-          // (a virtual joystick may already have been added...)
-          if SDL_GetJoystickFromID(joystickID) == nil {
-            self.joystickID = joystickID
-            self.gamepad = try .init(id: joystickID, renderer: renderer)
-          }
-          
-        case .joystickRemoved:
-          if let joystickID = try SDL_ConnectedJoystickIDs().first {
-            self.joystickID = joystickID
-            self.gamepad = try .init(id: joystickID, renderer: renderer)
-          }
-          else {
-            self.joystickID = .zero
-          }
-          
-        case .joystickAxisMotion: ()
-        case .joystickButtonDown: ()
-        case .joystickButtonUp: ()
-        case .joystickHatMotion: ()
-          
-        case .gamepadRemapped: ()
-        case .gamepadSteamHandleUpdated: ()
-        case .gamepadButtonDown: fallthrough
-        case .gamepadButtonUp: ()
-          
-        case .mouseButtonDown: ()
-        case .mouseButtonUp: ()
-        case .mouseMotion: ()
-          
-        case .keyDown: ()
-          if event.key.key == SDLK_A {
-            // Attach a virtual joystick...
-            self.joystickID = try SDL_AttachVirtualJoystick(
-              type: .gamepad,
-              touchpads: [.init(nfingers: 1, padding: (0, 0, 0))],
-              sensors: [.init(type: .accelerometer, rate: 0)]
-            )
-            self.gamepad = try .init(id: joystickID, renderer: renderer)
-          }
-          
-          else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(joystickID) {
-            self.joystickID = .zero
-          }
-        case .keyUp: ()
-        case .textInput: ()
-          
-        default: ()
-      }
-       */
     }
     
     func onShutdown(window: any Window) throws(SDL_Error) {
-      joystickID = .zero
+      gamepad = nil
       renderer = nil
+    }
+    
+    func did(connect gameController: inout GameController) throws(SDL_Error) {
+      try gameController.open()
+      gamepad = try .init(id: gameController.id, renderer: renderer)
+    }
+    
+    func will(remove gameController: GameController) {
+      gamepad = nil
     }
   }
 }

@@ -140,6 +140,13 @@ extension Game {
         
         defer { App.window = nil }
         try? App.game.onShutdown(window: App.window)
+        
+        for var gameController in GameControllers {
+          print("Closing:", gameController)
+          gameController.close()
+        }
+        GameControllers = []
+        
         App.game.onQuit(error)
       })
       

@@ -176,12 +176,13 @@ public enum GameController: Hashable {
     
     if SDL_IsGamepad(id) {
       print("Closing gamepad...")
+      SDL_CloseGamepad(gamepad)
     }
     else {
       print("Closing joystick...")
+      SDL_CloseJoystick(joystick)
     }
     
-    SDL_CloseJoystick(joystick)
     self = .invalid
   }
 }
