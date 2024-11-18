@@ -4,9 +4,7 @@ extension SDL_PropertiesID {
     var pointer: UnsafeMutablePointer<(String, any PropertyValue)>? = nil
     
     var properties: [(String, any PropertyValue)] {
-      guard let pointer = pointer else {
-        return []
-      }
+      guard let pointer = pointer else { return [] }
       return Array(UnsafeBufferPointer(start: pointer, count: count))
     }
   }
