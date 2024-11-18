@@ -177,8 +177,12 @@ public enum GameController: Hashable {
     SDL_SetGamepadSensorEnabled(gamepad, sensor, false)
   }
 
-  public func gamepad(query axis: SDL_GamepadAxis) -> Sint16 {
-    SDL_GetGamepadAxis(gamepad, axis)
+  public func gamepad(query axis: SDL_GamepadAxis, normalized: Bool = false) -> Sint16 {
+    let value = SDL_GetGamepadAxis(gamepad, axis)
+    if normalized {
+      // TODO: Normalize axis value
+    }
+    return value
   }
   
   public func gamepad(query button: SDL_GamepadButton) -> Bool {
@@ -329,7 +333,6 @@ public struct SDL_GamepadMapping: CaseIterable {
         let value = String($0[separatorIndex...].dropFirst())
         return (key: key, value: value)
       }) {
-      print(key, value, separator: " : ")
       self.keyValues[key] = value
     }
   }
@@ -348,6 +351,10 @@ public struct SDL_GamepadMapping: CaseIterable {
     get { keyValues[key] }
     set { keyValues[key] = newValue }
   }
+  
+  public static func matching(_ callback: (Self) -> Bool) -> [Self] {
+    allCases.filter(callback)
+  }
 
   public static var allCases: [Self] {
     do {
@@ -362,6 +369,32 @@ public struct SDL_GamepadMapping: CaseIterable {
     }
     catch {
       return []
+    }
+  }
+}
+
+public enum SDL_JoystickHat: CaseIterable {
+  case centered
+  case up
+  case right
+  case down
+  case left
+  case rightUp
+  case rightDown
+  case leftUp
+  case leftDown
+  
+  var rawValue: UInt8 {
+    switch self {
+      case .centered: return UInt8(SDL_HAT_CENTERED)
+      case .up: return UInt8(SDL_HAT_UP)
+      case .right: return  UInt8(SDL_HAT_RIGHT)
+      case .down: return  UInt8(SDL_HAT_DOWN)
+      case .left: return UInt8(SDL_HAT_LEFT)
+      case .rightUp: return UInt8(SDL_HAT_RIGHTUP)
+      case .rightDown: return UInt8(SDL_HAT_RIGHTDOWN)
+      case .leftUp: return UInt8(SDL_HAT_LEFTUP)
+      case .leftDown: return UInt8(SDL_HAT_LEFTDOWN)
     }
   }
 }

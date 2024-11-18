@@ -50,15 +50,6 @@ extension SDL.Test {
 
       print("Initializing SDL (v\(SDL_Version()))...")
       try SDL_Init(.video, .joystick)
-      
-      for mapping in SDL_GamepadMapping.allCases {
-        print(
-          mapping.guid,
-          mapping.name,
-          mapping.platform,
-          mapping["a"] as Any
-        )
-      }
 
       print("Calculate the size of the window....")
       let display = try Displays.primary.get()
@@ -74,6 +65,17 @@ extension SDL.Test {
       )
       
       defer { print("Initializing complete!") }
+      
+      let globalProperties = try SDL_PropertiesID.global()
+      for (idx, (key, value)) in try globalProperties.enumerated() {
+        print(idx, key, value)
+      }
+
+      let windowProperties = try window(SDL_GetWindowProperties)
+      for (idx, (key, value)) in try windowProperties.enumerated() {
+        print(idx, key, value)
+      }
+      
       return window
     }
     
@@ -138,7 +140,6 @@ extension SDL.Test {
         }
       }
 
-      
       switch event.eventType {
         case .keyDown:
           if event.key.key == SDLK_A {

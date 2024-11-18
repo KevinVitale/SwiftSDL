@@ -1,7 +1,72 @@
 extension SDL_PropertiesID {
-  public static var global: Self {
-    SDL_GetGlobalProperties()
+  private struct EnumerateUserData {
+    var count: Int = 0
+    var pointer: UnsafeMutablePointer<(String, any PropertyValue)>? = nil
+    
+    var properties: [(String, any PropertyValue)] {
+      guard let pointer = pointer else {
+        return []
+      }
+      return Array(UnsafeBufferPointer(start: pointer, count: count))
+    }
   }
+  
+  public static func global() throws(SDL_Error) -> Self {
+    let global = SDL_GetGlobalProperties()
+    guard global != .zero else {
+      throw SDL_Error.error
+    }
+    return global
+  }
+  
+  public func enumerated() throws(SDL_Error) -> EnumeratedSequence<[(String, any PropertyValue)]> {
+    let callback: SDL_EnumeratePropertiesCallback = { userdata, propertyID, name in
+      let state = userdata?.bindMemory(to: EnumerateUserData.self, capacity: 1).pointee
+      
+      if let name = name, var state = state {
+        state.count += 1
+        if state.pointer == nil {
+          state.pointer = .allocate(capacity: state.count)
+        }
+        else {
+          let pointer = state.pointer
+          state.pointer = .allocate(capacity: state.count)
+          state.pointer?.moveInitialize(from: pointer!, count: state.count)
+        }
+        
+        let name = String(cString: name)
+        switch propertyID.type(of: name) {
+          case .boolean:
+            let bool = SDL_GetBooleanProperty(propertyID, name, false)
+            (state.pointer! + state.count - 1).initialize(to: (name, bool))
+          case .float:
+            let float = SDL_GetFloatProperty(propertyID, name, 0)
+            (state.pointer! + state.count - 1).initialize(to: (name, float))
+          case .number:
+            let number = SDL_GetNumberProperty(propertyID, name, 0)
+            (state.pointer! + state.count - 1).initialize(to: (name, number))
+          case .pointer:
+            let pointer = SDL_GetPointerProperty(propertyID, name, nil)
+            (state.pointer! + state.count - 1).initialize(to: (name, pointer))
+          case .string:
+            if let cString = SDL_GetStringProperty(propertyID, name, "") {
+              (state.pointer! + state.count - 1).initialize(to: (name, String(cString: cString)))
+            }
+          default: ()
+        }
+        
+        userdata?.moveInitializeMemory(as: EnumerateUserData.self, from: &state, count: 1)
+      }
+    }
+    
+    var userdata = EnumerateUserData()
+    guard SDL_EnumerateProperties(self, callback, &userdata) else {
+      throw SDL_Error.error
+    }
+    
+    return userdata.properties.enumerated()
+  }
+  
   
   /* PropertyValue */
   @discardableResult
