@@ -1,5 +1,5 @@
 @dynamicMemberLookup
-public protocol Texture: SDLObjectProtocol where Pointer == UnsafeMutablePointer<SDL_Texture> { }
+public protocol Texture: SDLObjectProtocol, Sendable where Pointer == UnsafeMutablePointer<SDL_Texture> { }
 
 extension SDLObject<UnsafeMutablePointer<SDL_Texture>>: Texture { }
 
@@ -77,7 +77,7 @@ extension Texture {
 extension Renderer {
   public func texture(from surface: any Surface, tag: String? = nil) throws(SDL_Error) -> any Texture {
     guard case(.some(let pointer)) = try self(SDL_CreateTextureFromSurface, surface.pointer) else {
-      throw SDL_Error.error
+      throw .error
     }
     
     return SDLObject(pointer, tag: .custom(tag ?? "texture (from surface)"), destroy: SDL_DestroyTexture)
@@ -85,11 +85,11 @@ extension Renderer {
   
   public func texture(from bitmap: inout [UInt8]) throws(SDL_Error) -> any Texture {
     guard let srcPtr = SDL_IOFromMem(&bitmap, bitmap.count) else {
-      throw SDL_Error.error
+      throw .error
     }
     
     guard let pointer = SDL_LoadBMP_IO(srcPtr, true) else {
-      throw SDL_Error.error
+      throw .error
     }
     
     let surface: any Surface = SDLObject(pointer, tag: .custom("surface (bitmap)"), destroy: SDL_DestroySurface)

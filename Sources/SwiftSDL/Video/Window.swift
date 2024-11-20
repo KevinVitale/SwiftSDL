@@ -7,6 +7,19 @@ extension Window {
     self.resultOf(SDL_GetWindowID)
   }
   
+  public var properties: Result<SDL_PropertiesID, SDL_Error> {
+    self.resultOf(SDL_GetWindowProperties)
+  }
+  
+  @discardableResult
+  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+    let properties = try self.properties.get()
+    guard properties.set(property, value: value) else {
+      throw SDL_Error.error
+    }
+    return properties
+  }
+
   public var surface: Result<any Surface, SDL_Error> {
     self
       .resultOf(SDL_GetWindowSurface)

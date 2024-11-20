@@ -20,6 +20,23 @@ nonisolated(unsafe)
 internal var GameControllers: [GameController] = []
 
 extension Game {
+  public var properties: Result<SDL_PropertiesID, SDL_Error> {
+    let global = SDL_GetGlobalProperties()
+    guard global != .zero else {
+      return .failure(.error)
+    }
+    return .success(global)
+  }
+  
+  @discardableResult
+  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+    let properties = try self.properties.get()
+    guard properties.set(property, value: value) else {
+      throw SDL_Error.error
+    }
+    return properties
+  }
+
   public static var name: String { "\(Self.self)" }
   public static var version: String { "" }
   public static var identifier: String { "" }
@@ -84,7 +101,7 @@ extension Game {
           let delta = ticks - App.ticks
           App.ticks = ticks
           try App.game.onUpdate(window: App.window, delta)
-          
+
           return .continue
         } catch {
           return .failure

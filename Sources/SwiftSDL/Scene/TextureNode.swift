@@ -1,19 +1,18 @@
-open class TextureNode: SceneNode {
-  internal var _texture: (any Texture)!
+open class TextureNode: SceneNode, RenderNode {
   internal var _size: Size<Float> = .zero
+  
+  public var direction: SDL_FlipMode = .none
+  public private(set) var texture: (any Texture)!
   
   public required init(_ label: String = "", with texture: any Texture, size: Size<Float>) {
     super.init(label)
-    self._texture = texture
+    self.texture = texture
     self._size = size
   }
-  
-  public required init(_ label: String = "") {
-    super.init(label)
-  }
-  
-  public required init(from decoder: any Decoder) throws {
-    try super.init(from: decoder)
+
+  public convenience init(_ label: String = "", position: Point<Float> = .zero, with texture: any Texture) throws(SDL_Error) {
+    self.init(label, with: texture, size: try texture.size(as: Float.self))
+    self.position = position
   }
   
   public convenience init(_ label: String = "", position: Point<Float> = .zero, surface: any Surface, colorMod color: SDL_Color = .white, renderer: any Renderer) throws(SDL_Error) {
@@ -23,34 +22,21 @@ open class TextureNode: SceneNode {
     self.position = position
     try texture.set(colorMod: color)
   }
-  
-  public var texture: any Texture {
-    return _texture
+
+  public required init(_ label: String = "") {
+    super.init(label)
   }
-}
-
-extension Renderer {
-  @discardableResult
-  public func draw(node: TextureNode?) throws(SDL_Error) -> Self {
-    guard let node = node else {
-      return self
-    }
-    
-    guard !node.isHidden else {
-      return self
-    }
-
-    for child in node.children.sorted(by: { $0.zPosition < $1.zPosition }) {
-      if let child = child as? TextureNode {
-        try self.draw(node: child)
-      }
-    }
-    
-    let scale = try self.scale.get()
-    
-    return try self
-      .set(scale: Float(node.scale))
-      .draw(texture: node._texture, position: node.position)
-      .callAsFunction(SDL_SetRenderScale, scale.0, scale.1)
+  
+  public required init(from decoder: any Decoder) throws {
+    try super.init(from: decoder)
+  }
+  
+  public func draw(_ graphics: any Renderer) throws(SDL_Error) {
+    try graphics.draw(
+      texture: texture,
+      position: position,
+      rotatedBy: rotation.value,
+      direction: direction
+    )
   }
 }

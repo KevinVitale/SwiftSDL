@@ -8,7 +8,7 @@ public protocol SDLObjectProtocol: AnyObject {
  https://github.com/swiftlang/swift/blob/main/docs/OptimizationTips.rst#advice-use-unmanaged-references-to-avoid-reference-counting-overhead
  */
 
-public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol {
+public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked Sendable {
   enum Tag {
     case custom(String)
   }
@@ -19,18 +19,16 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol {
   private let tag: Tag
   
   required init(_ pointer: Pointer, tag: Tag, destroy: @escaping (Pointer) -> Void = { _ in }) {
-    // print("\(type(of: Pointer.self)): \(#function), \(tag)")
+    print("\(type(of: Pointer.self)): \(#function), \(tag)")
     self.destroy = destroy
     self.pointer = pointer
     self.tag = tag
   }
 
   deinit {
-    /*
     #if DEBUG
     print("\(type(of: Pointer.self)): \(#function), \(tag)")
     #endif
-     */
     self.destroy(pointer)
   }
 }

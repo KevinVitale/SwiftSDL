@@ -149,6 +149,14 @@ public enum GameController: Hashable {
     return String(cString: name)
   }
   
+  public func gamepad(labelFor button: SDL_GamepadButton) -> SDL_GamepadButtonLabel {
+    let type = SDL_GetGamepadType(gamepad)
+    guard type != .unknown else {
+      return .unknown
+    }
+    return SDL_GetGamepadButtonLabelForType(type, button)
+  }
+
   public func gamepad(has button: SDL_GamepadButton) -> Bool {
     SDL_GamepadHasButton(gamepad, button)
   }

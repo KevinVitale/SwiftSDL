@@ -9,14 +9,6 @@ extension SDL_PropertiesID {
     }
   }
   
-  public static func global() throws(SDL_Error) -> Self {
-    let global = SDL_GetGlobalProperties()
-    guard global != .zero else {
-      throw SDL_Error.error
-    }
-    return global
-  }
-  
   public func enumerated() throws(SDL_Error) -> EnumeratedSequence<[(String, any PropertyValue)]> {
     let callback: SDL_EnumeratePropertiesCallback = { userdata, propertyID, name in
       let state = userdata?.bindMemory(to: EnumerateUserData.self, capacity: 1).pointee
@@ -71,11 +63,14 @@ extension SDL_PropertiesID {
   public func set<P: PropertyValue>(_ property: String, value: P) -> Bool {
     switch value.self {
       case let value as String: return SDL_SetStringProperty(self, property, value)
+      case let value as Double: return SDL_SetFloatProperty(self, property, Float(value))
       case let value as Float: return SDL_SetFloatProperty(self, property, value)
       case let value as Bool: return SDL_SetBooleanProperty(self, property, value)
       case let value as Sint64: return SDL_SetNumberProperty(self, property, value)
       case let value as Optional<UnsafeMutableRawPointer>: return SDL_SetPointerProperty(self, property, value)
-      default: return false
+      default:
+        print("Set failed: \(property); \(value) \(#function)")
+        return false
     }
   }
 

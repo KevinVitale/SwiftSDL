@@ -1,5 +1,5 @@
 // MARK: - Protocol
-public protocol Renderer: SDLObjectProtocol where Pointer == OpaquePointer { }
+public protocol Renderer: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
 extension SDLObject<OpaquePointer>: Renderer { }
 
@@ -40,6 +40,19 @@ extension Renderer {
       .map({ String(cString: $0) })
   }
   
+  public var properties: Result<SDL_PropertiesID, SDL_Error> {
+    self.resultOf(SDL_GetRendererProperties)
+  }
+  
+  @discardableResult
+  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+    let properties = try self.properties.get()
+    guard properties.set(property, value: value) else {
+      throw SDL_Error.error
+    }
+    return properties
+  }
+
   public var color: Result<SDL_Color, SDL_Error> {
     var r: UInt8 = 0, g: UInt8 = 0, b: UInt8 = 0, a: UInt8 = 0
     return self
@@ -164,6 +177,34 @@ extension Renderer {
     }
     
     return try set(color: color)
+  }
+}
+
+extension String {
+  @discardableResult
+  public static func debugFontSize<T: SIMDScalar>(as type: T.Type) -> T where T: FixedWidthInteger {
+    T(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE)
+  }
+  
+  @discardableResult
+  public static func debugFontSize<T: SIMDScalar>(as type: T.Type) -> T where T: BinaryFloatingPoint {
+    T(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE)
+  }
+
+  @discardableResult
+  public func debugTextSize<T: SIMDScalar>(as type: T.Type) -> Size<T> where T: FixedWidthInteger {
+    [
+      Self.debugFontSize(as: type) * T(self.count),
+      Self.debugFontSize(as: type)
+    ]
+  }
+    
+  @discardableResult
+  public func debugTextSize<T: SIMDScalar>(as type: T.Type) -> Size<T> where T: BinaryFloatingPoint {
+    [
+      Self.debugFontSize(as: type) * T(self.count),
+      Self.debugFontSize(as: type)
+    ]
   }
 }
   

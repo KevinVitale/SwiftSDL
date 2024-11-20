@@ -125,7 +125,7 @@ extension SceneNode {
     }
     
     internal var scene: (any SceneProtocol)? {
-      guard case(.parent(let parent)) = self, let parent = parent as? SceneProtocol else {
+      guard case(.parent(let parent)) = self, let parent = parent as? (any SceneProtocol) else {
         return parent?.scene
       }
       return parent
