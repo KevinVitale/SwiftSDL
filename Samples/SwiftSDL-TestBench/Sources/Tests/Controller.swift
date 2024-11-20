@@ -205,13 +205,13 @@ extension SDL.Test.Controller {
             child.position = Layout.gamepadImagePosition
           case "Face (ABXY)":
             child.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .a)
-            child.position = Layout.gamepadImagePosition
+            child.position = Layout.gamepadImagePosition + [363, 118]
           case "Face (BAYX)":
             child.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .b)
-            child.position = Layout.gamepadImagePosition
+            child.position = Layout.gamepadImagePosition + [363, 118]
           case "Face (Sony)":
             child.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .cross)
-            child.position = Layout.gamepadImagePosition
+            child.position = Layout.gamepadImagePosition + [363, 118]
           default: ()
         }
       }
