@@ -123,13 +123,20 @@ public enum GameController: Hashable {
   }
   
   public var joystickName: String {
-    guard let gamepad = gamepad, let name = SDL_GetJoystickName(gamepad) else {
+    guard let joystick = joystick, let name = SDL_GetJoystickName(joystick) else {
       guard let name = SDL_GetJoystickNameForID(id) else {
         return ""
       }
       return String(cString: name)
     }
     return String(cString: name)
+  }
+  
+  public var joystickSerial: String {
+    guard let serial = SDL_GetJoystickSerial(joystick) else {
+      return ""
+    }
+    return String(cString: serial)
   }
   
   public var gamepad: OpaquePointer? {
@@ -147,6 +154,21 @@ public enum GameController: Hashable {
       return String(cString: name)
     }
     return String(cString: name)
+  }
+  
+  public var gamepadType: SDL_GamepadType {
+    SDL_GetGamepadType(gamepad)
+  }
+  
+  public var gamepadSteamHandle: Uint64 {
+    SDL_GetGamepadSteamHandle(gamepad)
+  }
+  
+  public var gamepadSerial: String {
+    guard let serial = SDL_GetGamepadSerial(gamepad) else {
+      return ""
+    }
+    return String(cString: serial)
   }
   
   public func gamepad(labelFor button: SDL_GamepadButton) -> SDL_GamepadButtonLabel {

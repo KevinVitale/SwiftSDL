@@ -35,10 +35,10 @@ extension SDL_GamepadType: @retroactive CaseIterable, @retroactive CustomDebugSt
       case SDL_GAMEPAD_TYPE_PS3: return "PS3"
       case SDL_GAMEPAD_TYPE_PS4: return "PS4"
       case SDL_GAMEPAD_TYPE_PS5: return "PS5"
-      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO: return "Switch Pro"
-      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT: return "Joycon (L)"
-      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT: return "Joycon (R)"
-      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: return "Joycons"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO: return "Nintendo Switch"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT: return "Joy-Con (L)"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT: return "Joy-Con (R)"
+      case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: return "Joy-Con Pair"
       default: return "Unknown SDL_GamepadType: \(self.rawValue)"
     }
   }

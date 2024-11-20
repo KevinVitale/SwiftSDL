@@ -61,14 +61,14 @@ open class BaseScene<Graphics>: SceneNode, SceneProtocol {
     switch graphics {
       case let renderer as (any Renderer)?:
         try renderer?.clear(color: bgColor)
-        for child in children {
+        for child in children.sorted(by: { $0.zPosition < $1.zPosition })  {
           if let child = child as? any RenderNode {
             try renderer?.draw(node: child)
           }
         }
       case let surface as (any Surface)?:
         try surface?.clear(color: bgColor)
-        for child in children {
+        for child in children.sorted(by: { $0.zPosition < $1.zPosition })  {
           if let child = child as? any SurfaceNode {
             try surface?.draw(node: child)
           }

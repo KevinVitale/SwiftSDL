@@ -76,6 +76,7 @@ extension SDL.Test {
       SDL_Delay(16)
       try scene.update(at: delta)
       try renderer
+        .clear(color: .white)
         .draw(node: scene)
         .draw(into: {
           for label in scene.labels {
@@ -103,13 +104,12 @@ extension SDL.Test {
 }
 
 extension SDL.Test.Controller {
-  final class GamepadScene<Game: SwiftSDL.Game>: BaseScene<any Renderer> {
+  final class GamepadScene<Game: SwiftSDL.Game>: BaseScene<any Renderer>, @unchecked Sendable {
     required init(game: Game, renderer: any Renderer, bgColor color: SDL_Color) throws (SDL_Error) {
       let size = try renderer.outputSize(as: Float.self)
       super.init(size: size, bgColor: color)
       
       self.game = game
-      
       let textures = [
         "Gamepad (Front)" : try renderer.texture(from: try Load(bitmap: "gamepad_front.bmp"), tag: "Gamepad (Front)"),
         "Gamepad (Back)"  : try renderer.texture(from: try Load(bitmap: "gamepad_back.bmp"), tag: "Gamepad (Back)"),
@@ -148,7 +148,10 @@ extension SDL.Test.Controller {
     private(set) weak var game: Game?
 
     private var gameController: GameController {
-      game?.gameControllers.last ?? .invalid
+      guard let gameController = game?.gameControllers.last, case(.open) = gameController else {
+        return .invalid
+      }
+      return gameController
     }
     
     private var gameControllerName: String {
@@ -167,15 +170,26 @@ extension SDL.Test.Controller {
       return text
     }
     
-    var labels: [(text: String, position: Point<Float>)] {
+    fileprivate var labels: [(text: String, position: Point<Float>)] {
       guard gameController != .invalid else {
         return [
           placeholder
         ]
       }
-      return [
-        title
+      var labels = [
+        title,
+        controllerID,
+        gamepadType,
+        serial,
+        buttonsTitle,
+        axisTitle,
+        vendorID,
+        productID
       ]
+      
+      labels += gameController.isVirtual ? [subtitle] : []
+      
+      return labels
     }
     
     private var placeholder: (text: String, position: Point<Float>) {
@@ -190,6 +204,73 @@ extension SDL.Test.Controller {
       return (text, [size.x / 2, 24] - textSize)
     }
     
+    private var controllerID: (text: String, position: Point<Float>) {
+      let text = "(\(gameController.id))"
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return (text, [size.x - 20, 12] - textSize)
+    }
+    
+    private var subtitle: (text: String, position: Point<Float>) {
+      let text = "Click on the gamepad image below to generate input"
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return (text, [size.x / 2, 36] - textSize)
+    }
+    
+    private var gamepadType: (text: String, position: Point<Float>) {
+      let text = gameController.isVirtual ? "" : gameController.gamepadType.debugDescription
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return (text, (Layout.typeFrame.lowHalf + Layout.typeFrame.highHalf / 2) - textSize)
+    }
+    
+    /*
+    private var steamHandle: (text: String, position: Point<Float>) {
+      let text = "Steam: 0x\(String(gameController.gamepadSteamHandle, radix: 16, uppercase: true))"
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return (text, [size.x - 8, size.y - 2] -  textSize)
+    }
+     */
+    
+    private var serial: (text: String, position: Point<Float>) {
+      let gamepadSerial = gameController.gamepadSerial
+      let text = gamepadSerial.isEmpty ? "" : "Serial: \(gamepadSerial)"
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return(text, [size.x / 2, size.y - 14] - textSize)
+    }
+    
+    private var buttonsTitle: (text: String, position: Point<Float>) {
+      return ("BUTTONS", [
+        Layout.panelWidth +
+        Layout.panelSpacing +
+        Layout.gamepadWidth +
+        Layout.panelSpacing + 8,
+        Layout.titleHeight + 8
+      ])
+    }
+    
+    private var axisTitle: (text: String, position: Point<Float>) {
+      return ("AXES", [
+        Layout.panelWidth +
+        Layout.panelSpacing +
+        Layout.gamepadWidth +
+        Layout.panelSpacing + 96,
+        Layout.titleHeight + 8
+      ])
+    }
+    
+    private var vendorID: (text: String, position: Point<Float>) {
+      let vID = SDL_GetJoystickVendorForID(gameController.id)
+      let text = "VID: 0x".appendingFormat("%.4X", vID)
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return (text, size - textSize - [textSize.x * 3 + 16, 14])
+    }
+    
+    private var productID: (text: String, position: Point<Float>) {
+      let pID = SDL_GetJoystickProductForID(gameController.id)
+      let text = "PID: 0x".appendingFormat("%.4X", pID)
+      let textSize = text.debugTextSize(as: Float.self) / 2
+      return (text, size - textSize - [52, 14])
+    }
+
     override func update(at delta: Uint64) throws(SDL_Error) {
       try super.update(at: delta)
       
@@ -200,9 +281,11 @@ extension SDL.Test.Controller {
           case "Gamepad (Front)":
             child.isHidden = invalidGameController
             child.position = Layout.gamepadImagePosition
+            child.zPosition = -1
           case "Gamepad (Back)":
             child.isHidden = true
             child.position = Layout.gamepadImagePosition
+            child.zPosition = -2
           case "Face (ABXY)":
             child.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .a)
             child.position = Layout.gamepadImagePosition + [363, 118]
@@ -220,6 +303,7 @@ extension SDL.Test.Controller {
     override func handle(_ event: SDL_Event) throws(SDL_Error) {
       try super.handle(event)
       
+      /*
       if (0x600..<0x800).contains(event.type) {
         for button in gameController.gamepadButtons() {
           print("Button: \(button)", gameController.gamepad(query: button))
@@ -235,6 +319,7 @@ extension SDL.Test.Controller {
           print("Sensor Data: \(sensor)", gameController.gamepad(query: sensor))
         }
       }
+       */
       
       switch event.eventType {
         case .keyDown:
@@ -249,7 +334,6 @@ extension SDL.Test.Controller {
               ]
             )
           }
-          
           else if event.key.key == SDLK_D, gameController.isVirtual {
             var gameController = self.gameController
             gameController.close()
@@ -350,143 +434,6 @@ extension SDL.Test.Controller {
   }
 }
  */
- 
-/*
-extension SDL.Test.Controller {
-  private var title: (text: String, position: Point<Float>) {
-    let isVirtual = SDL_IsJoystickVirtual(joystickID)
-    let isGamepad = SDL_IsGamepad(joystickID)
-    
-    var displayName: String = ""
-    
-    let GetNameFunc = isGamepad ? SDL_GetGamepadNameForID : SDL_GetJoystickNameForID
-    if let controllerName = GetNameFunc(joystickID) {
-      displayName = String(cString: controllerName)
-    }
-    
-    displayName = isVirtual ? "Virtual Controller" : displayName
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(displayName)) / 2)
-    let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2)
-    
-    return (displayName, [width, height])
-  }
-  
-  private var subtitle: (text: String, position: Point<Float>) {
-    guard SDL_IsJoystickVirtual(joystickID) else {
-      return ("", .zero)
-    }
-    
-    let subtitle = "Click on the gamepad image below to generate input"
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(subtitle)) / 2)
-    let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2) + (Layout.fontCharacterSize + 2.0) + 2.0
-    
-    return (subtitle, [width, height])
-  }
-  
-  private var controllerID: (text: String, position: Point<Float>) {
-    let text = "(\(joystickID))"
-    
-    let width = Layout.sceneWidth - (Layout.fontCharacterSize * Float(SDL_strlen(text))) - 8
-    let height: Float = 8.0
-    
-    return (text, [width, height])
-  }
-  
-  private var gamepadType: (text: String, position: Point<Float>) {
-    guard SDL_IsGamepad(joystickID),
-          let pointer = SDL_GetGamepadFromID(joystickID) else
-    {
-      return ("", .zero)
-    }
-    
-    let text = SDL_GetGamepadType(pointer).debugDescription
-    
-    let width = Layout.typeFrame.x + (Layout.typeFrame.z / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(text))) / 2
-    let height = Layout.typeFrame.y + (Layout.typeFrame.w / 2) - (Layout.fontCharacterSize / 2)
-    
-    return (text, [width, height])
-  }
-  
-  private var steamHandle: (text: String, position: Point<Float>) {
-    guard SDL_IsGamepad(joystickID),
-          let pointer = SDL_GetGamepadFromID(joystickID) else
-    {
-      return ("", .zero)
-    }
-    
-    let handle = SDL_GetGamepadSteamHandle(pointer)
-    guard handle != 0 else {
-      return ("", .zero)
-    }
-    
-    let text = "Steam: 0x\(String(handle, radix: 16, uppercase: true))"
-    let width = Layout.sceneWidth - 8 - (Layout.fontCharacterSize * Float(SDL_strlen(text)))
-    let height = Layout.sceneHeight - 2 * (8 + Layout.lineHeight)
-    
-    return (text, [width, height])
-  }
-  
-  private var placeholder: (text: String, position: Point<Float>) {
-    let placeholder = "Waiting for gamepad, press A to add a virtual controller"
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(placeholder)) / 2)
-    let height = (Layout.titleHeight / 2) - (Layout.fontCharacterSize / 2)
-    
-    return (placeholder, [width, height])
-  }
-  
-  private var serial: (text: String, position: Point<Float>) {
-    let GetDeviceFunc = SDL_IsGamepad(joystickID) ? SDL_GetGamepadFromID : SDL_GetJoystickFromID
-    let GetSerialFunc = SDL_IsGamepad(joystickID) ? SDL_GetGamepadSerial : SDL_GetJoystickSerial
-    
-    guard let pointer = GetDeviceFunc(joystickID),
-          let serialPtr = GetSerialFunc(pointer) else {
-      return ("", .zero)
-    }
-    
-    let serial = "Serial: \(String(cString: serialPtr))"
-    let width = (Layout.sceneWidth / 2) - (Layout.fontCharacterSize * Float(SDL_strlen(serial)) / 2)
-    let height = Layout.sceneHeight - 8.0 - Layout.lineHeight
-    
-    return(serial, [width, height])
-  }
-  
-  private var buttonsTitle: (text: String, position: Point<Float>) {
-    let buttonsTitle = "BUTTONS"
-    let width = Layout.panelWidth + Layout.panelSpacing + Layout.gamepadWidth + Layout.panelSpacing + 8
-    let height = Layout.titleHeight + 8
-    
-    return (buttonsTitle, [width, height])
-  }
-  
-  private var axisTitle: (text: String, position: Point<Float>) {
-    let axesTitle = "AXES"
-    let width = Layout.panelWidth + Layout.panelSpacing + Layout.gamepadWidth + Layout.panelSpacing + 96
-    let height = Layout.titleHeight + 8
-    
-    return (axesTitle, [width, height])
-  }
-
-  private var vendorID: (text: String, position: Point<Float>) {
-    let vID = SDL_GetJoystickVendorForID(joystickID)
-    let text = "VID: 0x".appendingFormat("%.4X", vID)
-    
-    let width = Layout.sceneWidth - 8 - (Layout.fontCharacterSize * Float(SDL_strlen(text))) - (Layout.fontCharacterSize * Float(SDL_strlen(productID.text) + 2))
-    let height = Layout.sceneHeight - 8.0 - Layout.lineHeight
-    
-    return (text, [width, height])
-  }
-  
-  private var productID: (text: String, position: Point<Float>) {
-    let pID = SDL_GetJoystickProductForID(joystickID)
-    let text = "PID: 0x".appendingFormat("%.4X", pID)
-    
-    let width = Layout.sceneWidth - 8 - (Layout.fontCharacterSize * Float(SDL_strlen(text)))
-    let height = Layout.sceneHeight - 8.0 - Layout.lineHeight
-    
-    return (text, [width, height])
-  }
-}
-*/
 
 /*
 final class GamepadNode: TextureNode {
