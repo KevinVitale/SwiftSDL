@@ -31,7 +31,7 @@ open class TextureNode: SceneNode, RenderNode {
     try super.init(from: decoder)
   }
   
-  public func draw(_ graphics: any Renderer) throws(SDL_Error) {
+  open func draw(_ graphics: any Renderer) throws(SDL_Error) {
     try graphics.draw(
       texture: texture,
       position: position,

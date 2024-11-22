@@ -92,6 +92,15 @@ extension Window {
   public func updateSurface() throws(SDL_Error) -> some Window {
     try self(SDL_UpdateWindowSurface)
   }
+  
+  @discardableResult
+  public func draw<Scene: SceneProtocol>(scene: Scene, updateAt delta: Uint64) throws(SDL_Error) -> some Window where Scene.Graphics == any Surface {
+    let surface = try surface.get()
+    try surface.clear(color: scene.bgColor)
+    try scene.update(at: delta)
+    try surface.draw(node: scene)
+    return try updateSurface()
+  }
 }
 
 public func SDL_CreateWindow(with properties: SDL_WindowCreateFlag...) throws(SDL_Error) -> some Window {

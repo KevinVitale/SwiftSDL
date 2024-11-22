@@ -35,6 +35,21 @@ extension Renderer {
 extension Surface {
   @discardableResult
   public func draw<Node: DrawableNode>(node: Node?) throws(SDL_Error) -> Self where Node.Graphics == (any Surface) {
-    fatalError("\(#function) not implemented")
+    guard let node = node else {
+      return self
+    }
+    
+    guard !node.isHidden else {
+      return self
+    }
+    
+    for child in node.children.sorted(by: { $0.zPosition < $1.zPosition }) {
+      if let child = child as? any SurfaceNode {
+        try self.draw(node: child)
+      }
+    }
+    
+    try node.draw(self)
+    return self
   }
 }

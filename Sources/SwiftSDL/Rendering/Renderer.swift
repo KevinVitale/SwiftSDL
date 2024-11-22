@@ -127,6 +127,14 @@ extension Renderer {
   }
 
   @discardableResult
+  public func draw<Scene: SceneProtocol>(scene: Scene, updateAt delta: Uint64) throws(SDL_Error) -> Self where Scene.Graphics == any Renderer {
+    try scene.update(at: delta)
+    return try clear(color: .white)
+      .draw(node: scene)
+      .present()
+  }
+  
+  @discardableResult
   public func draw(texture: (any Texture)?, position: Point<Float>, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
     guard let texture = texture else { return self }
     let size = try texture.size(as: Float.self)

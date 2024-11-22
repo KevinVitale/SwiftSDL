@@ -170,6 +170,3 @@ extension Game {
     }, nil)
   }
 }
-
-public protocol GameDelegate: AnyObject {
-}

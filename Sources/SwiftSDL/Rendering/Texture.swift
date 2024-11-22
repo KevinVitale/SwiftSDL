@@ -72,6 +72,19 @@ extension Texture {
   public func set(colorMod color: SDL_Color) throws(SDL_Error) -> Self {
     try self(SDL_SetTextureColorMod, color.r, color.g, color.b)
   }
+  
+  public var renderer: Result<any Renderer, SDL_Error> {
+    self
+      .resultOf(SDL_GetRendererFromTexture)
+      .map({ SDLObject($0, tag: .custom("texture.renderer")) })
+  }
+  
+  @discardableResult
+  public func draw(at position: Point<Float>, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
+    let renderer = try renderer.get()
+    try renderer.draw(texture: self, position: position, rotatedBy: angle, direction: flip)
+    return self
+  }
 }
 
 extension Renderer {
