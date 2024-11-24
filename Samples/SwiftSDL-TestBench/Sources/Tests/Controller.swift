@@ -208,7 +208,7 @@ extension SDL.Test.Controller {
         let xPos = Float(0.0)
         let yPos = 12 + 14 * Float(btnIdx.rawValue)
         
-        let text = String("\(btnIdx): ".reversed())
+        let text = String("\(btnIdx): ")
         /*
          .padding(toLength: 10, withPad: " ", startingAt: 0)
          .reversed()
@@ -505,70 +505,6 @@ extension SDL.Test.Controller {
   final class AccelerometerNode: SpriteNode<any Renderer> {
   }
 }
-
-/*
-extension SDL.Test.Controller {
-  private func drawAxesColumnUI(
-    arrowTexture: any Texture,
-    joystick: OpaquePointer,
-    renderer: any Renderer
-  ) throws(SDL_Error) {
-    let axisCount = SDL_GetNumJoystickAxes(joystick)
-    for axisIdx in 0..<axisCount {
-      var xPos = axisTitle.position.x - 8
-      var yPos = axisTitle.position.y + (Layout.lineHeight + 2) + ((Layout.lineHeight + 4) * Float(axisIdx))
-      let text = "".appendingFormat("%2d:", axisIdx)
-      try renderer.debug(text: text, position: [xPos, yPos], color: .black)
-      
-      /* 'RenderJoystickAxisHighlight' ???
-       let pressedColor = SDL_Color(r: 175, g: 238, b: 238, a: 255)
-       let highlightColor = SDL_Color(r: 224, g: 255, b: 255, a: 255)
-       try renderer.fill(rects: [
-       xPos + Layout.fontCharacterSize * Float(SDL_strlen(axisTitle.text)) + 2,
-       yPos + Layout.fontCharacterSize / 2,
-       100,
-       100
-       ], color: pressedColor)
-       */
-      
-      xPos += 2 + (Layout.fontCharacterSize * Float(SDL_strlen(text)))
-      yPos -= 2
-      
-      let value = SDL_GetJoystickAxis(joystick, axisIdx)
-      
-      // Left-Arrow (With Highlight State)
-      if value == Int16.min {
-        try arrowTexture.set(colorMod: .init(r: 10, g: 255, b: 21, a: 255))
-        try renderer.draw(texture: arrowTexture, position: [xPos, yPos])
-      }
-      else {
-        try arrowTexture.set(colorMod: .white)
-        try renderer.draw(texture: arrowTexture, position: [xPos, yPos], direction: .horizontal)
-      }
-      
-      // Axis Divider Fill
-      let arwSize = try arrowTexture.size(as: Float.self)
-      try renderer.fill(rects: [
-        xPos + 52,
-        yPos,
-        4.0,
-        arwSize.y
-      ], color: .init(r: 200, g: 200, b: 200, a: 255)
-      )
-      
-      // Right-Arrow (With Highlight State)
-      if value == Int16.max {
-        try arrowTexture.set(colorMod: .init(r: 10, g: 255, b: 21, a: 255))
-        try renderer.draw(texture: arrowTexture, position: [xPos + 102, yPos])
-      }
-      else {
-        try arrowTexture.set(colorMod: .white)
-        try renderer.draw(texture: arrowTexture, position: [xPos + 102, yPos])
-      }
-    }
-  }
-}
- */
 
 extension SDL.Test.Controller {
   struct Layout {
