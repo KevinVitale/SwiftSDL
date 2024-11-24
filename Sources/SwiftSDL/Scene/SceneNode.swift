@@ -8,7 +8,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   }
   
   deinit {
-    // print("\(Self.self) \(#function), \(label)")
+    /* print("\(Self.self) \(#function), \(label)") */
   }
   
   public var label: String = ""
@@ -88,7 +88,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   public func removeAllChildren() {
     children
       .filter({ $0.parent == self })
-      .forEach({ $0.removeFromParent(); children.remove($0) })
+      .forEach({ $0.removeAllChildren(); children.remove($0) })
   }
 
   public func removeFromParent() {
