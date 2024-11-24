@@ -1,6 +1,5 @@
 open class SpriteNode<Graphics>: SceneNode, DrawableNode {
   open func draw(_ graphics: Graphics) throws(SDL_Error) {
-    print(label, #function)
   }
 }
 

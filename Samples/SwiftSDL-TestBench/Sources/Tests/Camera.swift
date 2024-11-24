@@ -72,7 +72,7 @@ extension SDL.Test {
       }
     }
     
-    func onShutdown(window: any Window) throws(SDL_Error) {
+    func onShutdown(window: (any Window)?) throws(SDL_Error) {
       texture = nil
       camera?.close()
     }

@@ -1,15 +1,13 @@
 extension SDL.Test {
-  // final class Sandbox: Game {
   final class Sandbox: Game {
-    enum CodingKeys: CodingKey {
-      case options
-    }
-    
+    enum CodingKeys: CodingKey { case options }
     @OptionGroup var options: Options
     
+    static let name: String = "Kevin's Personal Sandbox"
     private var scene: Scene!
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      try SDL_Init(.gamepad)
       scene = Scene(size: try window.size(as: Float.self), bgColor: .gray)
     }
     
@@ -21,7 +19,7 @@ extension SDL.Test {
       try scene.handle(event)
     }
     
-    func onShutdown(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
       try scene.shutdown()
     }
     
@@ -37,7 +35,7 @@ extension SDL.Test {
 }
 
 extension SDL.Test.Sandbox {
-  class Scene: BaseScene<any Surface> {
+  class Scene: GameScene<any Surface> {
     class SquareNode: SpriteNode<Graphics> {
       convenience init(_ label: String = "", size: Size<Float>, color: SDL_Color) {
         self.init(label)

@@ -6,12 +6,17 @@ public enum SDL_Error: Error, CustomDebugStringConvertible {
   static var callStackDescription: String {
     Thread.callStackSymbols.joined(separator: "\n")
   }
-
+  
+  static public func set(throwing fmt: String, _ args: CVarArg...) throws(SDL_Error) {
+    _ = withVaList(args) { SDL_SetErrorV(fmt, $0) }
+    throw .error
+  }
+  
   public var debugDescription: String {
     String(cString: SDL_GetError())
   }
   
-  public func clear() {
+  public static func clear() {
     SDL_ClearError()
   }
 }

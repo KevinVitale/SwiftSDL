@@ -8,7 +8,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   }
   
   deinit {
-    // print("\(Self.self) \(#function)")
+    print("\(Self.self) \(#function), \(label)")
   }
   
   public var label: String = ""
@@ -25,7 +25,12 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   public var isHidden: Bool = false
   public var isPaused: Bool = false
   
-  public var position: Point<Float> = .zero
+  private var _position: Point<Float> = .zero
+  public var position: Point<Float> {
+    get { (parent.position ?? .zero) + _position }
+    set { _position = newValue }
+  }
+
   public var zPosition: Float = .zero
   
   public var isOrphaned: Bool { parent == .none }
@@ -69,7 +74,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   @discardableResult
   public func child(matching label: String) -> Child? {
     children.filter({
-      $0.label.contains(label)
+      $0.label.elementsEqual(label)
     })
     .first
   }

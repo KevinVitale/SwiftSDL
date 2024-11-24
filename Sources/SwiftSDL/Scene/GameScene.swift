@@ -1,19 +1,26 @@
+@dynamicMemberLookup
 public protocol SceneProtocol: SceneNode, DrawableNode {
   init(_ label: String, size: Size<Float>, bgColor: SDL_Color, blendMode: SDL_BlendMode)
-  
-  var window: (any Window)? { get}
   
   var size: Size<Float> { get set }
   var bgColor: SDL_Color { get set }
   var blendMode: SDL_BlendMode { get set }
   
-  func attach(to window: any Window) throws(SDL_Error)
+  func load(_ graphics: Graphics) throws(SDL_Error)
   func update(at delta: Uint64) throws(SDL_Error)
   func handle(_ event: SDL_Event) throws(SDL_Error)
   func shutdown() throws(SDL_Error)
+
+  subscript<T>(dynamicMember keyPath: KeyPath<Game, T>) -> T? { get }
 }
 
-open class BaseScene<Graphics>: SceneNode, SceneProtocol {
+extension SceneProtocol {
+  public subscript<T>(dynamicMember keyPath: KeyPath<Game, T>) -> T? {
+    App.game?[keyPath: keyPath]
+  }
+}
+
+open class GameScene<Graphics>: SceneNode, SceneProtocol {
   public required init(
     _ label: String = "",
     size: Size<Float>,
@@ -34,22 +41,13 @@ open class BaseScene<Graphics>: SceneNode, SceneProtocol {
     try super.init(from: decoder)
   }
   
-  deinit {
-    print(#function)
-    removeAllChildren()
-  }
-  
   public private(set) var window: (any Window)?
   
   public var size: Size<Float> = [0, 0]
   public var bgColor: SDL_Color = .gray
   public var blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
   
-  /// Subclasses must call `super.attach(to:)`.
-  open func attach(to window: any Window) throws(SDL_Error) {
-    self.window = window
-  }
-  
+  open func load(_ graphics: Graphics) throws(SDL_Error) { /* no-op */ }
   open func update(at delta: Uint64) throws(SDL_Error) { /* no-op */ }
   open func handle(_ event: SDL_Event) throws(SDL_Error) { /* no-op */ }
   
@@ -73,8 +71,7 @@ open class BaseScene<Graphics>: SceneNode, SceneProtocol {
             try surface?.draw(node: child)
           }
         }
-      default:
-        fatalError("Unsupported graphics type: \(graphics)")
+      default: try SDL_Error.set(throwing: "Unsupported graphics type: \(graphics)")
     }
   }
 }

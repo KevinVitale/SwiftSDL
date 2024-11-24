@@ -61,19 +61,23 @@ import SwiftSDL
   
   public func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {
     switch event.eventType {
+      case .mouseMotion:
+        let mousePos = event.motion.position(as: Float.self)
+        squareNode.position = mousePos - squareSize / 2
+        
       case .fingerDown: fallthrough
       case .fingerMotion:
         let touchPoint = event.tfinger.position(as: Float.self)
         let windowSize = try window.size(as: Float.self)
         var touchTranslated = touchPoint * windowSize
         touchTranslated -= squareSize / 2
-        
         squareNode.position = touchTranslated
+        
       default: ()
     }
   }
   
-  public func onShutdown(window: any Window) throws(SDL_Error) {
+  public func onShutdown(window: (any Window)?) throws(SDL_Error) {
     // camera?.close()
   }
 }

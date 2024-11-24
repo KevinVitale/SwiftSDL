@@ -139,6 +139,19 @@ public enum GameController: Hashable {
     return String(cString: serial)
   }
   
+  public func buttonIndices() -> [Int32] {
+    guard case(.open) = self else {
+      return []
+    }
+
+    let buttonCount =  SDL_GetNumJoystickButtons(joystick)
+    return Array(0..<buttonCount)
+  }
+
+  public func joystick(isPressed button: Int32) -> Bool {
+    SDL_GetJoystickButton(joystick, button)
+  }
+  
   public var gamepad: OpaquePointer? {
     guard case(.open) = self else {
       return nil
@@ -177,6 +190,10 @@ public enum GameController: Hashable {
       return .unknown
     }
     return SDL_GetGamepadButtonLabelForType(type, button)
+  }
+  
+  public func gamepad(isPressed button: SDL_GamepadButton) -> Bool {
+    SDL_GetGamepadButton(gamepad, button)
   }
 
   public func gamepad(has button: SDL_GamepadButton) -> Bool {

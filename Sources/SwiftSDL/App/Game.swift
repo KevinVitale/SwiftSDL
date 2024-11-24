@@ -9,7 +9,7 @@ public protocol Game: AnyObject, ParsableCommand {
   func onReady(window: any Window) throws(SDL_Error)
   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
-  func onShutdown(window: any Window) throws(SDL_Error)
+  func onShutdown(window: (any Window)?) throws(SDL_Error)
   func onQuit(_ result: SDL_Error?)
   
   func did(connect gameController: inout GameController) throws(SDL_Error)

@@ -3,6 +3,7 @@ open class TextureNode: SceneNode, RenderNode {
   
   public var direction: SDL_FlipMode = .none
   public private(set) var texture: (any Texture)!
+  public var colorMod: SDL_Color = .white
   
   public required init(_ label: String = "", with texture: any Texture, size: Size<Float>) {
     super.init(label)
@@ -20,7 +21,7 @@ open class TextureNode: SceneNode, RenderNode {
     let size = try texture.size(as: Float.self)
     self.init(label, with: texture, size: size)
     self.position = position
-    try texture.set(colorMod: color)
+    self.colorMod = color
   }
 
   public required init(_ label: String = "") {
@@ -32,11 +33,14 @@ open class TextureNode: SceneNode, RenderNode {
   }
   
   open func draw(_ graphics: any Renderer) throws(SDL_Error) {
+    let colorMod = try texture.colorMod.get()
+    try texture.set(colorMod: self.colorMod)
     try graphics.draw(
       texture: texture,
       position: position,
       rotatedBy: rotation.value,
       direction: direction
     )
+    try texture.set(colorMod: colorMod)
   }
 }
