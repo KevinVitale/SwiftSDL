@@ -147,9 +147,22 @@ public enum GameController: Hashable {
     let buttonCount =  SDL_GetNumJoystickButtons(joystick)
     return Array(0..<buttonCount)
   }
+  
+  public func axesIndices() -> [Int32] {
+    guard case(.open) = self else {
+      return []
+    }
+    
+    let axisCount =  SDL_GetNumJoystickAxes(joystick)
+    return Array(0..<axisCount)
+  }
 
   public func joystick(isPressed button: Int32) -> Bool {
     SDL_GetJoystickButton(joystick, button)
+  }
+  
+  public func joystick(axis: Int32) -> Sint16 {
+   SDL_GetJoystickAxis(joystick, axis)
   }
   
   public var gamepad: OpaquePointer? {

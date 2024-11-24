@@ -8,7 +8,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   }
   
   deinit {
-    print("\(Self.self) \(#function), \(label)")
+    // print("\(Self.self) \(#function), \(label)")
   }
   
   public var label: String = ""
@@ -73,7 +73,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   
   @discardableResult
   public func child(matching label: String) -> Child? {
-    children.filter({
+    return children.filter({
       $0.label.elementsEqual(label)
     })
     .first

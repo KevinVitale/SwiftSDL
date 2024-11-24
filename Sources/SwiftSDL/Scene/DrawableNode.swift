@@ -3,8 +3,17 @@ public protocol DrawableNode: SceneNode {
   func draw(_ graphics: Graphics) throws(SDL_Error)
 }
 
-internal protocol RenderNode: DrawableNode where Graphics == any Renderer { }
-internal protocol SurfaceNode: DrawableNode where Graphics == any Surface { }
+internal protocol RenderNode: DrawableNode where Graphics == any Renderer {
+  var colorMod: SDL_Color { get set}
+  var flipMode: SDL_FlipMode { get set }
+  var blendMod: SDL_BlendMode { get set }
+}
+
+internal protocol SurfaceNode: DrawableNode where Graphics == any Surface {
+  var colorMod: SDL_Color { get set}
+  var flipMode: SDL_FlipMode { get set }
+  var blendMod: SDL_BlendMode { get set }
+}
 
 extension Renderer {
   @discardableResult

@@ -1,9 +1,11 @@
 open class TextureNode: SceneNode, RenderNode {
   internal var _size: Size<Float> = .zero
   
-  public var direction: SDL_FlipMode = .none
   public private(set) var texture: (any Texture)!
+  
   public var colorMod: SDL_Color = .white
+  public var flipMode: SDL_FlipMode = .none
+  public var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
   
   public required init(_ label: String = "", with texture: any Texture, size: Size<Float>) {
     super.init(label)
@@ -39,7 +41,7 @@ open class TextureNode: SceneNode, RenderNode {
       texture: texture,
       position: position,
       rotatedBy: rotation.value,
-      direction: direction
+      direction: flipMode
     )
     try texture.set(colorMod: colorMod)
   }
