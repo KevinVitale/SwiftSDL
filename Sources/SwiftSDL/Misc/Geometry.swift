@@ -6,6 +6,11 @@ public typealias SDL_Size = SDL_Point
 public typealias SDL_FSize = SDL_FPoint
 
 extension SDL_Point: @retroactive SIMD {
+  public init<S: SIMDScalar & FixedWidthInteger>(_ point: SIMD2<S>) {
+    let simd = point.to(Int32.self)
+    self = SDL_Point(x: simd[0], y: simd[1])
+  }
+
   public subscript(index: Int) -> SIMD2<Int32>.Scalar {
     get {
       switch index {
@@ -30,7 +35,14 @@ extension SDL_Point: @retroactive SIMD {
   public typealias MaskStorage = SIMD2<Int32>.MaskStorage
   public typealias Scalar = SIMD2<Int32>.Scalar
   
-  public func to<S: SIMDScalar>(_ type: S.Type) -> SDL_FPoint where S: BinaryFloatingPoint, Scalar: FixedWidthInteger {
+  @discardableResult
+  @inlinable
+  public func callAsFunction<Value, each Argument>(_ block: (UnsafePointer<Self>?, repeat each Argument) -> Value, _ argument: repeat each Argument) -> Value {
+    var this = self
+    return block(&this, repeat each argument)
+  }
+  
+  public func to<S: SIMDScalar & BinaryFloatingPoint>(_ type: S.Type) -> SDL_FPoint where Scalar: FixedWidthInteger {
     var s = SIMD2<Float>()
     for i in indices {
       s[i] = Float(self[i])
@@ -40,6 +52,11 @@ extension SDL_Point: @retroactive SIMD {
 }
 
 extension SDL_FPoint: @retroactive SIMD {
+  public init<S: SIMDScalar & BinaryFloatingPoint>(_ point: SIMD2<S>) {
+    let simd = point.to(Float.self)
+    self = SDL_FPoint(x: simd[0], y: simd[1])
+  }
+  
   public subscript(index: Int) -> SIMD2<Float>.Scalar {
     get {
       switch index {
@@ -64,7 +81,14 @@ extension SDL_FPoint: @retroactive SIMD {
   public typealias MaskStorage = SIMD2<Float>.MaskStorage
   public typealias Scalar = SIMD2<Float>.Scalar
   
-  public func to<S: SIMDScalar>(_ type: S.Type) -> SDL_Point where S: FixedWidthInteger, Scalar: BinaryFloatingPoint {
+  @discardableResult
+  @inlinable
+  public func callAsFunction<Value, each Argument>(_ block: (UnsafePointer<Self>?, repeat each Argument) -> Value, _ argument: repeat each Argument) -> Value {
+    var this = self
+    return block(&this, repeat each argument)
+  }
+
+  public func to<S: SIMDScalar & FixedWidthInteger>(_ type: S.Type) -> SDL_Point where Scalar: BinaryFloatingPoint {
     var s = SIMD2<Int32>()
     for i in indices {
       s[i] = Int32(self[i])
@@ -75,6 +99,11 @@ extension SDL_FPoint: @retroactive SIMD {
 
 
 extension SDL_Rect: @retroactive SIMD {
+  public init<S: SIMDScalar & FixedWidthInteger>(_ rect: SIMD4<S>) {
+    let simd = rect.to(Int32.self)
+    self = SDL_Rect(x: simd[0], y: simd[1], w: simd[2], h: simd[3])
+  }
+
   public subscript(index: Int) -> SIMD4<Int32>.Scalar {
     get {
       switch index {
@@ -102,8 +131,15 @@ extension SDL_Rect: @retroactive SIMD {
   
   public typealias MaskStorage = SIMD4<Int32>.MaskStorage
   public typealias Scalar = SIMD4<Int32>.Scalar
-  
-  public func to<S: SIMDScalar>(_ type: S.Type) -> SDL_FRect where S: BinaryFloatingPoint, Scalar: FixedWidthInteger {
+
+  @discardableResult
+  @inlinable
+  public func callAsFunction<Value, each Argument>(_ block: (UnsafePointer<Self>?, repeat each Argument) -> Value, _ argument: repeat each Argument) -> Value {
+    var this = self
+    return block(&this, repeat each argument)
+  }
+
+  public func to<S: SIMDScalar & BinaryFloatingPoint>(_ type: S.Type) -> SDL_FRect where Scalar: FixedWidthInteger {
     var s = SIMD4<Float>()
     for i in indices {
       s[i] = Float(self[i])
@@ -113,6 +149,11 @@ extension SDL_Rect: @retroactive SIMD {
 }
 
 extension SDL_FRect: @retroactive SIMD {
+  public init<S: SIMDScalar & BinaryFloatingPoint>(_ rect: SIMD4<S>) {
+    let simd = rect.to(Float.self)
+    self = SDL_FRect(x: simd[0], y: simd[1], w: simd[2], h: simd[3])
+  }
+
   public subscript(index: Int) -> SIMD4<Float>.Scalar {
     get {
       switch index {
@@ -141,7 +182,14 @@ extension SDL_FRect: @retroactive SIMD {
   public typealias MaskStorage = SIMD4<Float>.MaskStorage
   public typealias Scalar = SIMD4<Float>.Scalar
   
-  public func to<S: SIMDScalar>(_ type: S.Type) -> SDL_Rect where S: FixedWidthInteger, Scalar: BinaryFloatingPoint {
+  @discardableResult
+  @inlinable
+  public func callAsFunction<Value, each Argument>(_ block: (UnsafePointer<Self>?, repeat each Argument) -> Value, _ argument: repeat each Argument) -> Value {
+    var this = self
+    return block(&this, repeat each argument)
+  }
+  
+  public func to<S: SIMDScalar & FixedWidthInteger>(_ type: S.Type) -> SDL_Rect where Scalar: BinaryFloatingPoint {
     var s = SIMD4<Int32>()
     for i in indices {
       s[i] = Int32(self[i])
