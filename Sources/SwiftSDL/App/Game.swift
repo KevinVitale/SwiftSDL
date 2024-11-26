@@ -1,9 +1,19 @@
+///
 public protocol Game: AnyObject, ParsableCommand {
+  /// The name of the application (“My Game 2: Bad Guy’s Revenge!”).
+  /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_NAME_STRING_.
   static var name: String { get }
+  
+  /// The version of the application (“1.0.0beta5” or a git hash, or whatever makes sense).
+  /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_VERSION_STRING_.
   static var version: String { get }
+  
+  /// A unique string in reverse-domain format that identifies this app (“com.example.mygame2”).
+  /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_IDENTIFIER_STRING_.
   static var identifier: String { get }
   
-  static var windowFlags: [SDL_WindowCreateFlag] { get }
+  /// The default window properties  for creating the main window.
+  static var windowProperties: [WindowProperty] { get }
   
   func onInit() throws(SDL_Error) -> any Window
   func onReady(window: any Window) throws(SDL_Error)
@@ -20,28 +30,10 @@ nonisolated(unsafe)
 internal var GameControllers: [GameController] = []
 
 extension Game {
-  public var properties: Result<SDL_PropertiesID, SDL_Error> {
-    let global = SDL_GetGlobalProperties()
-    guard global != .zero else {
-      return .failure(.error)
-    }
-    return .success(global)
-  }
-  
-  @discardableResult
-  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
-    let properties = try self.properties.get()
-    guard properties.set(property, value: value) else {
-      throw SDL_Error.error
-    }
-    return properties
-  }
-
   public static var name: String { "\(Self.self)" }
   public static var version: String { "" }
   public static var identifier: String { "" }
-  
-  public static var windowFlags: [SDL_WindowCreateFlag] {
+  public static var windowProperties: [WindowProperty] {
     [
       .windowTitle("\(Self.name)"),
       .width(1024), .height(640)
@@ -52,24 +44,6 @@ extension Game {
     GameControllers
   }
   
-  public func onInit() throws(SDL_Error) -> any Window {
-    try SDL_Init(.video)
-    
-    let window = try SDL_CreateWindow(with: Self.windowFlags)
-    let _ = try window.size(as: Float.self)
-    
-    return window
-  }
-  
-  public func onQuit(_ result: SDL_Error?) {
-    SDL_Quit()
-  }
-  
-  public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
-  public func will(remove gameController: GameController) { /* no-op */ }
-}
-
-extension Game {
   public func run() throws {
     App.game = self
     
@@ -169,4 +143,46 @@ extension Game {
       return 0
     }, nil)
   }
+  
+  public func onInit() throws(SDL_Error) -> any Window {
+    try SDL_Init(.video)
+    
+    let window = try SDL_CreateWindow(with: Self.windowProperties)
+    let _ = try window.size(as: Float.self)
+    
+    return window
+  }
+  
+  public func onQuit(_ result: SDL_Error?) {
+    SDL_Quit()
+  }
+  
+  /// Get the global SDL properties.
+  /// - returns: Either global properties, or a _SDL_Error_ failure.
+  /// - seealso: _SDL_GetGlobalProperties_
+  public var properties: Result<SDL_PropertiesID, SDL_Error> {
+    let global = SDL_GetGlobalProperties()
+    guard global != .zero else {
+      return .failure(.error)
+    }
+    return .success(global)
+  }
+  
+  /// Set a property in the global properties group.
+  /// - parameters:
+  ///   - property: The property to modify.
+  ///   - value: The new value of the property.
+  /// - returns: The _SDL_PropertiesID_ for the group being modified.
+  /// - seealso: _SDL_SetStringProperty_; _SDL_SetFloatProperty_; _SDL_SetBooleanProperty_; _SDL_SetNumberProperty_; _SDL_SetPointerProperty_.
+  @discardableResult
+  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+    let properties = try self.properties.get()
+    guard properties.set(property, value: value) else {
+      throw SDL_Error.error
+    }
+    return properties
+  }
+
+  public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
+  public func will(remove gameController: GameController) { /* no-op */ }
 }

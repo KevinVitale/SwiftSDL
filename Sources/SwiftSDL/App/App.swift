@@ -4,7 +4,7 @@ enum App {
   nonisolated(unsafe) static var ticks: Uint64 = .max
 }
 
-public struct SDL_AppMetadataFlags: RawRepresentable, Sendable {
+public struct SDL_AppMetadataFlags: RawRepresentable, Equatable, Sendable {
   public init(rawValue: String) {
     self.rawValue = rawValue
   }
@@ -42,8 +42,6 @@ extension SDL_AppResult: @retroactive CaseIterable, @retroactive CustomDebugStri
     }
   }
 }
-
-public typealias Tick = Measurement<UnitDuration>
 
 struct AnyWindow {
   init(_ base: some Window) { self.base = base }
