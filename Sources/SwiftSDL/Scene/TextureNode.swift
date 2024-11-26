@@ -1,16 +1,14 @@
 open class TextureNode: SceneNode, RenderNode {
-  internal var _size: Size<Float> = .zero
-  
   public private(set) var texture: (any Texture)!
   
-  public var colorMod: SDL_Color = .white
-  public var flipMode: SDL_FlipMode = .none
-  public var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
+  open var colorMod: SDL_Color = .white
+  open var flipMode: SDL_FlipMode = .none
+  open var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
   
   public required init(_ label: String = "", with texture: any Texture, size: Size<Float>) {
     super.init(label)
     self.texture = texture
-    self._size = size
+    self.size = size
   }
 
   public convenience init(_ label: String = "", position: Point<Float> = .zero, with texture: any Texture) throws(SDL_Error) {
@@ -34,6 +32,17 @@ open class TextureNode: SceneNode, RenderNode {
     try super.init(from: decoder)
   }
   
+  public func contains(point: Point<Float>) -> Bool {
+    var position: SDL_FPoint = [
+      position.x, position.y,
+    ]
+    var rect: SDL_FRect = [
+      position.x, position.y,
+      size.x, size.y
+    ]
+    return SDL_PointInRectFloat(.some(&position), .some(&rect))
+  }
+
   open func draw(_ graphics: any Renderer) throws(SDL_Error) {
     let colorMod = try texture.colorMod.get()
     try texture.set(colorMod: self.colorMod)

@@ -1,18 +1,21 @@
 public protocol DrawableNode: SceneNode {
   associatedtype Graphics
   func draw(_ graphics: Graphics) throws(SDL_Error)
+  func contains(point: Point<Float>) -> Bool
 }
 
 internal protocol RenderNode: DrawableNode where Graphics == any Renderer {
   var colorMod: SDL_Color { get set}
   var flipMode: SDL_FlipMode { get set }
   var blendMod: SDL_BlendMode { get set }
+  var size: Size<Float> { get }
 }
 
 internal protocol SurfaceNode: DrawableNode where Graphics == any Surface {
   var colorMod: SDL_Color { get set}
   var flipMode: SDL_FlipMode { get set }
   var blendMod: SDL_BlendMode { get set }
+  var size: Size<Float> { get }
 }
 
 extension Renderer {
@@ -35,7 +38,7 @@ extension Renderer {
     let scale = try self.scale.get()
     
     return try self
-      .set(scale: Float(node.scale))
+      .set(scale: node.scale)
       .draw(into: { try node.draw($0) })
       .callAsFunction(SDL_SetRenderScale, scale.0, scale.1) as! Self
   }

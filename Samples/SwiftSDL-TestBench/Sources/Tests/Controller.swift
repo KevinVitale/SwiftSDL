@@ -136,7 +136,7 @@ extension SDL.Test.Controller {
         switch self {
           case .gamepadFront: return -2
           case .gamepadBack: return -1
-          default: return 0
+          default: return 4
         }
       }
     }
@@ -192,6 +192,7 @@ extension SDL.Test.Controller {
           }
         }
       
+      self.addChild(RectangleNode<Graphics>("Rectangle", size: .init(24, 24), color: .black))
       self.addChild(DebugTextNode("Placeholder", text: "Waiting for gamepad, press A to add a virtual controller"))
       self.addChild(DebugTextNode("Title"))
       self.addChild(DebugTextNode("Subtitle", text: "Click on the gamepad image below to generate input"))
@@ -204,16 +205,13 @@ extension SDL.Test.Controller {
       self.addChild(DebugTextNode("Product ID"))
       self.addChild(DebugTextNode("Serial"))
       
+      // Go through all the possible gamepad butons
+      // Add them as drawable nodes to the scene
       for btnIdx in SDL_GamepadButton.allCases {
         let xPos = Float(0.0)
         let yPos = 12 + 14 * Float(btnIdx.rawValue)
         
         let text = String("\(btnIdx): ")
-        /*
-         .padding(toLength: 10, withPad: " ", startingAt: 0)
-         .reversed()
-         */
-        
         let node = try ButtonPressedNode(
           "Gamepad Button: \(btnIdx)",
           text: String(text).capitalized,
@@ -222,6 +220,15 @@ extension SDL.Test.Controller {
         )
         node.position = [xPos, yPos]
         self.addChild(node)
+        
+        let highlightTexture = self.textures[.button]!
+        let textureSize = try highlightTexture.size(as: Float.self)
+        let button = try TextureNode("Button Highlight: \(btnIdx.rawValue)", with: highlightTexture)
+        button.position = btnIdx.position + Layout.gamepadImagePosition - (textureSize / 2)
+        button.zPosition = 2
+        button.isHidden = true
+        
+        self.addChild(button)
       }
     }
     
@@ -234,7 +241,7 @@ extension SDL.Test.Controller {
         .enumerated()
         .forEach { index, node in
           node.isHidden = invalidGameController
-
+          
           if let node = node as? DebugTextNode {
             let textSize = node.text.debugTextSize(as: Float.self) / 2
             
@@ -376,12 +383,25 @@ extension SDL.Test.Controller {
             node.isPressed = gameController.gamepad(isPressed: .init(rawValue: node.button))
           }
         }
-      
-      
+                
       self[.gamepadFront]?.isHidden = invalidGameController
       self[.faceABXY]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .a)
       self[.faceBAYX]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .b)
       self[.faceSony]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .cross)
+      
+      self.children
+        .filter { $0.label.contains("Button Highlight:") }
+        .compactMap { $0 as? TextureNode }
+        .forEach {
+          let indexAsString = $0.label.components(separatedBy: ": ").last
+          guard let indexAsInt32 = indexAsString.map(Int32.init(_:)) ?? SDL_GamepadButton.invalid.rawValue else {
+            return
+          }
+          let button = SDL_GamepadButton(rawValue: indexAsInt32)
+          let isPressed = gameController.gamepad(isPressed: button)
+          $0.isHidden = !isPressed
+          $0.colorMod = !isPressed ? .white : SDL_Color(r: 10, g: 255, b: 21, a: 255)
+        }
     }
     
     override func handle(_ event: SDL_Event) throws(SDL_Error) {
@@ -447,7 +467,6 @@ extension SDL.Test.Controller {
       self.addChild(try TextureNode("Left Arrow", with: texture))
       self.addChild(RectangleNode<Graphics>(
         "Value Bar",
-        size: [0, arwSize.y],
         color: SDL_Color(r: 8, g: 200, b: 16, a: 255))
       )
       self.addChild(RectangleNode<Graphics>(
@@ -555,5 +574,33 @@ extension SDL.Test.Controller {
     static var touchpadFrame: Rect<Float> {
       [148.0, 20.0, 216.0, 118.0]
     };
+  }
+}
+
+extension SDL_GamepadButton {
+  fileprivate var position: Point<Float> {
+    switch self {
+      case .south: return [413, 190] /* SDL_GAMEPAD_BUTTON_SOUTH */
+      case .east: return [456, 156] /* SDL_GAMEPAD_BUTTON_EAST */
+      case .west: return [372, 159] /* SDL_GAMEPAD_BUTTON_WEST */
+      case .north: return [415, 127] /* SDL_GAMEPAD_BUTTON_NORTH */
+      case .back: return [199, 157] /* SDL_GAMEPAD_BUTTON_BACK */
+      case .guide: return [257, 153] /* SDL_GAMEPAD_BUTTON_GUIDE */
+      case .start: return [314, 157] /* SDL_GAMEPAD_BUTTON_START */
+      case .leftStick: return [98, 177] /* SDL_GAMEPAD_BUTTON_LEFT_STICK */
+      case .rightStick: return [331, 254] /* SDL_GAMEPAD_BUTTON_RIGHT_STICK */
+      case .leftShoulder: return [102, 65] /* SDL_GAMEPAD_BUTTON_LEFT_SHOULDER */
+      case .rightShoulder: return [421, 61] /* SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER */
+      case .up: return [179, 213] /* SDL_GAMEPAD_BUTTON_DPAD_UP */
+      case .down: return [179, 274] /* SDL_GAMEPAD_BUTTON_DPAD_DOWN */
+      case .left: return [141, 242] /* SDL_GAMEPAD_BUTTON_DPAD_LEFT */
+      case .right: return [211, 242] /* SDL_GAMEPAD_BUTTON_DPAD_RIGHT */
+      case .misc1: return [257, 199] /* SDL_GAMEPAD_BUTTON_MISC1 */
+      case .rightPaddle1: return [157, 160] /* SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1 */
+      case .leftPaddle1: return [355, 160] /* SDL_GAMEPAD_BUTTON_LEFT_PADDLE1 */
+      case .rightPaddle2: return [157, 200] /* SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2 */
+      case .leftPaddle2: return [355, 200] /* SDL_GAMEPAD_BUTTON_LEFT_PADDLE2 */
+      default: return .zero
+    }
   }
 }

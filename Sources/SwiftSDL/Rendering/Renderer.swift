@@ -173,7 +173,7 @@ extension Renderer {
   }
   
   @discardableResult
-  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .white, scale: Float = 1.0) throws(SDL_Error) -> Self {
+  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .white, scale: Size<Float>) throws(SDL_Error) -> Self {
     let color = try color.get()
     
     try self
@@ -278,8 +278,8 @@ extension Renderer {
   }
   
   @discardableResult
-  public func set(scale: Float) throws(SDL_Error) -> Self {
-    try self(SDL_SetRenderScale, scale, scale)
+  public func set(scale: Size<Float>) throws(SDL_Error) -> Self {
+    try self(SDL_SetRenderScale, scale.x, scale.y)
   }
   
   public var scale: Result<(Float, Float), SDL_Error> {

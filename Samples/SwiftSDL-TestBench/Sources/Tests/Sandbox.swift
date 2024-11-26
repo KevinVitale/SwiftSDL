@@ -36,31 +36,9 @@ extension SDL.Test {
 
 extension SDL.Test.Sandbox {
   class Scene: GameScene<any Surface> {
-    class SquareNode: SpriteNode<Graphics> {
-      convenience init(_ label: String = "", size: Size<Float>, color: SDL_Color) {
-        self.init(label)
-        self.size = size
-        self.color = color
-      }
-      
-      var size: Size<Float> = .zero
-      var color: SDL_Color = .white
-      var rect: SDL_Rect {
-        let rect: SDL_FRect = [
-          position.x, position.y,
-          size.x, size.y
-        ]
-        return rect.to(Int.self)
-      }
-      
-      override func draw(_ graphics: any Surface) throws(SDL_Error) {
-        try graphics.fill(rects: rect, color: color)
-      }
-    }
-    
-    var square: SquareNode? {
-      guard let square = children.first as? SquareNode else {
-        let square = Scene.SquareNode(size: [100, 100], color: .green)
+    var square: RectangleNode<Graphics>? {
+      guard let square = children.first as? RectangleNode<Graphics> else {
+        let square = RectangleNode<Graphics>(size: [100, 100], color: .green)
         self.addChild(square)
         return square
       }

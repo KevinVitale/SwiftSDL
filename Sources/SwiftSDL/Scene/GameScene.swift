@@ -18,6 +18,17 @@ extension SceneProtocol {
   public subscript<T>(dynamicMember keyPath: KeyPath<Game, T>) -> T? {
     App.game?[keyPath: keyPath]
   }
+  
+  public func contains(point: Point<Float>) -> Bool {
+    var position: SDL_FPoint = [
+      position.x, position.y,
+    ]
+    var rect: SDL_FRect = [
+      position.x, position.y,
+      size.x, size.y
+    ]
+    return SDL_PointInRectFloat(.some(&position), .some(&rect))
+  }
 }
 
 open class GameScene<Graphics>: SceneNode, SceneProtocol {
@@ -27,10 +38,10 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
     bgColor: SDL_Color = .gray,
     blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
   ) {
-    self.size = size
     self.bgColor = bgColor
     self.blendMode = blendMode
     super.init(label)
+    self.size = size
   }
   
   public required init(_ label: String = "") {
@@ -42,8 +53,11 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
   }
   
   public private(set) var window: (any Window)?
+  public override var size: Size<Float> {
+    get { super.size }
+    set { super.size = newValue }
+  }
   
-  public var size: Size<Float> = [0, 0]
   public var bgColor: SDL_Color = .gray
   public var blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
   

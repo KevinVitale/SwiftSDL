@@ -5,6 +5,75 @@ public typealias Size<Scalar: SIMDScalar> = SIMD2<Scalar>
 public typealias SDL_Size = SDL_Point
 public typealias SDL_FSize = SDL_FPoint
 
+extension SDL_Point: @retroactive SIMD {
+  public subscript(index: Int) -> SIMD2<Int32>.Scalar {
+    get {
+      switch index {
+        case 0: return x
+        case 1: return y
+        default: fatalError()
+      }
+    }
+    set(newValue) {
+      switch index {
+        case 0: x = newValue
+        case 1: y = newValue
+        default: ()
+      }
+    }
+  }
+  
+  public var scalarCount: Int {
+    SIMD2<Int32>.scalarCount
+  }
+  
+  public typealias MaskStorage = SIMD2<Int32>.MaskStorage
+  public typealias Scalar = SIMD2<Int32>.Scalar
+  
+  public func to<S: SIMDScalar>(_ type: S.Type) -> SDL_FPoint where S: BinaryFloatingPoint, Scalar: FixedWidthInteger {
+    var s = SIMD2<Float>()
+    for i in indices {
+      s[i] = Float(self[i])
+    }
+    return SDL_FPoint(x: s[0], y: s[1])
+  }
+}
+
+extension SDL_FPoint: @retroactive SIMD {
+  public subscript(index: Int) -> SIMD2<Float>.Scalar {
+    get {
+      switch index {
+        case 0: return x
+        case 1: return y
+        default: fatalError()
+      }
+    }
+    set(newValue) {
+      switch index {
+        case 0: x = newValue
+        case 1: y = newValue
+        default: ()
+      }
+    }
+  }
+  
+  public var scalarCount: Int {
+    SIMD2<Float>.scalarCount
+  }
+  
+  public typealias MaskStorage = SIMD2<Float>.MaskStorage
+  public typealias Scalar = SIMD2<Float>.Scalar
+  
+  public func to<S: SIMDScalar>(_ type: S.Type) -> SDL_Point where S: FixedWidthInteger, Scalar: BinaryFloatingPoint {
+    var s = SIMD2<Int32>()
+    for i in indices {
+      s[i] = Int32(self[i])
+    }
+    return SDL_Point(x: s[0], y: s[1])
+  }
+}
+
+
 extension SDL_Rect: @retroactive SIMD {
   public subscript(index: Int) -> SIMD4<Int32>.Scalar {
     get {

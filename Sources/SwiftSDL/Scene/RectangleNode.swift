@@ -1,13 +1,4 @@
 open class RectangleNode<Graphics>: SpriteNode<Graphics> {
-  public convenience init(_ label: String = "", size: Size<Float>, color: SDL_Color) {
-    self.init(label)
-    self.size = size
-    self.color = color
-  }
-  
-  public var size: Size<Float> = .zero
-  public var color: SDL_Color = .white
-  
   var rect: SDL_Rect {
     let rect: SDL_FRect = [
       position.x, position.y,
@@ -16,6 +7,11 @@ open class RectangleNode<Graphics>: SpriteNode<Graphics> {
     return rect.to(Int.self)
   }
   
+  public override var size: Size<Float> {
+    get { super.size }
+    set { super.size = newValue }
+  }
+
   override open func draw(_ graphics: Graphics) throws(SDL_Error) {
     switch graphics {
       case let renderer as (any Renderer)?:

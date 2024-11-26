@@ -54,7 +54,7 @@ extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebug
   public static let guide = SDL_GAMEPAD_BUTTON_GUIDE
   public static let start = SDL_GAMEPAD_BUTTON_START
   public static let leftStick = SDL_GAMEPAD_BUTTON_LEFT_STICK
-  public static let rightSitck = SDL_GAMEPAD_BUTTON_RIGHT_STICK
+  public static let rightStick = SDL_GAMEPAD_BUTTON_RIGHT_STICK
   public static let leftShoulder = SDL_GAMEPAD_BUTTON_LEFT_SHOULDER
   public static let rightShoulder = SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER
   public static let up = SDL_GAMEPAD_BUTTON_DPAD_UP

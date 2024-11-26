@@ -16,11 +16,13 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   
   public var rotation: Measurement<UnitAngle> = .init(value: 0, unit: .degrees)
   public var speed: Double = 1
-  public var scale: Double {
-    get { _scale * (parent.scale ?? 1) }
+  public var scale: Size<Float> {
+    get { _scale * (parent.scale ?? .one) }
     set { _scale = newValue }
   }
-  private var _scale: Double = 1
+  private var _scale: Size<Float> = .one
+  
+  public internal(set) var size: Size<Float> = .zero
   
   public var isHidden: Bool = false
   public var isPaused: Bool = false
@@ -44,6 +46,7 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
     """
     Node:     \(id)
     Label:    \(label.isEmpty ? "<NONE>" : label)
+    IsHidden: \(isHidden)
     Orphaned: \(isOrphaned)
     Position: (x: \(position.x), y: \(position.y))
     Children: \(children.count)
