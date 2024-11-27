@@ -80,9 +80,27 @@ extension Texture {
   }
   
   @discardableResult
-  public func draw(at position: Point<Float>, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
+  public func draw(
+    sourceRect: SDL_FRect? = nil,
+    dstRect: SDL_FRect? = nil,
+    angle: Double = 0,
+    center: SDL_FPoint? = nil,
+    flip: SDL_FlipMode = .none
+  ) throws(SDL_Error) -> Self {
     let renderer = try renderer.get()
-    try renderer.draw(texture: self, position: position, rotatedBy: angle, direction: flip)
+    let textureSize = try self.size(as: Float.self)
+    var sourceRect: SDL_FRect? = sourceRect ?? nil
+    var dstRect: SDL_FRect? = dstRect ?? [0, 0, textureSize.x, textureSize.y]
+    var center: SDL_FPoint? = center ?? nil
+    try renderer(
+      SDL_RenderTextureRotated,
+      pointer,
+      sourceRect != nil ? .some(&sourceRect!) : nil,
+      dstRect != nil ? .some(&dstRect!) : nil,
+      angle,
+      center != nil ? .some(&center!) : nil,
+      flip
+    )
     return self
   }
 }

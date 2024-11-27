@@ -125,67 +125,6 @@ extension Renderer {
       throw error as! SDL_Error
     }
   }
-
-  @discardableResult
-  public func draw<Scene: SceneProtocol>(scene: Scene, updateAt delta: Uint64) throws(SDL_Error) -> Self where Scene.Graphics == any Renderer {
-    try scene.update(at: delta)
-    return try clear(color: .white)
-      .draw(node: scene)
-      .present()
-  }
-  
-  @discardableResult
-  public func draw(texture: (any Texture)?, position: Point<Float>, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
-    guard let texture = texture else { return self }
-    let size = try texture.size(as: Float.self)
-    return try self.draw(
-      texture: texture,
-      destinationRect: [
-        position.x, position.y,
-        size.x, size.y
-      ],
-      rotatedBy: angle,
-      direction: flip
-    )
-  }
-  
-  @discardableResult
-  public func draw(texture: (any Texture)?, destinationRect dstRect: Rect<Float>? = nil, rotatedBy angle: Double = .zero, direction flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
-    guard let texture = texture else { return self }
-    
-    let size = try texture.size(as: Float.self)
-    
-    var rect: SDL_FRect! = nil
-    switch dstRect {
-      case let dstRect?:
-        rect = [
-          dstRect.lowHalf.x, dstRect.lowHalf.y,
-          dstRect.highHalf.x, dstRect.highHalf.y
-        ]
-      default:
-        rect = [
-          0, 0,
-          size.x, size.y
-        ]
-    }
-    
-    return try self(SDL_RenderTextureRotated, texture.pointer, nil, .some(&rect), angle, nil, flip)
-  }
-  
-  @discardableResult
-  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .white, scale: Size<Float>) throws(SDL_Error) -> Self {
-    let color = try color.get()
-    
-    try self
-      .set(color: fillColor)
-      .set(scale: scale)
-    
-    guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
-      throw SDL_Error.error
-    }
-    
-    return try set(color: color)
-  }
 }
 
 extension String {
@@ -279,14 +218,14 @@ extension Renderer {
   
   @discardableResult
   public func set(scale: Size<Float>) throws(SDL_Error) -> Self {
-    try self(SDL_SetRenderScale, scale.x, scale.y)
+    return try self(SDL_SetRenderScale, scale.x, scale.y)
   }
   
-  public var scale: Result<(Float, Float), SDL_Error> {
+  public var scale: Result<Size<Float>, SDL_Error> {
     var scaleX: Float = 0, scaleY: Float = 0
     return self
       .resultOf(SDL_GetRenderScale, .some(&scaleX), .some(&scaleY))
-      .map({ _ in (scaleX, scaleY) })
+      .map({ _ in [scaleX, scaleY] })
   }
 }
 

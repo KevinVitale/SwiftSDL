@@ -14,10 +14,10 @@ open class RectangleNode<Graphics>: SpriteNode<Graphics> {
 
   override open func draw(_ graphics: Graphics) throws(SDL_Error) {
     switch graphics {
-      case let renderer as (any Renderer)?:
-        try renderer?.fill(rects: rect.to(Float.self), color: color)
-      case let surface as (any Surface)?:
-        try surface?.fill(rects: rect, color: color)
+      case let renderer as (any Renderer):
+        try renderer.fill(rects: rect.to(Float.self), color: color)
+      case let surface as (any Surface):
+        try surface.fill(rects: rect, color: color)
       default: return
     }
   }

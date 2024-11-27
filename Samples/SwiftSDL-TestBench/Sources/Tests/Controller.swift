@@ -530,7 +530,6 @@ extension SDL.Test.Controller {
     static let titleHeight: Float = 48.0
     static let panelSpacing: Float = 25.0
     static let panelWidth: Float = 250.0
-    // static let minimumButtonWidth: Float = 96.0
     static let buttonMargin: Float = 16.0
     static let buttonPadding: Float = 12.0
     static let gamepadWidth: Float = 512.0

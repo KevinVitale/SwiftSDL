@@ -18,17 +18,6 @@ extension SceneProtocol {
   public subscript<T>(dynamicMember keyPath: KeyPath<Game, T>) -> T? {
     App.game?[keyPath: keyPath]
   }
-  
-  public func contains(point: Point<Float>) -> Bool {
-    var position: SDL_FPoint = [
-      position.x, position.y,
-    ]
-    var rect: SDL_FRect = [
-      position.x, position.y,
-      size.x, size.y
-    ]
-    return SDL_PointInRectFloat(.some(&position), .some(&rect))
-  }
 }
 
 open class GameScene<Graphics>: SceneNode, SceneProtocol {
@@ -73,6 +62,7 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
     switch graphics {
       case let renderer as (any Renderer)?:
         try renderer?.clear(color: bgColor)
+        
         for child in children.sorted(by: { $0.zPosition < $1.zPosition })  {
           if let child = child as? any RenderNode {
             try renderer?.draw(node: child)
@@ -80,6 +70,7 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
         }
       case let surface as (any Surface)?:
         try surface?.clear(color: bgColor)
+        
         for child in children.sorted(by: { $0.zPosition < $1.zPosition })  {
           if let child = child as? any SurfaceNode {
             try surface?.draw(node: child)
@@ -93,5 +84,15 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
 extension SceneNode {
   public var scene: (any SceneProtocol)? {
     parent.scene
+  }
+}
+
+extension Renderer {
+  @discardableResult
+  public func draw<Scene: SceneProtocol>(scene: Scene, updateAt delta: Uint64) throws(SDL_Error) -> Self where Scene.Graphics == any Renderer {
+    try scene.update(at: delta)
+    return try clear(color: .white)
+      .draw(node: scene)
+      .present()
   }
 }

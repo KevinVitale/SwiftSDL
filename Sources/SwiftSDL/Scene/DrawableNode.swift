@@ -1,7 +1,6 @@
 public protocol DrawableNode: SceneNode {
   associatedtype Graphics
   func draw(_ graphics: Graphics) throws(SDL_Error)
-  func contains(point: Point<Float>) -> Bool
 }
 
 internal protocol RenderNode: DrawableNode where Graphics == any Renderer {
@@ -35,12 +34,15 @@ extension Renderer {
       }
     }
     
+    // print(#function, "fix me")
+    // return try self.draw(into: { try node.draw($0) }) as! Self
+    
     let scale = try self.scale.get()
     
     return try self
       .set(scale: node.scale)
       .draw(into: { try node.draw($0) })
-      .callAsFunction(SDL_SetRenderScale, scale.0, scale.1) as! Self
+      .set(scale: scale) as! Self
   }
 }
 
@@ -60,6 +62,8 @@ extension Surface {
         try self.draw(node: child)
       }
     }
+    
+    // TODO: Does 'Surface' has scale funtions?
     
     try node.draw(self)
     return self

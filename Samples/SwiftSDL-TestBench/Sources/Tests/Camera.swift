@@ -97,7 +97,8 @@ extension SDL.Test {
       
       let outputSize = try renderer.outputSize(as: Float.self)
       try camera?.stream(to: &texture, renderer: renderer)
-      try renderer.draw(texture: texture, destinationRect: [0, 0, outputSize.x, outputSize.y])
+      var dstRect: SDL_FRect = [0, 0, outputSize.x, outputSize.y]
+      try renderer(SDL_RenderTexture, texture?.pointer, nil, .some(&dstRect))
       try renderer.present()
     }
     
