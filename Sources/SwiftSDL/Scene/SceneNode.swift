@@ -22,16 +22,20 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   }
   private var _scale: Size<Float> = .one
   
-  public internal(set) var size: Size<Float> = .zero
+  public internal(set) var size: Size<Float> {
+    get { _size }
+    set { _size = newValue }
+  }
+  private var _size: Size<Float> = .zero
   
-  public var isHidden: Bool = false
-  public var isPaused: Bool = false
-  
-  private var _position: Point<Float> = .zero
   public var position: Point<Float> {
     get { (parent.position ?? .zero) + _position }
     set { _position = newValue }
   }
+  private var _position: Point<Float> = .zero
+
+  public var isHidden: Bool = false
+  public var isPaused: Bool = false
 
   public var zPosition: Float = .zero
   

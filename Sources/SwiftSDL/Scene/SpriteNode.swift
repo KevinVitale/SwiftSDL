@@ -4,11 +4,6 @@ open class SpriteNode<Graphics>: SceneNode, DrawableNode {
   open var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
   
   open var color: SDL_Color
-  
-  public internal(set) override var size: Size<Float> {
-    get { super.size }
-    set { super.size = newValue }
-  }
 
   public required init(_ label: String = "", position: Point<Float> = .zero, size: Size<Float> = .zero, color: SDL_Color) {
     self.color = color
