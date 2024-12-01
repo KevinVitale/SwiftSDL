@@ -202,7 +202,6 @@ extension SDL.Test.Controller {
       // Load all the textures into the renderer
       self.textures = try ImageFiles.load(graphics)
       
-      self.addChild(RectangleNode<Graphics>("Rectangle", size: .init(24, 24), color: .black))
       self.addChild(DebugTextNode("Placeholder", text: "Waiting for gamepad, press A to add a virtual controller"))
       self.addChild(DebugTextNode("Title"))
       self.addChild(DebugTextNode("Subtitle", text: "Click on the gamepad image below to generate input"))
