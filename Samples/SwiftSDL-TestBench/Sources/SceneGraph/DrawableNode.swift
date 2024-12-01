@@ -33,8 +33,14 @@ extension Renderer {
         try self.draw(node: child)
       }
     }
-    
-    return try self.draw(into: { try node.draw($0) }) as! Self
+
+    // return try self.draw(into: { try node.draw($0) }) as! Self
+
+    let renderScale = try self.scale.get()
+    return try self
+      .set(scale: node.scale)
+      .draw(into: { try node.draw($0) })
+      .set(scale: renderScale) as! Self
    }
 }
 

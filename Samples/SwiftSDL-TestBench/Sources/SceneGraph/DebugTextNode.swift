@@ -43,7 +43,7 @@ open class DebugTextNode: SpriteNode<any Renderer> {
 
 extension Renderer {
   @discardableResult
-  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .white, scale: Size<Float>) throws(SDL_Error) -> Self {
+  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .black, scale: Size<Float>) throws(SDL_Error) -> Self {
     let renderColor = try self.color.get()
     let renderScale = try self.scale.get()
     

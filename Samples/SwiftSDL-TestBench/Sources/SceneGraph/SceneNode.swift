@@ -12,8 +12,18 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   public var rotation: Measurement<UnitAngle> = .init(value: 0, unit: .degrees)
   public var speed: Double = 1
   
-  public var position: Point<Float> = .zero
-  public var scale: Size<Float> = .one
+  public var position: Point<Float> {
+    get { _position + (parent.position ?? .zero) }
+    set { _position = newValue }
+  }
+  private var _position: Point<Float> = .zero
+  
+  public var scale: Size<Float> {
+    get { _scale * (parent.scale ?? .one) }
+    set { _scale = newValue }
+  }
+  private var _scale: Point<Float> = .one
+
 
   public var isHidden: Bool = false
   public var isPaused: Bool = false

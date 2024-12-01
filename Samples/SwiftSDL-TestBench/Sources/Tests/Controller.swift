@@ -19,8 +19,7 @@ extension SDL.Test {
     static let name: String = "SDL Test: Controller"
     
     private var renderer: (any Renderer)!
-    private var textures: [String : any Texture] = [:]
-    private var scene: GamepadScene<Controller>!
+    private var scene: GamepadScene!
     
     func onInit() throws(SDL_Error) -> any Window {
       print("Applying SDL Hints...")
@@ -62,7 +61,6 @@ extension SDL.Test {
       self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
       self.scene = GamepadScene(size: try renderer.outputSize(as: Float.self))
       self.scene.bgColor = .white
-      self.scene.scale = [0.5, 0.5]
       try self.scene.load(self.renderer)
     }
     
@@ -93,7 +91,7 @@ extension SDL.Test {
 }
 
 extension SDL.Test.Controller {
-  final class GamepadScene<Game: SwiftSDL.Game>: GameScene<any Renderer>, @unchecked Sendable {
+  final class GamepadScene: GameScene<any Renderer>, @unchecked Sendable {
     enum ImageFiles: String, CaseIterable {
       case gamepadFront = "Gamepad (Front)"
       case gamepadBack = "Gamepad (Back)"
@@ -171,7 +169,6 @@ extension SDL.Test.Controller {
           return nil
         }
         let node = try! TextureNode(image.rawValue, with: texture)
-        // node.position = image.position
         node.zPosition = image.zPosition
         self.addChild(node)
         return node
@@ -229,11 +226,13 @@ extension SDL.Test.Controller {
           "Gamepad Button: \(btnIdx)",
           text: String(text).capitalized,
           index: btnIdx.rawValue,
-          position: [xPos, yPos], with: self.textures[.buttonSmall]!
+          position: [xPos, yPos],
+          with: self.textures[.buttonSmall]!
         )
         node.position = [xPos, yPos]
         self.addChild(node)
         
+        // Create a button highlight
         let highlightTexture = self.textures[.button]!
         let textureSize = try highlightTexture.size(as: Float.self)
         let button = try TextureNode("Button Highlight: \(btnIdx.rawValue)", with: highlightTexture)
@@ -288,6 +287,86 @@ extension SDL.Test.Controller {
       self["Product ID"]?.position = size - [52, 14]
       self["Product ID"]?.isHidden = isWaitingsForGamepad
       
+      /*
+      if node.label.contains("Steam Handle") {
+        node.text = "".appendingFormat("Steam: 0x%.16", gameController.gamepadSteamHandle)
+        let textSize = node.text.debugTextSize(as: Float.self) / 2
+        node.position = size - [2, 8] - textSize
+      }
+       */
+      
+      if let node = self["Button Column"] {
+        node.isHidden = isWaitingsForGamepad
+        node.position = [848, 60]
+        
+        let buttonIndices = gameController.buttonIndices()
+        if node.children.count != buttonIndices.count {
+          node.removeAllChildren()
+        }
+        
+        for btnIdx in buttonIndices {
+          let btnIdx = Int32(btnIdx)
+          let xPos = Float(-16.0)
+          let yPos = 12 + 14 * Float(btnIdx)
+          
+          var button = node.child(matching: "Joystick Button: \(btnIdx)") as? ButtonPressedNode
+          
+          if button == nil {
+            button = try? ButtonPressedNode(
+              "Joystick Button: \(btnIdx)",
+              text: "".appendingFormat("%2d:", btnIdx),
+              index: btnIdx,
+              position: [xPos, yPos],
+              with: self.textures[.buttonSmall]!
+            )
+            node.addChild(button!)
+          }
+          
+          button?.position = [xPos, yPos]
+          button?.isHidden = node.isHidden
+          button?.isPressed = gameController.joystick(isPressed: btnIdx)
+        }
+        
+      }
+      
+      if let node = self["Axises Column"] {
+        node.isHidden = isWaitingsForGamepad
+        node.position = [924, 60]
+
+        let axesIndices = gameController.axesIndices()
+        if node.children.count != axesIndices.count {
+          node.removeAllChildren()
+        }
+        
+        for axisIdx in axesIndices {
+          let axisIdx = Int32(axisIdx)
+          let xPos = Float(-12.0)
+          let yPos = 12 + 14 * Float(axisIdx)
+          
+          var axis = node.child(matching: "Axis Index: \(axisIdx)") as? AxisInputNode
+          
+          if axis == nil {
+            axis = try? AxisInputNode(
+              "Axis Button: \(axisIdx)",
+              text: "".appendingFormat("%2d:", axisIdx),
+              position: [xPos, yPos],
+              with: self.textures[.axisArrow]!
+            )
+            node.addChild(axis!)
+          }
+          
+          axis?.isHidden = node.isHidden
+          axis?.value = gameController.joystick(axis: axisIdx)
+        }
+      }
+      
+      self.children
+        .filter { $0.label.contains("Gamepad Button") }
+        .compactMap { $0 as? ButtonPressedNode }
+        .forEach {
+          $0.isHidden = isWaitingsForGamepad
+        }
+
       self.children
         .filter { $0.label.contains("Button Highlight:") }
         .compactMap { $0 as? TextureNode }
@@ -306,184 +385,7 @@ extension SDL.Test.Controller {
     override func update(at delta: Uint64) throws(SDL_Error) {
       try super.update(at: delta)
       try self.layout()
-      
-      // let invalidGameController = gameController == .invalid
-      
-      /*
-      children
-        .enumerated()
-        .forEach { index, node in
-          node.isHidden = invalidGameController
-          
-          if let node = node as? DebugTextNode {
-            let textSize = node.text.debugTextSize(as: Float.self) / 2
-            
-            /*
-            if node.label.contains("Placeholder") {
-              node.position = [(size / 2).x, 24] - textSize
-              node.isHidden = !invalidGameController
-            }
-             */
-            
-            if node.label.contains("Title") {
-              node.text = gameControllerName
-              node.position = [(size / 2).x, 24] - textSize
-            }
-            
-            if node.label.contains("Subtitle") {
-              node.position = [(size / 2).x, 36] - textSize
-              node.isHidden = !gameController.isVirtual
-            }
-            
-            if node.label.contains("Gamepad Type") {
-              node.text = gameController.isVirtual ? "" : gameController.gamepadType.debugDescription
-              node.position = Layout.typeFrame.lowHalf + Layout.typeFrame.highHalf / 2 + [0, -2]
-            }
-
-            if node.label.contains("Serial") {
-              let text = "Serial: \(gameController.gamepadSerial)"
-              if !text.isEmpty {
-                node.text = text
-                node.position = [(size / 2).x, size.y - 12] - textSize
-              }
-            }
-            
-            if node.label.contains("Button Column") {
-              node.position = [
-                Layout.panelWidth +
-                Layout.panelSpacing +
-                Layout.gamepadWidth +
-                Layout.panelSpacing + 8,
-                Layout.titleHeight + 8
-              ]
-              
-              let buttonIndices = gameController.buttonIndices()
-              if node.children.count != buttonIndices.count {
-                node.removeAllChildren()
-              }
-              
-              for btnIdx in buttonIndices {
-                let btnIdx = Int32(btnIdx)
-                let xPos = Float(0.0)
-                let yPos = 12 + 14 * Float(btnIdx)
-                
-                var button = node.child(matching: "Joystick Button: \(btnIdx)") as? ButtonPressedNode
-                
-                if button == nil {
-                  button = try? ButtonPressedNode(
-                    "Joystick Button: \(btnIdx)",
-                    text: "".appendingFormat("%2d:", btnIdx),
-                    index: btnIdx,
-                    position: [xPos, yPos],
-                    with: self.textures[.buttonSmall]!
-                  )
-                  node.addChild(button!)
-                }
-                
-                button?.position = [xPos, yPos]
-                button?.isHidden = node.isHidden
-                button?.isPressed = gameController.joystick(isPressed: btnIdx)
-              }
-            }
-            
-            if node.label.contains("Axises Column") {
-              node.position = [
-                Layout.panelWidth +
-                Layout.panelSpacing +
-                Layout.gamepadWidth +
-                Layout.panelSpacing + 96,
-                Layout.titleHeight + 8
-              ]
-              
-              let axesIndices = gameController.axesIndices()
-              if node.children.count != axesIndices.count {
-                node.removeAllChildren()
-              }
-              
-              for axisIdx in axesIndices {
-                let axisIdx = Int32(axisIdx)
-                let xPos = Float(-8.0)
-                let yPos = 12 + 14 * Float(axisIdx)
-                
-                var axis = node.child(matching: "Axis Index: \(axisIdx)") as? AxisInputNode
-                
-                if axis == nil {
-                  axis = try? AxisInputNode(
-                    "Axis Button: \(axisIdx)",
-                    text: "".appendingFormat("%2d:", axisIdx),
-                    position: [xPos, yPos],
-                    with: self.textures[.axisArrow]!
-                  )
-                  node.addChild(axis!)
-                }
-                
-                axis?.isHidden = node.isHidden
-                axis?.value = gameController.joystick(axis: axisIdx)
-              }
-            }
-            
-            if node.label.contains("Controller ID") {
-              node.text = "(\(gameController.id))"
-              node.position = [size.x - 20, 12] - textSize
-            }
-            
-            /*
-            if node.label.contains("Steam Handle") {
-              node.text = "".appendingFormat("Steam: 0x%.16", gameController.gamepadSteamHandle)
-              let textSize = node.text.debugTextSize(as: Float.self) / 2
-              node.position = size - [2, 8] - textSize
-            }
-             */
-
-            if node.label.contains("Vendor ID") {
-              let vID = SDL_GetJoystickVendorForID(gameController.id)
-              let textSize = node.text.debugTextSize(as: Float.self) / 2
-              node.text = "VID: 0x".appendingFormat("%.4X", vID)
-              node.position = size - textSize - [textSize.x * 3 + 16, 14]
-            }
-            
-            if node.label.contains("Product ID") {
-              let pID = SDL_GetJoystickProductForID(gameController.id)
-              let textSize = node.text.debugTextSize(as: Float.self) / 2
-              node.text = "PID: 0x".appendingFormat("%.4X", pID)
-              node.position = size - textSize - [52, 14]
-            }
-          }
-
-          if node.label.contains("Gamepad Button:"), let node = node as? ButtonPressedNode {
-            let xPos = Float(128.0)
-            let yPos = 64 + 14 * Float(node.button)
-
-            node.position = [xPos, yPos]
-            node.isPressed = gameController.gamepad(isPressed: .init(rawValue: node.button))
-          }
-        }
-       */
-      
-      /*
-      self[.gamepadFront]?.isHidden = invalidGameController
-      self[.faceABXY]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .a)
-      self[.faceBAYX]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .b)
-      self[.faceSony]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .cross)
-       */
-      
-      /*
-      self.children
-        .filter { $0.label.contains("Button Highlight:") }
-        .compactMap { $0 as? TextureNode }
-        .forEach {
-          let indexAsString = $0.label.components(separatedBy: ": ").last
-          guard let indexAsInt32 = indexAsString.map(Int32.init(_:)) ?? SDL_GamepadButton.invalid.rawValue else {
-            return
-          }
-          let button = SDL_GamepadButton(rawValue: indexAsInt32)
-          let isPressed = gameController.gamepad(isPressed: button)
-          $0.isHidden = !isPressed
-          $0.colorMod = !isPressed ? .white : SDL_Color(r: 10, g: 255, b: 21, a: 255)
-        }
-       */
     }
-    
     
     override func handle(_ event: SDL_Event) throws(SDL_Error) {
       try super.handle(event)
@@ -520,7 +422,7 @@ extension SDL.Test.Controller {
       self.position = position
       
       let textureNode = try TextureNode(with: texture)
-      textureNode.position = [text.debugTextSize(as: Float.self).x + 2, -2]
+      textureNode.position = [text.debugTextSize(as: Float.self).x - 10, -6]
       self.addChild(textureNode)
     }
     
@@ -557,13 +459,13 @@ extension SDL.Test.Controller {
       )
       self.addChild(try TextureNode("Right Arrow", with: texture))
       
-      leftArrow.position = [26, -2]
+      leftArrow.position = [14, -6]
       leftArrow.flipMode = .horizontal
       
-      rightArrow.position = [128, -2]
+      rightArrow.position = [116, -6]
       rightArrow.zPosition = 2
 
-      divider.position = [78, -2]
+      divider.position = [66, -6]
       
       valueBar.position = .zero
       valueBar.zPosition = 1
@@ -596,7 +498,7 @@ extension SDL.Test.Controller {
       if value > 0 { width = Float(value) / Float(Int16.max) * 48 }
 
       valueBar.size = [width, 6]
-      valueBar.position = [80, 1]
+      valueBar.position = [68, -3]
       
       try super.draw(graphics)
     }
