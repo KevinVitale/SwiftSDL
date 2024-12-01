@@ -1,8 +1,9 @@
 import SwiftSDL
 
 @main public final class MyGame: Game {
-  private var squareNode: SceneNode!
-  private var squareSize = Size<Float>(x: 100, y: 100)
+  enum CodingKeys: CodingKey { case ignored }
+  
+  private var square = Square(size: [100, 100])
   
   #if os(macOS)
   @Argument(parsing: .allUnrecognized)
@@ -22,7 +23,6 @@ import SwiftSDL
   // private var camera: CameraID? = nil
   
   public func onReady(window: any Window) throws(SDL_Error) {
-    squareNode = .init()
     /*
     #if !os(tvOS)
     try SDL_Init(.camera)
@@ -48,12 +48,7 @@ import SwiftSDL
   }
   
   private func drawSquare(surface: any Surface) throws(SDL_Error) {
-    let squareFrame: SDL_FRect = [
-      squareNode.position.x, squareNode.position.y,
-      squareSize.x, squareSize.y
-    ]
-    
-    var rect: SDL_Rect = squareFrame.to(Int32.self)
+    var rect: SDL_Rect = square.rect.to(Int32.self)
     
     let color = try surface.map(color: .green)
     try surface(SDL_FillSurfaceRect, .some(&rect), color)
@@ -63,15 +58,15 @@ import SwiftSDL
     switch event.eventType {
       case .mouseMotion:
         let mousePos = event.motion.position(as: Float.self)
-        squareNode.position = mousePos - squareSize / 2
+        square.position = mousePos - square.size / 2
         
       case .fingerDown: fallthrough
       case .fingerMotion:
         let touchPoint = event.tfinger.position(as: Float.self)
         let windowSize = try window.size(as: Float.self)
         var touchTranslated = touchPoint * windowSize
-        touchTranslated -= squareSize / 2
-        squareNode.position = touchTranslated
+        touchTranslated -= square.size / 2
+        square.position = touchTranslated
         
       default: ()
     }
@@ -79,5 +74,17 @@ import SwiftSDL
   
   public func onShutdown(window: (any Window)?) throws(SDL_Error) {
     // camera?.close()
+  }
+}
+
+extension MyGame {
+  struct Square {
+    var position: Point<Float> = .zero
+    var size: Size<Float> = .zero
+    var color: SDL_Color = .green
+    
+    var rect: SDL_FRect {
+      SDL_FRect(x: position.x, y: position.y, w: size.x, h: size.y)
+    }
   }
 }
