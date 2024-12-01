@@ -34,8 +34,6 @@ extension Renderer {
       }
     }
 
-    // return try self.draw(into: { try node.draw($0) }) as! Self
-
     let renderScale = try self.scale.get()
     return try self
       .set(scale: node.scale)

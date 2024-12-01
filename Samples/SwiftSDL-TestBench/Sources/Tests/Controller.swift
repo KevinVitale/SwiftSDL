@@ -218,18 +218,19 @@ extension SDL.Test.Controller {
       // Go through all the possible gamepad buttons
       // Add them as drawable nodes to the scene
       for btnIdx in SDL_GamepadButton.allCases {
-        let xPos = Float(0.0)
-        let yPos = 12 + 14 * Float(btnIdx.rawValue)
-        
-        let text = String("\(btnIdx): ")
+        var text = String.init(repeating: " ", count: 20)
+        let btnText = String("\(btnIdx):")
+        let startIndex = text.index(text.endIndex, offsetBy: -btnText.count)
+        text.replaceSubrange(startIndex..., with: btnText)
+                             
         let node = try ButtonPressedNode(
           "Gamepad Button: \(btnIdx)",
-          text: String(text).capitalized,
+          text: String(text),
           index: btnIdx.rawValue,
-          position: [xPos, yPos],
+          position: .zero,
           with: self.textures[.buttonSmall]!
         )
-        node.position = [xPos, yPos]
+        node.textAlignment = .left
         self.addChild(node)
         
         // Create a button highlight
@@ -251,9 +252,9 @@ extension SDL.Test.Controller {
       self[.faceBAYX]?.isHidden = isWaitingsForGamepad || !(gameController.gamepad(labelFor: .south) == .b)
       self[.faceSony]?.isHidden = isWaitingsForGamepad || !(gameController.gamepad(labelFor: .south) == .cross)
       
-      self[.faceABXY]?.position = (self[.gamepadFront]?.position ?? .zero) + [362, 118]
-      self[.faceBAYX]?.position = (self[.gamepadFront]?.position ?? .zero) + [362, 118]
-      self[.faceSony]?.position = (self[.gamepadFront]?.position ?? .zero) + [362, 118]
+      self[.faceABXY]?.position = (self[.gamepadFront]?.position ?? .zero) + [363, 118]
+      self[.faceBAYX]?.position = (self[.gamepadFront]?.position ?? .zero) + [363, 118]
+      self[.faceSony]?.position = (self[.gamepadFront]?.position ?? .zero) + [363, 118]
 
       self["Placeholder"]?.position = [size.x / 2, 24]
       self["Placeholder"]?.isHidden = !isWaitingsForGamepad
@@ -266,7 +267,7 @@ extension SDL.Test.Controller {
       self["Subtitle"]?.isHidden = !gameController.isVirtual
       
       self["Gamepad Type"]?.text = gameController.isVirtual ? "VIRTUAL" : gameController.gamepadType.debugDescription
-      self["Gamepad Type"]?.position = [size.x / 2, 36] - [256, 0]
+      self["Gamepad Type"]?.position = [125, 24]
       self["Gamepad Type"]?.isHidden = isWaitingsForGamepad
       
       self["Serial"]?.isHidden = isWaitingsForGamepad
@@ -306,8 +307,9 @@ extension SDL.Test.Controller {
         
         for btnIdx in buttonIndices {
           let btnIdx = Int32(btnIdx)
-          let xPos = Float(-16.0)
-          let yPos = 12 + 14 * Float(btnIdx)
+          // let xPos = Float(-16.0)
+          let xPos = Float(-4)
+          let yPos = 16 + 14 * Float(btnIdx)
           
           var button = node.child(matching: "Joystick Button: \(btnIdx)") as? ButtonPressedNode
           
@@ -321,7 +323,7 @@ extension SDL.Test.Controller {
             )
             node.addChild(button!)
           }
-          
+          button?.textAlignment = .left
           button?.position = [xPos, yPos]
           button?.isHidden = node.isHidden
           button?.isPressed = gameController.joystick(isPressed: btnIdx)
@@ -363,8 +365,12 @@ extension SDL.Test.Controller {
       self.children
         .filter { $0.label.contains("Gamepad Button") }
         .compactMap { $0 as? ButtonPressedNode }
-        .forEach {
-          $0.isHidden = isWaitingsForGamepad
+        .forEach { node in
+          let button = SDL_GamepadButton(rawValue: node.button)
+          let yPos = Float(node.button * 14)
+          node.isHidden = !gameController.gamepad(has: button)
+          node.isPressed = gameController.gamepad(isPressed: button)
+          node.position = [8, 40 + yPos] + (self["Gamepad Type"]?.position ?? .zero)
         }
 
       self.children
@@ -422,7 +428,7 @@ extension SDL.Test.Controller {
       self.position = position
       
       let textureNode = try TextureNode(with: texture)
-      textureNode.position = [text.debugTextSize(as: Float.self).x - 10, -6]
+      textureNode.position = [2, -10]
       self.addChild(textureNode)
     }
     

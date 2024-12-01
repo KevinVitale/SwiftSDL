@@ -28,16 +28,20 @@ open class DebugTextNode: SpriteNode<any Renderer> {
       size = text.debugTextSize(as: Float.self)
     }
   }
+  
+  public var origin: Point<Float> {
+    switch textAlignment {
+      case .left: return position - size
+      case .centered: return position - size / 2
+    }
+  }
 
   override open func draw(_ graphics: any Renderer) throws(SDL_Error) {
     try super.draw(graphics)
     
     guard !text.isEmpty else { return }
     
-    var position = self.position
-    if textAlignment == .centered { position -= size / 2 }
-    
-    try graphics.debug(text: text, position: position, color: color, scale: scale)
+    try graphics.debug(text: text, position: origin, color: color, scale: scale)
   }
 }
 
