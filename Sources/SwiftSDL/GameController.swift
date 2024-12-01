@@ -322,19 +322,19 @@ public enum GameController: Hashable {
   }
 
   public mutating func open() throws(SDL_Error) {
-    guard case(.connected) = self else {
+    guard case(.connected(let id)) = self else {
       return
     }
-    
+
     print("Opening \(SDL_IsGamepad(id) ? "#\(id) gamepad..." : "#\(id) joystick...")")
     let OpenFunc = SDL_IsGamepad(id) ? SDL_OpenGamepad : SDL_OpenJoystick
     
-    guard let pointer = OpenFunc(id) else {
+    guard OpenFunc(id) != nil else {
       throw SDL_Error.error
     }
     
-    self = .open(pointer)
     GameControllers = try SDL_BufferPointer(SDL_GetJoysticks).map(\.gameController)
+    self = GameControllers.filter { $0.id == id }.first!
   }
   
   public mutating func close() {

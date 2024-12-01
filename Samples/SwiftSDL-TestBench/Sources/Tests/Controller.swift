@@ -62,6 +62,7 @@ extension SDL.Test {
       self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
       self.scene = GamepadScene(size: try renderer.outputSize(as: Float.self))
       self.scene.bgColor = .white
+      self.scene.scale = [0.5, 0.5]
       try self.scene.load(self.renderer)
     }
     
@@ -82,13 +83,18 @@ extension SDL.Test {
     
     func did(connect gameController: inout GameController) throws(SDL_Error) {
       try gameController.open()
+      scene?.gameController = gameController
+    }
+    
+    func will(remove gameController: GameController) {
+      scene?.gameController = self.gameControllers.last ?? .invalid
     }
   }
 }
 
 extension SDL.Test.Controller {
   final class GamepadScene<Game: SwiftSDL.Game>: GameScene<any Renderer>, @unchecked Sendable {
-    enum Image: String, CaseIterable {
+    enum ImageFiles: String, CaseIterable {
       case gamepadFront = "Gamepad (Front)"
       case gamepadBack = "Gamepad (Back)"
       case faceABXY = "Face (ABXY)"
@@ -136,33 +142,44 @@ extension SDL.Test.Controller {
         switch self {
           case .gamepadFront: return -2
           case .gamepadBack: return -1
-          default: return 4
+          default: return 1
         }
+      }
+      
+      fileprivate static func load(_ graphics: any Renderer) throws(SDL_Error) -> [Self : any Texture] {
+        Self.allCases
+          .reduce(into: [:]) {
+            if let texture = try? graphics.texture(
+              from: try Load(bitmap: $1.fileName),
+              tag: $1.rawValue
+            ) {
+              $0[$1] = texture
+            }
+          }
       }
     }
     
-    private var textures: [Image : any Texture] = [:]
+    private var textures: [ImageFiles : any Texture] = [:]
     
-    public subscript(_ image: Image) -> TextureNode? {
+    public subscript(_ label: String) -> DebugTextNode? {
+      child(matching: label) as? DebugTextNode
+    }
+
+    public subscript(_ image: ImageFiles) -> TextureNode? {
       guard let node = child(matching: image.rawValue) as? TextureNode else {
         guard let texture = textures[image] else {
           return nil
         }
         let node = try! TextureNode(image.rawValue, with: texture)
-        node.position = image.position
+        // node.position = image.position
         node.zPosition = image.zPosition
         self.addChild(node)
         return node
       }
       return node
     }
-
-    private var gameController: GameController {
-      guard let gameController = self.gameControllers?.last, case(.open) = gameController else {
-        return .invalid
-      }
-      return gameController
-    }
+    
+    var gameController: GameController = .invalid
     
     private var gameControllerName: String {
       let joystickID = gameController.id
@@ -180,17 +197,13 @@ extension SDL.Test.Controller {
       return text
     }
     
+    private var isWaitingsForGamepad: Bool {
+      gameController == .invalid
+    }
+    
     override func load(_ graphics: any Renderer) throws(SDL_Error) {
-      self.textures = Image
-        .allCases
-        .reduce(into: [:]) {
-          if let texture = try? graphics.texture(
-            from: try Load(bitmap: $1.fileName),
-            tag: $1.rawValue
-          ) {
-            $0[$1] = texture
-          }
-        }
+      // Load all the textures into the renderer
+      self.textures = try ImageFiles.load(graphics)
       
       self.addChild(RectangleNode<Graphics>("Rectangle", size: .init(24, 24), color: .black))
       self.addChild(DebugTextNode("Placeholder", text: "Waiting for gamepad, press A to add a virtual controller"))
@@ -205,7 +218,7 @@ extension SDL.Test.Controller {
       self.addChild(DebugTextNode("Product ID"))
       self.addChild(DebugTextNode("Serial"))
       
-      // Go through all the possible gamepad butons
+      // Go through all the possible gamepad buttons
       // Add them as drawable nodes to the scene
       for btnIdx in SDL_GamepadButton.allCases {
         let xPos = Float(0.0)
@@ -225,18 +238,78 @@ extension SDL.Test.Controller {
         let textureSize = try highlightTexture.size(as: Float.self)
         let button = try TextureNode("Button Highlight: \(btnIdx.rawValue)", with: highlightTexture)
         button.position = btnIdx.position + Layout.gamepadImagePosition - (textureSize / 2)
-        button.zPosition = 2
         button.isHidden = true
         
         self.addChild(button)
       }
     }
     
+    private func layout() throws(SDL_Error) {
+      self[.gamepadFront]?.isHidden = isWaitingsForGamepad
+      self[.gamepadFront]?.position = [275, 48]
+      
+      self[.faceABXY]?.isHidden = isWaitingsForGamepad || !(gameController.gamepad(labelFor: .south) == .a)
+      self[.faceBAYX]?.isHidden = isWaitingsForGamepad || !(gameController.gamepad(labelFor: .south) == .b)
+      self[.faceSony]?.isHidden = isWaitingsForGamepad || !(gameController.gamepad(labelFor: .south) == .cross)
+      
+      self[.faceABXY]?.position = (self[.gamepadFront]?.position ?? .zero) + [362, 118]
+      self[.faceBAYX]?.position = (self[.gamepadFront]?.position ?? .zero) + [362, 118]
+      self[.faceSony]?.position = (self[.gamepadFront]?.position ?? .zero) + [362, 118]
+
+      self["Placeholder"]?.position = [size.x / 2, 24]
+      self["Placeholder"]?.isHidden = !isWaitingsForGamepad
+      
+      self["Title"]?.text = gameControllerName
+      self["Title"]?.position = [size.x / 2, 24]
+      self["Title"]?.isHidden = isWaitingsForGamepad
+      
+      self["Subtitle"]?.position = [size.x / 2, 36]
+      self["Subtitle"]?.isHidden = !gameController.isVirtual
+      
+      self["Gamepad Type"]?.text = gameController.isVirtual ? "VIRTUAL" : gameController.gamepadType.debugDescription
+      self["Gamepad Type"]?.position = [size.x / 2, 36] - [256, 0]
+      self["Gamepad Type"]?.isHidden = isWaitingsForGamepad
+      
+      self["Serial"]?.isHidden = isWaitingsForGamepad
+      self["Serial"]?.position = [size.x / 2, size.y - 12]
+      self["Serial"]?.text = "Serial: \(gameController.gamepadSerial)"
+      
+      self["Controller ID"]?.text = "(\(gameController.id))"
+      self["Controller ID"]?.isHidden = isWaitingsForGamepad
+      self["Controller ID"]?.position = [size.x - 20, 12]
+      
+      let vID = SDL_GetJoystickVendorForID(gameController.id)
+      self["Vendor ID"]?.text = "VID: 0x".appendingFormat("%.4X", vID)
+      self["Vendor ID"]?.position = size - [150, 14]
+      self["Vendor ID"]?.isHidden = isWaitingsForGamepad
+      
+      let pID = SDL_GetJoystickProductForID(gameController.id)
+      self["Product ID"]?.text = "PID: 0x".appendingFormat("%.4X", pID)
+      self["Product ID"]?.position = size - [52, 14]
+      self["Product ID"]?.isHidden = isWaitingsForGamepad
+      
+      self.children
+        .filter { $0.label.contains("Button Highlight:") }
+        .compactMap { $0 as? TextureNode }
+        .forEach {
+          let indexAsString = $0.label.components(separatedBy: ": ").last
+          guard let indexAsInt32 = indexAsString.map(Int32.init(_:)) ?? SDL_GamepadButton.invalid.rawValue else {
+            return
+          }
+          let button = SDL_GamepadButton(rawValue: indexAsInt32)
+          let isPressed = gameController.gamepad(isPressed: button)
+          $0.isHidden = !isPressed
+          $0.colorMod = !isPressed ? .white : SDL_Color(r: 10, g: 255, b: 21, a: 255)
+        }
+    }
+    
     override func update(at delta: Uint64) throws(SDL_Error) {
       try super.update(at: delta)
+      try self.layout()
       
-      let invalidGameController = gameController == .invalid
+      // let invalidGameController = gameController == .invalid
       
+      /*
       children
         .enumerated()
         .forEach { index, node in
@@ -245,10 +318,12 @@ extension SDL.Test.Controller {
           if let node = node as? DebugTextNode {
             let textSize = node.text.debugTextSize(as: Float.self) / 2
             
+            /*
             if node.label.contains("Placeholder") {
               node.position = [(size / 2).x, 24] - textSize
               node.isHidden = !invalidGameController
             }
+             */
             
             if node.label.contains("Title") {
               node.text = gameControllerName
@@ -383,12 +458,16 @@ extension SDL.Test.Controller {
             node.isPressed = gameController.gamepad(isPressed: .init(rawValue: node.button))
           }
         }
-                
+       */
+      
+      /*
       self[.gamepadFront]?.isHidden = invalidGameController
       self[.faceABXY]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .a)
       self[.faceBAYX]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .b)
       self[.faceSony]?.isHidden = invalidGameController || !(gameController.gamepad(labelFor: .south) == .cross)
+       */
       
+      /*
       self.children
         .filter { $0.label.contains("Button Highlight:") }
         .compactMap { $0 as? TextureNode }
@@ -402,7 +481,9 @@ extension SDL.Test.Controller {
           $0.isHidden = !isPressed
           $0.colorMod = !isPressed ? .white : SDL_Color(r: 10, g: 255, b: 21, a: 255)
         }
+       */
     }
+    
     
     override func handle(_ event: SDL_Event) throws(SDL_Error) {
       try super.handle(event)

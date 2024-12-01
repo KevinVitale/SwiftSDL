@@ -1,4 +1,9 @@
 open class DebugTextNode: SpriteNode<any Renderer> {
+  public enum TextAlignment {
+    case left
+    case centered
+  }
+  
   public required init(_ label: String, text: String, color: SDL_Color = .black, position: Point<Float> = .zero) {
     super.init(label, position: position, size: text.debugTextSize(as: Float.self), color: color)
     self.text = text
@@ -16,6 +21,8 @@ open class DebugTextNode: SpriteNode<any Renderer> {
     try super.init(from: decoder)
   }
   
+  public var textAlignment: TextAlignment = .centered
+  
   open var text: String = "" {
     didSet {
       size = text.debugTextSize(as: Float.self)
@@ -26,6 +33,10 @@ open class DebugTextNode: SpriteNode<any Renderer> {
     try super.draw(graphics)
     
     guard !text.isEmpty else { return }
+    
+    var position = self.position
+    if textAlignment == .centered { position -= size / 2 }
+    
     try graphics.debug(text: text, position: position, color: color, scale: scale)
   }
 }

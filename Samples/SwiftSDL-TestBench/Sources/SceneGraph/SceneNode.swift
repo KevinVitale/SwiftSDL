@@ -1,14 +1,9 @@
 open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   public typealias Child    = SceneNode
   public typealias Children = TreeSet<Child>
-  public typealias Actions  = OrderedSet<SceneAction<SceneNode>>
   
   public required init(_ label: String = "") {
     self.label = label
-  }
-  
-  deinit {
-    /* print("\(Self.self) \(#function), \(label)") */
   }
   
   public var label: String = ""
@@ -16,35 +11,17 @@ open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   
   public var rotation: Measurement<UnitAngle> = .init(value: 0, unit: .degrees)
   public var speed: Double = 1
-  public var scale: Size<Float> {
-    get { _scale * (parent.scale ?? .one) }
-    set { _scale = newValue }
-  }
-  private var _scale: Size<Float> = .one
   
-  public internal(set) var size: Size<Float> {
-    get { _size }
-    set { _size = newValue }
-  }
-  private var _size: Size<Float> = .zero
-  
-  public var position: Point<Float> {
-    get { (parent.position ?? .zero) + _position }
-    set { _position = newValue }
-  }
-  private var _position: Point<Float> = .zero
+  public var position: Point<Float> = .zero
+  public var scale: Size<Float> = .one
 
   public var isHidden: Bool = false
   public var isPaused: Bool = false
-
   public var zPosition: Float = .zero
   
   public var isOrphaned: Bool { parent == .none }
   public var parent: Parent = .none
   public private(set) var children: Children = []
-  
-  // @ActionSet var actions: Actions = []
-  // public var userData: Dictionary<String, Any> = [:]
   
   public var debugDescription: String {
     """
@@ -163,34 +140,3 @@ extension SceneNode {
     }
   }
 }
-
-
-/*
-extension SceneNode {
-  func detach(action: Actions.Element) {
-    actions.removeAll(where: { $0 == action })
-  }
-}
- */
-
-/*
-extension SceneNode {
-  @propertyWrapper
-  struct ActionSet {
-    init(wrappedValue: Actions) {
-      self.wrappedValue = wrappedValue
-    }
-    
-    private var actions: Actions = []
-    
-    var wrappedValue: Actions {
-      get {
-        actions.filter({ $0.isCancelled == false }) }
-      set {
-        actions.append(contentsOf: newValue)
-        actions.removeAll(where: \.isCancelled)
-      }
-    }
-  }
-}
-*/

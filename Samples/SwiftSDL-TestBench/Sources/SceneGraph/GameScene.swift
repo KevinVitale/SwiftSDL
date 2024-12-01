@@ -1,4 +1,3 @@
-@dynamicMemberLookup
 public protocol SceneProtocol: SceneNode, DrawableNode {
   init(_ label: String, size: Size<Float>, bgColor: SDL_Color, blendMode: SDL_BlendMode)
   
@@ -10,27 +9,14 @@ public protocol SceneProtocol: SceneNode, DrawableNode {
   func update(at delta: Uint64) throws(SDL_Error)
   func handle(_ event: SDL_Event) throws(SDL_Error)
   func shutdown() throws(SDL_Error)
-
-  subscript<T>(dynamicMember keyPath: KeyPath<Game, T>) -> T? { get }
-}
-
-extension SceneProtocol {
-  public subscript<T>(dynamicMember keyPath: KeyPath<Game, T>) -> T? {
-    App.game?[keyPath: keyPath]
-  }
 }
 
 open class GameScene<Graphics>: SceneNode, SceneProtocol {
-  public required init(
-    _ label: String = "",
-    size: Size<Float>,
-    bgColor: SDL_Color = .gray,
-    blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
-  ) {
+  public required init(_ label: String = "", size: Size<Float>, bgColor: SDL_Color = .gray, blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE) {
     self.bgColor = bgColor
     self.blendMode = blendMode
-    super.init(label)
     self.size = size
+    super.init(label)
   }
   
   public required init(_ label: String = "") {
@@ -42,10 +28,8 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
   }
   
   public private(set) var window: (any Window)?
-  public override var size: Size<Float> {
-    get { super.size }
-    set { super.size = newValue }
-  }
+  
+  public var size: Size<Float> = .zero
   
   public var bgColor: SDL_Color = .gray
   public var blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
@@ -94,5 +78,15 @@ extension Renderer {
     return try clear(color: .white)
       .draw(node: scene)
       .present()
+  }
+}
+
+extension Window {
+  @discardableResult
+  public func draw<Scene: SceneProtocol>(scene: Scene, updateAt delta: Uint64) throws(SDL_Error) -> some Window where Scene.Graphics == any Surface {
+    let surface = try surface.get()
+    try scene.update(at: delta)
+    try surface.draw(node: scene)
+    return try updateSurface()
   }
 }

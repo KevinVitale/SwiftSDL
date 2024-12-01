@@ -34,16 +34,8 @@ extension Renderer {
       }
     }
     
-    // print(#function, "fix me")
-    // return try self.draw(into: { try node.draw($0) }) as! Self
-    
-    let scale = try self.scale.get()
-    
-    return try self
-      .set(scale: node.scale)
-      .draw(into: { try node.draw($0) })
-      .set(scale: scale) as! Self
-  }
+    return try self.draw(into: { try node.draw($0) }) as! Self
+   }
 }
 
 extension Surface {
@@ -62,8 +54,6 @@ extension Surface {
         try self.draw(node: child)
       }
     }
-    
-    // TODO: Does 'Surface' has scale funtions?
     
     try node.draw(self)
     return self

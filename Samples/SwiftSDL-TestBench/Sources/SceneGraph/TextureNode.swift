@@ -5,6 +5,8 @@ open class TextureNode: SceneNode, RenderNode {
   open var flipMode: SDL_FlipMode = .none
   open var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
   
+  var size: Size<Float> = .zero
+  
   public private(set) var textureRect: Rect<Float> = [0, 0, 1, 1]
 
   public required init(_ label: String = "", with texture: any Texture, size: Size<Float>) {
@@ -35,10 +37,10 @@ open class TextureNode: SceneNode, RenderNode {
   }
 
   open func draw(_ graphics: any Renderer) throws(SDL_Error) {
-    let dstSize = size // * scale
-    let dstPos = position // - (dstSize / 2)
-    
+    let dstSize = size
+    let dstPos = position
     let colorMod = try texture.colorMod.get()
+    
     try texture
       .set(colorMod: self.colorMod)
       .draw(
