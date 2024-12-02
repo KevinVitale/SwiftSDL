@@ -1,5 +1,4 @@
 import SwiftSDL
-import Foundation
 
 extension SDL.Test {
   final class Controller: Game {
