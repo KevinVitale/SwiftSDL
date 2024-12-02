@@ -1,15 +1,15 @@
 import SwiftSDL
 
 @main public final class MyGame: Game {
+  #if os(macOS)
   enum CodingKeys: CodingKey { case ignored }
   
-  private var square = Square(size: [100, 100])
-  
-  #if os(macOS)
   @Argument(parsing: .allUnrecognized)
   var ignored: [String]
   #endif
   
+  private var square = Square(size: [100, 100])
+
   public init() {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait")
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")
@@ -78,7 +78,17 @@ import SwiftSDL
 }
 
 extension MyGame {
-  struct Square {
+  struct Square: Decodable {
+    init(from decoder: any Decoder) throws {
+      self = .init(size: [100, 100])
+    }
+    
+    init(position: Point<Float> = .zero, size: Size<Float>, color: SDL_Color = .green) {
+      self.position = position
+      self.size = size
+      self.color = color
+    }
+    
     var position: Point<Float> = .zero
     var size: Size<Float> = .zero
     var color: SDL_Color = .green
