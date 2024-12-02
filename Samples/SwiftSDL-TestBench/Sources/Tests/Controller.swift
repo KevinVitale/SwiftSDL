@@ -1,5 +1,3 @@
-import SwiftSDL
-
 extension SDL.Test {
   final class Controller: Game {
     private enum CodingKeys: String, CodingKey {
@@ -61,7 +59,7 @@ extension SDL.Test {
       self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
       self.scene = GamepadScene(size: try renderer.outputSize(as: Float.self))
       self.scene.bgColor = .white
-      self.scene.textures = try ImageFiles.load(renderer)
+      self.scene.textures = try ImageFiles.createTextures(renderer)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
@@ -132,7 +130,7 @@ extension SDL.Test.Controller {
       }
     }
     
-    fileprivate static func load(_ graphics: any Renderer) throws(SDL_Error) -> [Self : any Texture] {
+    fileprivate static func createTextures(_ graphics: any Renderer) throws(SDL_Error) -> [Self : any Texture] {
       Self
         .allCases
         .reduce(into: [:]) {

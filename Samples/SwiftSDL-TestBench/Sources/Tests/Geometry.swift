@@ -14,7 +14,10 @@ extension SDL.Test {
     
     @OptionGroup var options: Options
     
-    @Option(transform: {
+    @Option(
+      name: .customLong("blend"),
+      help: "Blend mode used for drawing operations",
+      transform: {
       switch $0 {
         case "blend": return .blend
         case "add": return .add
@@ -27,16 +30,15 @@ extension SDL.Test {
     @Flag(name: [
       .customLong("use-texture"),
       .customShort("t")
-    ]) var useTexture: Bool = false
-    
+    ], help: "Render geometry with a texture"
+    ) var useTexture: Bool = false
+
     private var renderer: (any Renderer)! = nil
     private var icon: (any Texture)! = nil
     private var trianglePos: Point<Int32> = .zero
     private var triangleAngle: Float = .zero
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      // let windows = try SDLBufferPointer(SDL_GetWindows)
-
       if !options.title.isEmpty {
         try window.set(title: options.title)
       }
@@ -48,14 +50,14 @@ extension SDL.Test {
       self.icon = icon
       
       if options.vsync {
-        try renderer.set(vsync: SDL_RENDERER_VSYNC_ADAPTIVE)
+        try renderer.set(vsync: 1)
       }
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
       // Clears the framebuffer (uses 'blendMode' option passed in at runtime).
       try renderer
-        .set(blendMode: blendMode)
+        .set(blendMode: blendMode.rawValue)
         .clear(color: .init(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF))
       
       // Draws geometry (evaluates 'useTexture' option passed in at runtime).

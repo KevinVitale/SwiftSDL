@@ -11,7 +11,8 @@
 extension SDL {
   struct Test: ParsableCommand {
     struct Options: ParsableArguments {
-      @Flag(help: "Enable vertical synchronization.") var vsync: Bool = false
+      @Flag(help: "Create a borderless window") var noFrame: Bool = false
+      @Flag(help: "Enable vertical synchronization") var vsync: Bool = false
       @Option(help: "Specify the window's title") var title: String = ""
     }
     
@@ -22,7 +23,8 @@ extension SDL {
         Camera.self,
         Controller.self,
         Geometry.self,
-        Sandbox.self
+        Sandbox.self,
+        Sprite.self
       ]
     )
   }
