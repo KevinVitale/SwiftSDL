@@ -150,12 +150,14 @@ extension SDL.Test.Controller {
 extension SDL.Test.Controller {
   final class GamepadScene: GameScene<any Renderer>, @unchecked Sendable {
     enum Label {
+      case waitingToConnect
       case vendorID(GameController)
       case productID(GameController)
       case controllerID(GameController)
       
       var gameController: GameController {
         switch self {
+          case .waitingToConnect: return .invalid
           case .vendorID(let gameController): return gameController
           case .productID(let gameController): return gameController
           case .controllerID(let gameController): return gameController
@@ -164,6 +166,7 @@ extension SDL.Test.Controller {
       
       var label: String {
         switch self {
+          case .waitingToConnect: return "Placeholder"
           case .vendorID: return "Vendor ID"
           case .productID: return "Product ID"
           case .controllerID: return "Controller ID"
@@ -172,6 +175,7 @@ extension SDL.Test.Controller {
       
       var text: String {
         switch self {
+          case .waitingToConnect: return "Waiting for gamepad, press A to add a virtual controller"
           case .vendorID(let gameController):
             let vID = SDL_GetJoystickVendorForID(gameController.id)
             let text = "VID: 0x".appendingFormat("%.4x", vID)
@@ -238,21 +242,30 @@ extension SDL.Test.Controller {
     override func update(at delta: Uint64) throws(SDL_Error) {
       try super.update(at: delta)
       
+      let placeholderTextSize = self[.waitingToConnect]?.text.debugTextSize(as: Float.self) ?? .zero
+      self[.waitingToConnect]?.textAlignment = .left
+      self[.waitingToConnect]?.position = [(size.x / 2) + placeholderTextSize.x / 2, 28]
+      self[.waitingToConnect]?.isHidden = gameController != .invalid
+
       self[.front(gameController)]?.position = [275, 48]
       self[.back(gameController)]?.position = [275, 48]
 
-      self[.all(gameController)]?.position = [10, 20]
+      self[.all(gameController)]?.position = [24, 36]
       self[.buttons(gameController)]?.position = [820, 56]
       self[.hats(gameController)]?.position = [200, 200]
       self[.axes(gameController)]?.position = [908, 56]
       
       self[.vendorID(gameController)]?.position = size - [148, 14]
-      self[.productID(gameController)]?.position = size - [52, 14]
+      self[.vendorID(gameController)]?.isHidden = gameController == .invalid
       
+      self[.productID(gameController)]?.position = size - [52, 14]
+      self[.productID(gameController)]?.isHidden = gameController == .invalid
+
       if let cID = self[.controllerID(gameController)] {
         let textSize = cID.text.debugTextSize(as: Float.self)
         let textPosition: Point<Float> = [size.x - (textSize / 2).x - 8, 12]
         self[.controllerID(gameController)]?.position = textPosition
+        self[.controllerID(gameController)]?.isHidden = gameController == .invalid
       }
     }
     
@@ -389,12 +402,12 @@ extension SDL.Test.Controller {
           let title = gamepad.title
           let titleSize = title.debugTextSize(as: Float.self) / 2
           let titlePosition = texturePosition - [0, 28] + [textureSize.x / 2, 0] - [titleSize.x, 0]
-          try graphics.debug(text: title, position: titlePosition)
+          try graphics.debug(text: title, position: titlePosition, scale: scale)
 
           if gameController.isVirtual {
             let subtitle = "Click on the gamepad image below to generate input"
             let textPosition = position - [-56, 16]
-            try graphics.debug(text: subtitle, position: textPosition)
+            try graphics.debug(text: subtitle, position: textPosition, scale: scale)
           }
           
           for gamepadButton in SDL_GamepadButton.allCases {
@@ -483,7 +496,7 @@ extension SDL.Test.Controller {
       
       var title: String {
         switch self {
-          case .all(let gameController): return gameController.isVirtual ? "VIRTUAL" : gameController.gamepadType.debugDescription
+          case .all(let gameController): return gameController.isVirtual ? "Virtual Controller" : gameController.gamepadType.debugDescription
           case .buttons: return "BUTTONS"
           case .hats: return "HATS"
           case .axes: return "AXES"
@@ -523,11 +536,11 @@ extension SDL.Test.Controller {
     override func draw(_ graphics: any Renderer) throws(SDL_Error) {
       switch list {
         case .buttons(let gameController) where gameController != .invalid:
-          try graphics.debug(text: list.title, position: position)
+          try graphics.debug(text: list.title, position: position, scale: scale)
           for button in gameController.joystickButtons() {
             let text = String("\(button):").padded(width: 3)
             let position = position + [0, 12] + [0, 14 * Float(button)]
-            try graphics.debug(text: text, position: position)
+            try graphics.debug(text: text, position: position, scale: scale)
             
             let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
             let textureSize = (try smallButtonTexture?.size(as: Float.self)) ?? .zero
@@ -544,11 +557,11 @@ extension SDL.Test.Controller {
           }
           
         case .axes(let gameController) where gameController != .invalid:
-          try graphics.debug(text: list.title, position: position)
+          try graphics.debug(text: list.title, position: position, scale: scale)
           for axis in gameController.joystickAxes() {
             let text = String("\(axis):").padded(width: 3)
             let position = position + [-8, 12] + [0, 14 * Float(axis)]
-            try graphics.debug(text: text, position: position)
+            try graphics.debug(text: text, position: position, scale: scale)
             
             let dividerPosition = position + [78, -2]
             try graphics.fill(rects: [
@@ -590,16 +603,19 @@ extension SDL.Test.Controller {
           }
           
         case .hats(let gameController) where gameController != .invalid:
-          try graphics.debug(text: list.title, position: position)
+          try graphics.debug(text: list.title, position: position, scale: scale)
           let count = gameController.joystickHats()
-          try graphics.debug(text: "\(count)", position: position + [0, 24])
+          try graphics.debug(text: "\(count)", position: position + [0, 24], scale: scale)
           
         case .all(let gameController) where gameController != .invalid:
-          try graphics.debug(text: list.title, position: position)
+          let titleSize = list.title.debugTextSize(as: Float.self)
+          let titlePosition: Point<Float> = position + [101 - (titleSize.x / 2), -16]
+          try graphics.debug(text: list.title, position: titlePosition, scale: scale)
+          
           for gamepadButton in SDL_GamepadButton.allCases {
             let text = String("\(gamepadButton):").padded(width: 18)
-            let position = position + [-12, 24] + [0, 14 * Float(gamepadButton.rawValue)]
-            try graphics.debug(text: text, position: position)
+            let position = position + [-35, 20] + [0, 14 * Float(gamepadButton.rawValue)]
+            try graphics.debug(text: text, position: position, scale: scale)
             
             let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
             let textureSize = (try smallButtonTexture?.size(as: Float.self)) ?? .zero
