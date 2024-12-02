@@ -139,23 +139,32 @@ public enum GameController: Hashable {
     return String(cString: serial)
   }
   
-  public func buttonIndices() -> [Int32] {
+  public func joystickButtons() -> [Int32] {
     guard case(.open) = self else {
       return []
     }
 
-    let buttonCount =  SDL_GetNumJoystickButtons(joystick)
-    return Array(0..<buttonCount)
+    return Array(0..<SDL_GetNumJoystickButtons(joystick))
   }
   
-  public func axesIndices() -> [Int32] {
+  public func joystickAxes() -> [Int32] {
     guard case(.open) = self else {
       return []
     }
     
-    let axisCount =  SDL_GetNumJoystickAxes(joystick)
+    let axisCount = SDL_GetNumJoystickAxes(joystick)
     return Array(0..<axisCount)
   }
+  
+  public func joystickHats() -> [Int32] {
+    guard case(.open) = self else {
+      return []
+    }
+    
+    let hatsCount = SDL_GetNumJoystickHats(joystick)
+    return Array(0..<hatsCount)
+  }
+  
 
   public func joystick(isPressed button: Int32) -> Bool {
     SDL_GetJoystickButton(joystick, button)
@@ -357,6 +366,30 @@ public enum GameController: Hashable {
     }
     
     self = .invalid
+  }
+}
+
+extension SDL_GamepadButton {
+  public func isAvailable(on controller: GameController) -> Bool {
+    guard case(.open) = controller else {
+      return false
+    }
+    return controller.gamepad(has: self)
+  }
+  
+  public func isPressed(by controller: GameController) -> Bool {
+    guard case(.open) = controller else {
+      return false
+    }
+    return controller.gamepad(isPressed: self)
+  }
+  
+  public func label(for controller: GameController) -> SDL_GamepadButtonLabel {
+    guard case(.open) = controller else {
+      return SDL_GetGamepadButtonLabelForType(controller.gamepadType, self)
+    }
+    
+    return SDL_GetGamepadButtonLabel(controller.gamepad, self)
   }
 }
 

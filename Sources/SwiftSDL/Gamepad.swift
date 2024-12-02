@@ -44,7 +44,7 @@ extension SDL_GamepadType: @retroactive CaseIterable, @retroactive CustomDebugSt
   }
 }
 
-extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
+extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible, @retroactive Hashable {
   public static let invalid = SDL_GAMEPAD_BUTTON_INVALID
   public static let south = SDL_GAMEPAD_BUTTON_SOUTH
   public static let east = SDL_GAMEPAD_BUTTON_EAST

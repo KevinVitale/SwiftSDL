@@ -61,7 +61,7 @@ extension SDL.Test {
       self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
       self.scene = GamepadScene(size: try renderer.outputSize(as: Float.self))
       self.scene.bgColor = .white
-      try self.scene.load(self.renderer)
+      self.scene.textures = try ImageFiles.load(renderer)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
@@ -91,79 +91,107 @@ extension SDL.Test {
 }
 
 extension SDL.Test.Controller {
-  final class GamepadScene: GameScene<any Renderer>, @unchecked Sendable {
-    enum ImageFiles: String, CaseIterable {
-      case gamepadFront = "Gamepad (Front)"
-      case gamepadBack = "Gamepad (Back)"
-      case faceABXY = "Face (ABXY)"
-      case faceBAYX = "Face (BAYX)"
-      case faceSony = "Face (Sony)"
-      case battery = "Battery"
-      case batteryWired = "Battery (Wired)"
-      case touchpad = "Touchpad"
-      case button = "Button"
-      case axis = "Axis"
-      case buttonSmall = "Button (Small)"
-      case axisArrow = "Axis (Arrow)"
-      case glass = "Glass"
-      
-      var fileName: String {
-        switch self {
-          case .gamepadFront: return "gamepad_front.bmp"
-          case .gamepadBack: return "gamepad_back.bmp"
-          case .faceABXY: return "gamepad_face_abxy.bmp"
-          case .faceBAYX: return "gamepad_face_bayx.bmp"
-          case .faceSony: return "gamepad_face_sony.bmp"
-          case .battery: return "gamepad_battery.bmp"
-          case .batteryWired: return "gamepad_battery_wired.bmp"
-          case .touchpad: return "gamepad_touchpad.bmp"
-          case .button: return "gamepad_button.bmp"
-          case .axis: return "gamepad_axis.bmp"
-          case .buttonSmall: return "gamepad_button_small.bmp"
-          case .axisArrow: return "gamepad_axis_arrow.bmp"
-          case .glass: return "glass.bmp"
-        }
+  enum ImageFiles: String, CaseIterable {
+    case gamepadFront = "Gamepad (Front)"
+    case gamepadBack = "Gamepad (Back)"
+    case faceABXY = "Face (ABXY)"
+    case faceBAYX = "Face (BAYX)"
+    case faceSony = "Face (Sony)"
+    case battery = "Battery"
+    case batteryWired = "Battery (Wired)"
+    case touchpad = "Touchpad"
+    case button = "Button"
+    case axis = "Axis"
+    case buttonSmall = "Button (Small)"
+    case axisArrow = "Axis (Arrow)"
+    case glass = "Glass"
+    
+    var fileName: String {
+      switch self {
+        case .gamepadFront: return "gamepad_front.bmp"
+        case .gamepadBack: return "gamepad_back.bmp"
+        case .faceABXY: return "gamepad_face_abxy.bmp"
+        case .faceBAYX: return "gamepad_face_bayx.bmp"
+        case .faceSony: return "gamepad_face_sony.bmp"
+        case .battery: return "gamepad_battery.bmp"
+        case .batteryWired: return "gamepad_battery_wired.bmp"
+        case .touchpad: return "gamepad_touchpad.bmp"
+        case .button: return "gamepad_button.bmp"
+        case .axis: return "gamepad_axis.bmp"
+        case .buttonSmall: return "gamepad_button_small.bmp"
+        case .axisArrow: return "gamepad_axis_arrow.bmp"
+        case .glass: return "glass.bmp"
       }
-      
-      var position: Point<Float> {
-        switch self {
-          case .gamepadFront: fallthrough
-          case .gamepadBack: return Layout.gamepadImagePosition
-          case .faceABXY: fallthrough
-          case .faceBAYX: fallthrough
-          case .faceSony: return Layout.gamepadImagePosition + [363, 118]
-          default: return .zero
-        }
+    }
+    
+    var zPosition: Float {
+      switch self {
+        case .gamepadFront: return -2
+        case .gamepadBack: return -1
+        default: return 1
       }
-      
-      var zPosition: Float {
-        switch self {
-          case .gamepadFront: return -2
-          case .gamepadBack: return -1
-          default: return 1
-        }
-      }
-      
-      fileprivate static func load(_ graphics: any Renderer) throws(SDL_Error) -> [Self : any Texture] {
-        Self.allCases
-          .reduce(into: [:]) {
-            if let texture = try? graphics.texture(
-              from: try Load(bitmap: $1.fileName),
-              tag: $1.rawValue
-            ) {
-              $0[$1] = texture
-            }
+    }
+    
+    fileprivate static func load(_ graphics: any Renderer) throws(SDL_Error) -> [Self : any Texture] {
+      Self
+        .allCases
+        .reduce(into: [:]) {
+          if let texture = try? graphics.texture(
+            from: try Load(bitmap: $1.fileName),
+            tag: $1.rawValue
+          ) {
+            $0[$1] = texture
           }
+        }
+    }
+  }
+}
+
+extension SDL.Test.Controller {
+  final class GamepadScene: GameScene<any Renderer>, @unchecked Sendable {
+    enum Label {
+      case vendorID(GameController)
+      case productID(GameController)
+      case controllerID(GameController)
+      
+      var gameController: GameController {
+        switch self {
+          case .vendorID(let gameController): return gameController
+          case .productID(let gameController): return gameController
+          case .controllerID(let gameController): return gameController
+        }
+      }
+      
+      var label: String {
+        switch self {
+          case .vendorID: return "Vendor ID"
+          case .productID: return "Product ID"
+          case .controllerID: return "Controller ID"
+        }
+      }
+      
+      var text: String {
+        switch self {
+          case .vendorID(let gameController):
+            let vID = SDL_GetJoystickVendorForID(gameController.id)
+            let text = "VID: 0x".appendingFormat("%.4x", vID)
+            return text
+          case .productID(let gameController):
+            let pID = SDL_GetJoystickProductForID(gameController.id)
+            let text = "PID: 0x".appendingFormat("%.4x", pID)
+            return text
+          case .controllerID(let gameController):
+            let cID = gameController.id
+            let text = "(\(cID))"
+            return text
+        }
       }
     }
     
-    private var textures: [ImageFiles : any Texture] = [:]
-    
-    public subscript(_ label: String) -> DebugTextNode? {
-      child(matching: label) as? DebugTextNode
-    }
+    var textures: [ImageFiles : any Texture] = [:]
+    var gameController: GameController = .invalid
 
-    public subscript(_ image: ImageFiles) -> TextureNode? {
+    private subscript(_ image: ImageFiles) -> TextureNode? {
       guard let node = child(matching: image.rawValue) as? TextureNode else {
         guard let texture = textures[image] else {
           return nil
@@ -176,32 +204,43 @@ extension SDL.Test.Controller {
       return node
     }
     
-    var gameController: GameController = .invalid
-    
-    private var gameControllerName: String {
-      let joystickID = gameController.id
-      let isGamepad = gameController.isGamepad
-      let isVirtual = gameController.isVirtual
-      
-      var text = ""
-      
-      let GetNameFunc = isGamepad ? SDL_GetGamepadNameForID : SDL_GetJoystickNameForID
-      if let controllerName = GetNameFunc(joystickID) {
-        text = String(cString: controllerName)
+    public subscript(_ label: Label) -> DebugTextNode? {
+      guard let node = child(matching: label.label) as? DebugTextNode else {
+        let node = DebugTextNode(label.label)
+        node.text = label.text
+        self.addChild(node)
+        return node
       }
+      node.text = label.text
+      return node
+    }
+
+    public subscript(_ gamepad: GamepadImageNode.Gamepad) -> GamepadImageNode? {
+      guard let node = child(matching: gamepad.label) as? GamepadImageNode else {
+        let node = GamepadImageNode(gamepad, textures: textures)
+        self.addChild(node)
+        return node
+      }
+      node.gamepad = gamepad
+      return node
+    }
       
-      text = isVirtual ? "Virtual Controller" : text
-      return text
+    public subscript(_ list: GamepadListNode.List) -> GamepadListNode? {
+      guard let node = child(matching: list.label) as? GamepadListNode else {
+        let node = GamepadListNode(list, textures: textures)
+        self.addChild(node)
+        return node
+      }
+      node.list = list
+      return node
     }
     
-    private var isWaitingsForGamepad: Bool {
-      gameController == .invalid
-    }
-    
+    /*
     override func load(_ graphics: any Renderer) throws(SDL_Error) {
       // Load all the textures into the renderer
-      self.textures = try ImageFiles.load(graphics)
+      // self.textures = try ImageFiles.load(graphics)
       
+      /*
       self.addChild(DebugTextNode("Placeholder", text: "Waiting for gamepad, press A to add a virtual controller"))
       self.addChild(DebugTextNode("Title"))
       self.addChild(DebugTextNode("Subtitle", text: "Click on the gamepad image below to generate input"))
@@ -213,7 +252,7 @@ extension SDL.Test.Controller {
       self.addChild(DebugTextNode("Vendor ID"))
       self.addChild(DebugTextNode("Product ID"))
       self.addChild(DebugTextNode("Serial"))
-      
+
       // Go through all the possible gamepad buttons
       // Add them as drawable nodes to the scene
       for btnIdx in SDL_GamepadButton.allCases {
@@ -241,8 +280,11 @@ extension SDL.Test.Controller {
         
         self.addChild(button)
       }
+       */
     }
+     */
     
+    /*
     private func layout() throws(SDL_Error) {
       self[.gamepadFront]?.isHidden = isWaitingsForGamepad
       self[.gamepadFront]?.position = [275, 48]
@@ -299,7 +341,7 @@ extension SDL.Test.Controller {
         node.isHidden = isWaitingsForGamepad
         node.position = [848, 60]
         
-        let buttonIndices = gameController.buttonIndices()
+        let buttonIndices = gameController.joystickButtons()
         if node.children.count != buttonIndices.count {
           node.removeAllChildren()
         }
@@ -334,7 +376,7 @@ extension SDL.Test.Controller {
         node.isHidden = isWaitingsForGamepad
         node.position = [924, 60]
 
-        let axesIndices = gameController.axesIndices()
+        let axesIndices = gameController.joystickAxes()
         if node.children.count != axesIndices.count {
           node.removeAllChildren()
         }
@@ -386,14 +428,35 @@ extension SDL.Test.Controller {
           $0.colorMod = !isPressed ? .white : SDL_Color(r: 10, g: 255, b: 21, a: 255)
         }
     }
+     */
     
     override func update(at delta: Uint64) throws(SDL_Error) {
       try super.update(at: delta)
-      try self.layout()
+      
+      self[.front(gameController)]?.position = [275, 48]
+      self[.back(gameController)]?.position = [275, 48]
+
+      self[.all(gameController)]?.position = [10, 20]
+      self[.buttons(gameController)]?.position = [820, 56]
+      self[.hats(gameController)]?.position = [200, 200]
+      self[.axes(gameController)]?.position = [908, 56]
+      
+      self[.vendorID(gameController)]?.position = size - [148, 14]
+      self[.productID(gameController)]?.position = size - [52, 14]
+      
+      if let cID = self[.controllerID(gameController)] {
+        let textSize = cID.text.debugTextSize(as: Float.self)
+        let textPosition: Point<Float> = [size.x - (textSize / 2).x - 8, 12]
+        self[.controllerID(gameController)]?.position = textPosition
+      }
     }
     
     override func handle(_ event: SDL_Event) throws(SDL_Error) {
       try super.handle(event)
+      
+      let showFront = UInt32(event.key.mod) & SDL_KMOD_SHIFT == 0
+      self[.front(gameController)]?.isHidden = !showFront
+      self[.back(gameController)]?.isHidden = showFront
       
       switch event.eventType {
         case .keyDown:
@@ -419,6 +482,292 @@ extension SDL.Test.Controller {
 }
 
 extension SDL.Test.Controller {
+  final class GamepadImageNode: SpriteNode<any Renderer> {
+    enum Gamepad {
+      case front(GameController)
+      case back(GameController)
+      case invalid
+      
+      var gameController: GameController {
+        switch self {
+          case .front(let gameController): return gameController
+          case .back(let gameController): return gameController
+          case .invalid: return .invalid
+        }
+      }
+      
+      var label: String {
+        switch self {
+          case .front: return "Gamepad (Front)"
+          case .back: return "Gamepad (Back)"
+          case .invalid: return "Gamepad (Invalid)"
+        }
+      }
+      
+      var text: String {
+        switch self {
+          case .front: return ""
+          case .back: return ""
+          case .invalid: return ""
+        }
+      }
+    }
+    
+    var gamepad: Gamepad = .invalid
+    
+    private weak var frontImage: (any Texture)?
+    private weak var backImage: (any Texture)?
+    private weak var abxy: (any Texture)?
+    private weak var bayx: (any Texture)?
+    private weak var sony: (any Texture)?
+    private weak var highlight: (any Texture)?
+    
+    private let pressedColor: SDL_Color = SDL_Color(r: 10, g: 255, b: 21, a: 255)
+
+    required init(_ gamepad: Gamepad, textures: [ImageFiles : any Texture]) {
+      self.gamepad = gamepad
+      self.frontImage = textures[.gamepadFront]
+      self.backImage = textures[.gamepadBack]
+      self.abxy = textures[.faceABXY]
+      self.bayx = textures[.faceBAYX]
+      self.sony = textures[.faceSony]
+      self.highlight = textures[.button]
+      super.init(gamepad.label)
+    }
+    
+    required init(from decoder: any Decoder) throws {
+      try super.init(from: decoder)
+    }
+    
+    public required init(_ label: String = "") {
+      super.init(label)
+    }
+    
+    public required init(_ label: String = "", position: Point<Float> = .zero, size: Size<Float> = .zero, color: SDL_Color) {
+      super.init(label, position: position, color: .black)
+    }
+    
+    override func draw(_ graphics: any Renderer) throws(SDL_Error) {
+      switch gamepad {
+        case .front(let gameController) where gameController != .invalid:
+          let texturePosition = self.position
+          let textureSize = (try frontImage?.size(as: Float.self)) ?? .zero
+          try frontImage?.draw(dstRect: [
+            texturePosition.x, texturePosition.y,
+            textureSize.x, textureSize.y
+          ])
+
+          let title = "THIS IS THE TITLE"
+          let titleSize = title.debugTextSize(as: Float.self) / 2
+          let titlePosition = texturePosition - [0, 32] + [textureSize.x / 2, 0] - [titleSize.x, 0]
+          try graphics.debug(text: title, position: titlePosition)
+
+          if gameController.isVirtual {
+            let subtitle = "Click on the gamepad image below to generate input"
+            let textPosition = position - [-56, 16]
+            try graphics.debug(text: subtitle, position: textPosition)
+          }
+          
+          for gamepadButton in SDL_GamepadButton.allCases {
+            let texturePosition = position - [25, 25] + gamepadButton.position
+            let textureSize = (try highlight?.size(as: Float.self)) ?? .zero
+            
+            switch gameController.gamepad(isPressed: gamepadButton) {
+              case true:
+                try highlight?.set(colorMod: pressedColor)
+                try highlight?.draw(dstRect: [
+                  texturePosition.x, texturePosition.y,
+                  textureSize.x, textureSize.y
+                ])
+              case false:
+                try highlight?.set(colorMod: .white)
+            }
+          }
+
+          switch gameController.gamepad(labelFor: .south) {
+            case .a:
+              let texturePosition = position + [363, 118]
+              let textureSize = (try abxy?.size(as: Float.self)) ?? .zero
+              try abxy?.draw(dstRect: [
+                texturePosition.x, texturePosition.y,
+                textureSize.x, textureSize.y
+              ])
+            case .b:
+              let texturePosition = position + [363, 118]
+              let textureSize = (try bayx?.size(as: Float.self)) ?? .zero
+              try bayx?.draw(dstRect: [
+                texturePosition.x, texturePosition.y,
+                textureSize.x, textureSize.y
+              ])
+            case .cross:
+              let texturePosition = position + [363, 118]
+              let textureSize = (try sony?.size(as: Float.self)) ?? .zero
+              try sony?.draw(dstRect: [
+                texturePosition.x, texturePosition.y,
+                textureSize.x, textureSize.y
+              ])
+            default: ()
+          }
+          
+        case .back(let gameController) where gameController != .invalid:
+          let texturePosition = position
+          let textureSize = (try backImage?.size(as: Float.self)) ?? .zero
+          try backImage?.draw(dstRect: [
+            texturePosition.x, texturePosition.y,
+            textureSize.x, textureSize.y
+          ])
+        default: ()
+      }
+      
+      try super.draw(graphics)
+    }
+  }
+}
+
+extension SDL.Test.Controller {
+  final class GamepadListNode: SpriteNode<any Renderer> {
+    enum List {
+      case buttons(GameController)
+      case axes(GameController)
+      case hats(GameController)
+      case all(GameController)
+      case empty
+      
+      var gameController: GameController {
+        switch self {
+          case .buttons(let gameController): return gameController
+          case .axes(let gameController): return gameController
+          case .hats(let gameController): return gameController
+          default: return .invalid
+        }
+      }
+      
+      var label: String {
+        switch self {
+          case .all: return "All List"
+          case .buttons: return "Button List"
+          case .hats: return "Hat List"
+          case .axes: return "Axises List"
+          default: return "Empty List"
+        }
+      }
+      
+      var title: String {
+        switch self {
+          case .all(let gameController): return name(for: gameController)
+          case .buttons: return "BUTTONS"
+          case .hats: return "HATS"
+          case .axes: return "AXES"
+          default: return ""
+        }
+      }
+      
+      private func name(for gameController: GameController) -> String {
+        let joystickID = gameController.id
+        let isGamepad = gameController.isGamepad
+        let isVirtual = gameController.isVirtual
+        
+        var text = ""
+        
+        let GetNameFunc = isGamepad ? SDL_GetGamepadNameForID : SDL_GetJoystickNameForID
+        if let controllerName = GetNameFunc(joystickID) {
+          text = String(cString: controllerName)
+        }
+        
+        text = isVirtual ? "Virtual Controller" : text
+        return text
+      }
+    }
+    
+    var list: List = .empty
+    
+    private weak var smallButtonTexture: (any Texture)?
+    private weak var arrowTexture: (any Texture)?
+
+    private let pressedColor: SDL_Color = SDL_Color(r: 10, g: 255, b: 21, a: 255)
+    
+    required init(_ list: List, textures: [ImageFiles : any Texture]) {
+      self.list = list
+      self.smallButtonTexture = textures[.buttonSmall]
+      self.arrowTexture = textures[.axisArrow]
+      super.init(list.label)
+    }
+    
+    required init(from decoder: any Decoder) throws {
+      try super.init(from: decoder)
+    }
+    
+    public required init(_ label: String = "") {
+      super.init(label)
+    }
+    
+    public required init(_ label: String = "", position: Point<Float> = .zero, size: Size<Float> = .zero, color: SDL_Color) {
+      super.init(label, position: position, color: .black)
+    }
+    
+    override func draw(_ graphics: any Renderer) throws(SDL_Error) {
+      switch list {
+        case .buttons(let gameController) where gameController != .invalid:
+          try graphics.debug(text: list.title, position: position)
+          for button in gameController.joystickButtons() {
+            let text = String("\(button):").padded(width: 3)
+            let position = position + [0, 12] + [0, 14 * Float(button)]
+            try graphics.debug(text: text, position: position)
+            
+            let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
+            let textureSize = (try smallButtonTexture?.size(as: Float.self)) ?? .zero
+            
+            switch gameController.joystick(isPressed: button) {
+              case true: try smallButtonTexture?.set(colorMod: pressedColor)
+              case false: try smallButtonTexture?.set(colorMod: .white)
+            }
+            
+            try smallButtonTexture?.draw(dstRect: [
+              texturePosition.x, texturePosition.y,
+              textureSize.x, textureSize.y
+            ])
+          }
+          
+        case .axes(let gameController) where gameController != .invalid:
+          try graphics.debug(text: list.title, position: position)
+          for axis in gameController.joystickAxes() {
+            let text = String("\(axis):").padded(width: 3)
+            let position = position + [-8, 12] + [0, 14 * Float(axis)]
+            try graphics.debug(text: text, position: position)
+          }
+          
+        case .hats(let gameController) where gameController != .invalid:
+          try graphics.debug(text: list.title, position: position)
+          let count = gameController.joystickHats()
+          try graphics.debug(text: "\(count)", position: position + [0, 24])
+          
+        case .all(let gameController) where gameController != .invalid:
+          try graphics.debug(text: list.title, position: position)
+          for gamepadButton in SDL_GamepadButton.allCases {
+            let text = String("\(gamepadButton):").padded(width: 18)
+            let position = position + [-12, 24] + [0, 14 * Float(gamepadButton.rawValue)]
+            try graphics.debug(text: text, position: position)
+            
+            let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
+            let textureSize = (try smallButtonTexture?.size(as: Float.self)) ?? .zero
+            
+            switch gameController.gamepad(isPressed: gamepadButton) {
+              case true: try smallButtonTexture?.set(colorMod: pressedColor)
+              case false: try smallButtonTexture?.set(colorMod: .white)
+            }
+            
+            try smallButtonTexture?.draw(dstRect: [
+              texturePosition.x, texturePosition.y,
+              textureSize.x, textureSize.y
+            ])
+          }
+        default: ()
+      }
+
+      try super.draw(graphics)
+    }
+  }
+  
   final class ButtonPressedNode: DebugTextNode {
     convenience init(_ label: String = "", text: String = "", index button: Int32, position: Point<Float>, color: SDL_Color = .black, with texture: any Texture) throws(SDL_Error) {
       self.init(label, text: text.isEmpty ? "".appendingFormat("%2d:", button) : text, color: color)
@@ -589,5 +938,19 @@ extension SDL_GamepadButton {
       case .leftPaddle2: return [355, 200] /* SDL_GAMEPAD_BUTTON_LEFT_PADDLE2 */
       default: return .zero
     }
+  }
+}
+
+extension String {
+  fileprivate func padded(width: Int) -> String {
+    guard width > count else {
+      return self
+    }
+    
+    var text = String.init(repeating: " ", count: width)
+    let startIndex = text.index(text.endIndex, offsetBy: -self.count)
+    
+    text.replaceSubrange(startIndex..., with: self)
+    return text
   }
 }

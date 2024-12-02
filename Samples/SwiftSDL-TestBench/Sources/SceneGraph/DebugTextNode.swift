@@ -4,9 +4,10 @@ open class DebugTextNode: SpriteNode<any Renderer> {
     case centered
   }
   
-  public required init(_ label: String, text: String, color: SDL_Color = .black, position: Point<Float> = .zero) {
+  public required init(_ label: String, text: String, color: SDL_Color = .black, position: Point<Float> = .zero, textAlignment: TextAlignment = .left) {
     super.init(label, position: position, size: text.debugTextSize(as: Float.self), color: color)
     self.text = text
+    self.textAlignment = textAlignment
   }
   
   public required init(_ label: String = "") {
@@ -47,7 +48,7 @@ open class DebugTextNode: SpriteNode<any Renderer> {
 
 extension Renderer {
   @discardableResult
-  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .black, scale: Size<Float>) throws(SDL_Error) -> Self {
+  public func debug(text: String, position: Point<Float> = .zero, color fillColor: SDL_Color = .black, scale: Size<Float> = .one) throws(SDL_Error) -> Self {
     let renderColor = try self.color.get()
     let renderScale = try self.scale.get()
     
