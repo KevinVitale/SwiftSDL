@@ -79,16 +79,6 @@ import SwiftSDL
 
 extension MyGame {
   struct Square: Decodable {
-    init(from decoder: any Decoder) throws {
-      self = .init(size: [100, 100])
-    }
-    
-    init(position: Point<Float> = .zero, size: Size<Float>, color: SDL_Color = .green) {
-      self.position = position
-      self.size = size
-      self.color = color
-    }
-    
     var position: Point<Float> = .zero
     var size: Size<Float> = .zero
     var color: SDL_Color = .green

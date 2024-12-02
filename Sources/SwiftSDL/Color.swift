@@ -1,4 +1,24 @@
-extension SDL_Color {
+extension SDL_Color: @retroactive Codable {
+  public init(from decoder: any Decoder) throws {
+    let decoder = try decoder.singleValueContainer()
+    let color = try decoder.decode(UInt32.self)
+    let red   = UInt8(truncatingIfNeeded: color >> 24)
+    let green = UInt8(truncatingIfNeeded: color >> 16)
+    let blue  = UInt8(truncatingIfNeeded: color >> 8)
+    let alpha = UInt8(truncatingIfNeeded: color >> 0)
+    self = .init(r: red, g: green, b: blue, a: alpha)
+  }
+  
+  public func encode(to encoder: any Encoder) throws {
+    var encoder = encoder.singleValueContainer()
+    var color = UInt32.zero
+    color += UInt32(r) << 24
+    color += UInt32(g) << 16
+    color += UInt32(b) << 8
+    color += UInt32(a)
+    try encoder.encode(color)
+  }
+  
   @inlinable
   public static var clear: Self { .init(r: 0, g: 0, b: 0, a: 0) }
   
