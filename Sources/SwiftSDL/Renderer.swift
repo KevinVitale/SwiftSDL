@@ -67,6 +67,13 @@ extension Renderer {
       .map({ _ in [rect.x, rect.y, rect.w, rect.h] })
   }
   
+  public var safeArea: Result<Rect<Int32>, SDL_Error> {
+    var rect = SDL_Rect()
+    return self
+      .resultOf(SDL_GetRenderSafeArea, .some(&rect))
+      .map({ _ in [rect.x, rect.y, rect.w, rect.h] })
+  }
+
   public var vsync: Result<Int32, SDL_Error> {
     var vsync: Int32 = 0
     return self

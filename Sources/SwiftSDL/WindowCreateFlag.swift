@@ -117,3 +117,18 @@ struct __SDL_WindowCreateFlags: RawRepresentable {
   static let x11Window = Self(rawValue: SDL_PROP_WINDOW_CREATE_X11_WINDOW_NUMBER)
 }
 
+extension Sint64 {
+  public static let windowCenter = Self(SDL_WINDOWPOS_CENTERED_MASK)
+}
+
+extension Int32 {
+  public static let windowCenter = Self(SDL_WINDOWPOS_CENTERED_MASK)
+}
+
+extension Point<Int32> {
+  public static let windowCenter = Point<Int32>(x: .windowCenter, y: .windowCenter)
+}
+
+extension SDL_Point {
+  public static let windowCenter = Self(x: .windowCenter, y: .windowCenter)
+}

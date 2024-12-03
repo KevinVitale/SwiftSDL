@@ -1,6 +1,7 @@
 extension SDL.Test {
   final class Sandbox: Game {
     enum CodingKeys: CodingKey { case options }
+    
     @OptionGroup var options: Options
     
     static let name: String = "Kevin's Personal Sandbox"
@@ -9,6 +10,8 @@ extension SDL.Test {
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       try SDL_Init(.gamepad)
       scene = Scene(size: try window.size(as: Float.self), bgColor: .gray)
+      
+      try window.sync(options: options)
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {

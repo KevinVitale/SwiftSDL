@@ -39,19 +39,13 @@ extension SDL.Test {
     private var triangleAngle: Float = .zero
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      if !options.title.isEmpty {
-        try window.set(title: options.title)
-      }
-      
       renderer = try window.createRenderer()
       let icon = try renderer.texture(from: try Load(bitmap: "icon.bmp"))
       try icon.set(blendMode: blendMode.rawValue)
       
       self.icon = icon
       
-      if options.vsync {
-        try renderer.set(vsync: 1)
-      }
+      try window.sync(options: options)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {

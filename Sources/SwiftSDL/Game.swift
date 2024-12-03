@@ -36,7 +36,8 @@ extension Game {
   public static var windowProperties: [WindowProperty] {
     [
       .windowTitle("\(Self.name)"),
-      .width(1024), .height(640)
+      .width(1024), .height(640),
+      .hidden(true),
     ]
   }
   
@@ -61,6 +62,7 @@ extension Game {
         do {
           App.window = try App.game.onInit()
           try App.game.onReady(window: App.window)
+          try App.window(SDL_ShowWindow)
           return .continue
         } catch {
           return .failure
@@ -146,11 +148,7 @@ extension Game {
   
   public func onInit() throws(SDL_Error) -> any Window {
     try SDL_Init(.video)
-    
-    let window = try SDL_CreateWindow(with: Self.windowProperties)
-    let _ = try window.size(as: Float.self)
-    
-    return window
+    return try SDL_CreateWindow(with: Self.windowProperties)
   }
   
   public func onQuit(_ result: SDL_Error?) {

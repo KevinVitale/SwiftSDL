@@ -51,6 +51,8 @@ extension SDL.Test {
         print("Could not find camera \"\(cameraName)\"")
         throw SDL_Error.error
       }
+      
+      try window.sync(options: options)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {

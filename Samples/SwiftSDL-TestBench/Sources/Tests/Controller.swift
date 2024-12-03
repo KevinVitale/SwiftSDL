@@ -1,8 +1,7 @@
 extension SDL.Test {
   final class Controller: Game {
     private enum CodingKeys: String, CodingKey {
-      case options
-      case useVirtual
+      case options, useVirtual
     }
     
     static let configuration = CommandConfiguration(
@@ -20,46 +19,30 @@ extension SDL.Test {
     private var scene: GamepadScene!
     
     func onInit() throws(SDL_Error) -> any Window {
-      print("Applying SDL Hints...")
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1")
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1")
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1")
-      SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1")
-      SDL_SetHint(SDL_HINT_JOYSTICK_ROG_CHAKRAM, "1")
-      SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1")
-      SDL_SetHint(SDL_HINT_JOYSTICK_LINUX_DEADZONES, "1")
-      SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1")
+      configureHints()
       
       /* Enable input debug logging */
       SDL_SetLogPriority(Int32(SDL_LOG_CATEGORY_INPUT.rawValue), SDL_LOG_PRIORITY_DEBUG);
 
       print("Initializing SDL (v\(SDL_Version()))...")
       try SDL_Init(.video, .joystick)
-
-      print("Calculate the size of the window....")
-      let display = try Displays.primary.get()
-      let contentScale = (try display.contentScale.get())
-      let screenSize = Layout
-        .screenSize(scaledBy: contentScale)
-        .to(Sint64.self)
-      
-      print("Creating window (\(screenSize.x) x \(screenSize.y))....")
-      let window = try SDL_CreateWindow(
-        with: .windowTitle(Self.name),
-        .width(screenSize.x), .height(screenSize.y)
-      )
       
       defer { print("Initializing complete!") }
-      return window
+
+      /* Create window */
+      return try createWindow()
     }
     
     func onReady(window: any Window) throws(SDL_Error) {
       print("Creating renderer...")
-      
       self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
-      self.scene = GamepadScene(size: try renderer.outputSize(as: Float.self))
-      self.scene.bgColor = .white
-      self.scene.textures = try ImageFiles.createTextures(renderer)
+      
+      print("Creating scene...")
+      let sceneSize     = try renderer.outputSize(as: Float.self)
+      let sceneTextures = try ImageFiles.createTextures(renderer)
+      self.scene = try createScene(size: sceneSize, bgColor: .white, textures: sceneTextures)
+      
+      try window.sync(options: options)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
@@ -84,6 +67,46 @@ extension SDL.Test {
     
     func will(remove gameController: GameController) {
       scene?.gameController = self.gameControllers.last ?? .invalid
+    }
+    
+    private func configureHints() {
+      print("Applying SDL Hints...")
+      let hints = [
+        SDL_HINT_JOYSTICK_HIDAPI: "1",
+        SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE: "1",
+        SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE: "1",
+        SDL_HINT_JOYSTICK_HIDAPI_STEAM: "1",
+        SDL_HINT_JOYSTICK_ROG_CHAKRAM: "1",
+        SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS: "1",
+        SDL_HINT_JOYSTICK_LINUX_DEADZONES: "1",
+        SDL_HINT_RENDER_VSYNC: "1"
+      ]
+      for (key, value) in hints {
+        SDL_SetHint(key, value)
+      }
+    }
+    
+    private func createWindow() throws(SDL_Error) -> some Window {
+      print("Calculate the size of the window....")
+      let display = try Displays.primary.get()
+      let contentScale = (try display.contentScale.get())
+      let screenSize = Layout
+        .screenSize(scaledBy: contentScale)
+        .to(Sint64.self)
+      
+      print("Creating window (\(screenSize.x) x \(screenSize.y))....")
+      let window = try SDL_CreateWindow(
+        with: .windowTitle(Self.name),
+        .width(screenSize.x), .height(screenSize.y)
+      )
+      
+      return window
+    }
+    
+    private func createScene(size: Size<Float>, bgColor: SDL_Color, textures: [ImageFiles: any Texture]) throws(SDL_Error) -> GamepadScene {
+      let scene = GamepadScene(size: size, bgColor: bgColor)
+      scene.textures = textures
+      return scene
     }
   }
 }

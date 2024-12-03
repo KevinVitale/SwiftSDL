@@ -7,6 +7,14 @@ extension Window {
     self.resultOf(SDL_GetWindowID)
   }
   
+  private var flags: UInt64 {
+    try! self(SDL_GetWindowFlags)
+  }
+  
+  public func has(_ flag: SDL_WindowFlags) -> Bool {
+    flags & flag.rawValue != 0
+  }
+  
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
     self.resultOf(SDL_GetWindowProperties)
   }
@@ -71,6 +79,41 @@ extension Window {
     try self(SDL_SetWindowSize, size.x, size.y)
   }
   
+  @discardableResult
+  public func set(size: SDL_Size) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowSize, size.x, size.y)
+  }
+  
+  @discardableResult
+  public func set(minSize size: Size<Int32>) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowMinimumSize, size.x, size.y)
+  }
+  
+  @discardableResult
+  public func set(minSize size: SDL_Size) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowMinimumSize, size.x, size.y)
+  }
+
+  @discardableResult
+  public func set(showBorder: Bool) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowBordered, showBorder)
+  }
+  
+  @discardableResult
+  public func set(resizable: Bool) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowResizable, resizable)
+  }
+
+  @discardableResult
+  public func set(position: Point<Int32>) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowPosition, position.x, position.y)
+  }
+  
+  @discardableResult
+  public func set(position: SDL_Point) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowPosition, position.x, position.y)
+  }
+
   public var title: Result<String, SDL_Error> {
     self
       .resultOf(SDL_GetWindowTitle)
@@ -112,6 +155,13 @@ public func SDL_CreateWindow(with properties: [WindowProperty]) throws(SDL_Error
     throw SDL_Error.error
   }
   
+  return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
+}
+
+public func SDL_CreateWindow(_ title: String, size: Size<Int32>, flags: SDL_WindowFlags) throws(SDL_Error) -> some Window {
+  guard let pointer = SDL_CreateWindow(title, size.x, size.y, flags.rawValue) else {
+    throw SDL_Error.error
+  }
   return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
 }
 
