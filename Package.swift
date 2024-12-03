@@ -20,7 +20,6 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-collections.git", .upToNextMinor(from: "1.1.4")),
   ],
   targets: [
-    
     .binaryTarget(
       name: "SDL3",
       path: "Dependencies/SDL3.xcframework"
