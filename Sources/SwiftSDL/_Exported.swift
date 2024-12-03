@@ -14,14 +14,6 @@
 @_exported import CSDL
 #endif
 
-#if canImport(CSDL3_Image)
-@_exported import CSDL3_Image
-#endif
-
-#if canImport(CSDL3_TTF)
-@_exported import CSDL3_TTF
-#endif
-
 #if canImport(Collections)
 @_exported import Collections
 #endif
