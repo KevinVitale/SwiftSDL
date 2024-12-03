@@ -1,7 +1,7 @@
 open class SpriteNode<Graphics>: SceneNode, DrawableNode {
   open var colorMod: SDL_Color = .white
   open var flipMode: SDL_FlipMode = .none
-  open var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
+  open var blendMod: SDL_BlendMode = .none
   
   open var color: SDL_Color
   

@@ -32,18 +32,18 @@ extension SDL.Test {
       name: .customLong("blend"),
       help: "Blend mode used for drawing operations",
       transform: {
-      switch $0 {
-        case "none": return .none
-        case "blend": return .blend
-        case "blend_premultiplied": return .blendPremul
-        case "add": return .add
-        case "add_premultiplied": return .addPremul
-        case "mod": return .mod
-        case "mul": return .mul
-        /* testsprite.c:437... sub? */
-        default: return .none
-      }
-    }) var blendMode: Flags.BlendMode = .blend
+        switch $0 {
+          case "none": return .none
+          case "blend": return .blend
+          case "blend_premultiplied": return .blendPremul
+          case "add": return .add
+          case "add_premultiplied": return .addPremul
+          case "mod": return .mod
+          case "mul": return .mul
+            /* testsprite.c:437... sub? */
+          default: return .none
+        }
+      }) var blendMode: SDL_BlendMode = .blend
     
     @Flag(
       name: .customLong("cycle-color"),
@@ -97,7 +97,7 @@ extension SDL.Test {
       
       self.sprite = try renderer
         .texture(from: Load(bitmap: image))
-        .set(blendMode: blendMode.rawValue)
+        .set(blendMode: blendMode)
       
       try window.sync(options: options)
     }

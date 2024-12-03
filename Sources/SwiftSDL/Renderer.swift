@@ -90,13 +90,8 @@ extension Renderer {
 // MARK: - Modes
 extension Renderer {
   @discardableResult
-  public func set(blendMode: Flags.BlendMode) throws(SDL_Error) -> Self {
-    try self.set(blendMode: blendMode.rawValue)
-  }
-  
-  @discardableResult
   public func set(blendMode: SDL_BlendMode) throws(SDL_Error) -> Self {
-    try self(SDL_SetRenderDrawBlendMode, blendMode)
+    try self(SDL_SetRenderDrawBlendMode, blendMode.rawValue)
   }
 }
 

@@ -18,14 +18,14 @@ extension SDL.Test {
       name: .customLong("blend"),
       help: "Blend mode used for drawing operations",
       transform: {
-      switch $0 {
-        case "blend": return .blend
-        case "add": return .add
-        case "mod": return .mod
-        case "mul": return .mul
-        default: return .none
-      }
-    }) var blendMode: Flags.BlendMode = .blend
+        switch $0 {
+          case "blend": return .blend
+          case "add": return .add
+          case "mod": return .mod
+          case "mul": return .mul
+          default: return .none
+        }
+      }) var blendMode: SDL_BlendMode = .blend
     
     @Flag(name: [
       .customLong("use-texture"),
@@ -41,7 +41,7 @@ extension SDL.Test {
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       renderer = try window.createRenderer()
       let icon = try renderer.texture(from: try Load(bitmap: "icon.bmp"))
-      try icon.set(blendMode: blendMode.rawValue)
+      try icon.set(blendMode: blendMode)
       
       self.icon = icon
       
@@ -51,7 +51,7 @@ extension SDL.Test {
     func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
       // Clears the framebuffer (uses 'blendMode' option passed in at runtime).
       try renderer
-        .set(blendMode: blendMode.rawValue)
+        .set(blendMode: blendMode)
         .clear(color: .init(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF))
       
       // Draws geometry (evaluates 'useTexture' option passed in at runtime).

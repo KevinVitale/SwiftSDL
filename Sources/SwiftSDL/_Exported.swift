@@ -30,16 +30,6 @@
 @_exported import ArgumentParser
 #endif
 
-public protocol SDL_Flag:
-  RawRepresentable,
-  CaseIterable,
-  CustomDebugStringConvertible,
-  OptionSet
-where RawValue: FixedWidthInteger
-{ }
-
-public enum Flags { }
-
 @_exported import class Foundation.NotificationCenter
 @_exported import struct Foundation.Notification
 @_exported import struct Foundation.Measurement

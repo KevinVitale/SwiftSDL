@@ -49,16 +49,16 @@ extension Texture {
   
   public var blendMode: Result<SDL_BlendMode, SDL_Error> {
     Result {
-      var blendMode: SDL_BlendMode = .zero
+      var blendMode: SDL_BlendMode.RawValue = .zero
       try self(SDL_GetTextureBlendMode, .some(&blendMode))
-      return blendMode
+      return .init(rawValue: blendMode) ?? .invalid
     }
     .mapError { $0 as! SDL_Error }
   }
   
   @discardableResult
   public func set(blendMode: SDL_BlendMode) throws(SDL_Error) -> Self {
-    try self(SDL_SetTextureBlendMode, blendMode)
+    try self(SDL_SetTextureBlendMode, blendMode.rawValue)
   }
   
   public var colorMod: Result<SDL_Color, SDL_Error> {

@@ -12,7 +12,7 @@ public protocol SceneProtocol: SceneNode, DrawableNode {
 }
 
 open class GameScene<Graphics>: SceneNode, SceneProtocol {
-  public required init(_ label: String = "", size: Size<Float>, bgColor: SDL_Color = .gray, blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE) {
+  public required init(_ label: String = "", size: Size<Float>, bgColor: SDL_Color = .gray, blendMode: SDL_BlendMode = .none) {
     self.bgColor = bgColor
     self.blendMode = blendMode
     self.size = size
@@ -32,7 +32,7 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
   public var size: Size<Float> = .zero
   
   public var bgColor: SDL_Color = .gray
-  public var blendMode: SDL_BlendMode = SDL_BLENDMODE_NONE
+  public var blendMode: SDL_BlendMode = .none
   
   open func load(_ graphics: Graphics) throws(SDL_Error) { /* no-op */ }
   open func update(at delta: Uint64) throws(SDL_Error) { /* no-op */ }

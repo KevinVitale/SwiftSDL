@@ -3,7 +3,7 @@ open class TextureNode: SceneNode, RenderNode {
   
   open var colorMod: SDL_Color = .white
   open var flipMode: SDL_FlipMode = .none
-  open var blendMod: SDL_BlendMode = SDL_BLENDMODE_NONE
+  open var blendMod: SDL_BlendMode = .none
   
   var size: Size<Float> = .zero
   
