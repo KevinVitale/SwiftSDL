@@ -53,7 +53,7 @@ extension SDL.Test {
         // Use the 'blendMode' option passed in at runtime
         .set(blendMode: blendMode)
         // Draws geometry (evaluates 'useTexture' option passed in at runtime)
-        .draw(into: self._drawGeometry(_:))
+        .pass(to: _drawGeometry(_:))
         // Presents framebuffer content onto 'window'
         .present()
     }

@@ -74,7 +74,7 @@ public protocol Game: AnyObject, ParsableCommand {
      try renderer
        .clear(color: .gray)
        .set(blendMode: blendMode)
-       .draw(into: self._drawGeometry(_:))
+       .pass(to: _drawGeometry(_:))
        .present()
    }
    ```
@@ -430,20 +430,20 @@ extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument {
 
 extension Window {
   internal func sync(options: GameOptions) throws(SDL_Error) {
-    if let windowTitle    = options.windowTitle { try set(title: windowTitle) }
     if let windowMinSize  = options.windowMinSize { try set(minSize: windowMinSize) }
     if let windowMaxSize  = options.windowMaxSize { try set(maxSize: windowMaxSize) }
-    if let windowSize     = options.windowSize { try set(size: windowSize) }
     if let windowPosition = options.windowPosition { try set(position: windowPosition) }
+    if let windowSize     = options.windowSize { try set(size: windowSize) }
+    if let windowTitle    = options.windowTitle { try set(title: windowTitle) }
     
     /// These `has` checks ensure that flags which have already been set by the `Game` instance are overwritten.
     if !has(.always_on_top) { try set(alwaysOnTop: options.windowAlwaysOnTop) }
-    if !has(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }
-    if !has(.resizable)  { try set(resizable: options.windowResizable) }
-    if !has(.borderless) { try set(showBorder: !options.windowNoFrame) }
     if !has(.minimized) && options.windowMinimized { try self(SDL_MinimizeWindow) }
     if !has(.maximized) && options.windowMaximized { try self(SDL_MaximizeWindow) }
-    
+    if !has(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }
+    if !has(.borderless) { try set(showBorder: !options.windowNoFrame) }
+    if !has(.resizable)  { try set(resizable: options.windowResizable) }
+
     _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
     
     if let renderer = try? renderer.get() {
@@ -461,7 +461,7 @@ extension Window {
         logicalSize = SDL_Size(try self.size(as: Int32.self))
       }
       
-      print("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y) -- \(logicalPresentation)")
+      print("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y); presentation: \(logicalPresentation)")
       try renderer.set(logicalSize: [logicalSize.x, logicalSize.y], presentation: logicalPresentation)
     }
     

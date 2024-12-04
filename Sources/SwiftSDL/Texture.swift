@@ -106,6 +106,7 @@ extension Texture {
 }
 
 extension Renderer {
+  @discardableResult
   public func draw(texture: any Texture, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, textureRect: SDL_FRect = [0, 0, 1, 1]) throws(SDL_Error) -> Self {
     let textureSize = try texture.size(as: Float.self)
     

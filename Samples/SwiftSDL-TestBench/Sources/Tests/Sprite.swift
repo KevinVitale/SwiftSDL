@@ -21,8 +21,7 @@ extension SDL.Test {
     static var windowProperties: [WindowProperty] {
       [
         .windowTitle(Self.name),
-        .borderless(true),
-        .width(250), .height(500)
+        .width(640), .height(480)
       ]
     }
     
@@ -89,6 +88,8 @@ extension SDL.Test {
     
     private var renderer: (any Renderer)! = nil
     private var sprite: (any Texture)! = nil
+    private var positions: [SDL_FPoint] = []
+    private var velocities: [SDL_FPoint] = []
     private var bgColor = SDL_Color(r: 0xA0, g: 0xA0, b: 0xA0, a: 0x00)
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
@@ -97,6 +98,22 @@ extension SDL.Test {
       self.sprite = try renderer
         .texture(from: Load(bitmap: image))
         .set(blendMode: blendMode)
+      
+      let spriteSize = (try sprite.size(as: Int32.self))
+      let safeArea = try renderer.safeArea.get()
+      let drawSize = safeArea.highHalf &- spriteSize
+
+      for _ in 0..<count {
+        let randX = Float(Int32.random(in: 0..<drawSize.x))
+        let randY = Float(Int32.random(in: 0..<drawSize.y))
+        let position = SDL_FPoint([randX, randY])
+        positions.append(position)
+        
+        let veloX = Float.random(in: -1...1)
+        let veloY = Float.random(in: -1...1)
+        let velocity = SDL_FPoint([veloX, veloY])
+        velocities.append(velocity)
+      }
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
@@ -104,7 +121,9 @@ extension SDL.Test {
         .set(viewport: nil)
         .set(viewport: renderer.safeArea)
         .clear(color: bgColor)
-        .draw(texture: sprite)
+        .pass(to: _drawTestPoints(_:viewport:), renderer.viewport)
+        .pass(to: _drawTestLines(_:))
+        .pass(to: _drawSprites(_:))
         .present()
     }
     
@@ -114,6 +133,24 @@ extension SDL.Test {
     func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
       self.sprite = nil
       self.renderer = nil
+    }
+    
+    private func _drawTestPoints(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
+      let viewport    = SDL_FRect(try viewport.get().to(Float.self))
+      let topLeft     = SDL_FPoint([0, 0])
+      let topRight    = SDL_FPoint([viewport[2] - 1, 0])
+      let bottomLeft  = SDL_FPoint([0, viewport[3] - 1])
+      let bottomRight = SDL_FPoint([viewport[2] - 1, viewport[3] - 1])
+      try renderer.points(topLeft, topRight, bottomLeft, bottomRight, color: 0xFF, 0x00, 0x00, 0xFF)
+    }
+
+    private func _drawTestLines(_ renderer: any Renderer) throws(SDL_Error) {
+    }
+    
+    private func _drawSprites(_ renderer: any Renderer) throws(SDL_Error) {
+      for position in positions {
+        try renderer.draw(texture: sprite, at: position)
+      }
     }
   }
 }

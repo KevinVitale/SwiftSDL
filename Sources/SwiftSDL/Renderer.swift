@@ -119,6 +119,11 @@ extension Renderer {
   }
   
   @discardableResult
+  public func set(color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try set(color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+
+  @discardableResult
   public func set(color: SDL_Color) throws(SDL_Error) -> Self {
     let red = Float(color.r) / Float(UInt8.max)
     let green = Float(color.g) / Float(UInt8.max)
@@ -145,13 +150,23 @@ extension Renderer {
   }
   
   @discardableResult
-  public func draw(into callback: (Self) throws -> Void) throws(SDL_Error) -> any Renderer {
+  public func pass(to callback: (_ renderer: Self) throws -> Void) throws(SDL_Error) -> any Renderer {
     do {
       try callback(self)
       return self
-    } catch {
-      throw error as! SDL_Error
     }
+    catch let error as SDL_Error {
+      throw error
+    }
+    catch {
+      fatalError("Unknown error type thrown: \(error). This should never happen.")
+    }
+  }
+
+  @discardableResult
+  public func pass<each Argument>(to callback: (_ renderer: Self, repeat each Argument) throws(SDL_Error) -> Void, _ argument: repeat each Argument) throws(SDL_Error) -> any Renderer {
+    try callback(self, repeat each argument)
+    return self
   }
 }
 
@@ -262,13 +277,51 @@ extension Renderer {
   }
 }
   
-// MARK: - Fill Rects
+// MARK: - Fill Rects/Points/Lines
 extension Renderer {
+  @discardableResult
+  public func points(_ points: SDL_FPoint..., color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try self.points(points, color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+  
+  @discardableResult
+  public func points(_ points: SDL_FPoint..., color: SDL_Color) throws(SDL_Error) -> Self {
+    try self.points(points, color: color)
+  }
+  
+  @discardableResult
+  public func points(_ points: [SDL_FPoint], color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try self.points(points, color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+
+  @discardableResult
+  public func points(_ points: [SDL_FPoint], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
+    let color = try color.get()
+    return try self
+      .set(color: fillColor)
+      .callAsFunction(
+        SDL_RenderPoints,
+        points.withUnsafeBufferPointer(\.baseAddress),
+        Int32(points.count)
+      )
+      .set(color: color)
+  }
+
+  @discardableResult
+  public func fill(rects: SDL_FRect..., color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try self.fill(rects: rects, color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+
   @discardableResult
   public func fill(rects: SDL_FRect..., color: SDL_Color) throws(SDL_Error) -> Self {
     try self.fill(rects: rects, color: color)
   }
   
+  @discardableResult
+  public func fill(rects: [SDL_FRect], color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try self.fill(rects: rects, color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+
   @discardableResult
   public func fill(rects: [SDL_FRect], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
     let color = try color.get()
