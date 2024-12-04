@@ -10,7 +10,7 @@ extension SDL.Test {
     
     @OptionGroup var options: Options
     
-    @Flag(name: [.customLong("virtual")], help: "Simulate a virtual gamepad.")
+    @Flag(name: [.customLong("virtual-gamepad")], help: "Simulate a virtual gamepad")
     var useVirtual: Bool = false
     
     static let name: String = "SDL Test: Controller"
@@ -41,8 +41,6 @@ extension SDL.Test {
       let sceneSize     = try renderer.outputSize(as: Float.self)
       let sceneTextures = try ImageFiles.createTextures(renderer)
       self.scene = try createScene(size: sceneSize, bgColor: .white, textures: sceneTextures)
-      
-      try window.sync(options: options)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {

@@ -106,6 +106,24 @@ extension Texture {
 }
 
 extension Renderer {
+  public func draw(texture: any Texture, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, textureRect: SDL_FRect = [0, 0, 1, 1]) throws(SDL_Error) -> Self {
+    let textureSize = try texture.size(as: Float.self)
+    
+    let sourceRectX = 0 + (textureSize.x * textureRect[0])
+    let sourceRectY = 0 + (textureSize.y * textureRect[1])
+    let sourceRectW = (textureSize.x * textureRect[2])
+    let sourceRectH = (textureSize.y * textureRect[3])
+    var sourceRect: SDL_FRect = [sourceRectX, sourceRectY, sourceRectW, sourceRectH]
+    
+    let destRectX = position.x
+    let destRectY = position.y
+    let destRectW = scale.x * textureSize.x
+    let destRectH = scale.y * textureSize.y
+    var destRect: SDL_FRect = [destRectX, destRectY, destRectW, destRectH]
+    
+    return try self(SDL_RenderTextureRotated, texture.pointer, .some(&sourceRect), .some(&destRect), 0, nil, .none)
+  }
+  
   public func texture(from surface: any Surface, tag: String? = nil) throws(SDL_Error) -> any Texture {
     guard case(.some(let pointer)) = try self(SDL_CreateTextureFromSurface, surface.pointer) else {
       throw .error

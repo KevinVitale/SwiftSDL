@@ -75,6 +75,16 @@ extension Window {
   }
   
   @discardableResult
+  public func set(alwaysOnTop: Bool) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowAlwaysOnTop, alwaysOnTop)
+  }
+  
+  @discardableResult
+  public func set(mouseFocus: Bool) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowMouseGrab, mouseFocus)
+  }
+
+  @discardableResult
   public func set(size: Size<Int32>) throws(SDL_Error) -> some Window {
     try self(SDL_SetWindowSize, size.x, size.y)
   }
@@ -92,6 +102,11 @@ extension Window {
   @discardableResult
   public func set(minSize size: SDL_Size) throws(SDL_Error) -> some Window {
     try self(SDL_SetWindowMinimumSize, size.x, size.y)
+  }
+  
+  @discardableResult
+  public func set(maxSize size: SDL_Size) throws(SDL_Error) -> some Window {
+    try self(SDL_SetWindowMaximumSize, size.x, size.y)
   }
 
   @discardableResult

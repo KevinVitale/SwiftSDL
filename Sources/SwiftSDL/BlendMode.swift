@@ -7,7 +7,8 @@ public enum SDL_BlendMode: RawRepresentable, CustomDebugStringConvertible, Senda
   case mod
   case mul
   case invalid
-  case custom(
+  case custom(UInt32)
+  case composed(
     srcColorFactor: SDL_BlendFactor,
     dstColorFactor: SDL_BlendFactor,
     colorOperation: SDL_BlendOperation,
@@ -26,7 +27,7 @@ public enum SDL_BlendMode: RawRepresentable, CustomDebugStringConvertible, Senda
       case SDL_BLENDMODE_MOD:                  self = .mod
       case SDL_BLENDMODE_MUL:                  self = .mul
       case SDL_BLENDMODE_INVALID:              self = .invalid
-      default:                                 return nil
+      default:                                 self = .custom(rawValue)
     }
   }
 
@@ -40,7 +41,8 @@ public enum SDL_BlendMode: RawRepresentable, CustomDebugStringConvertible, Senda
       case .mod:                  return SDL_BLENDMODE_MOD
       case .mul:                  return SDL_BLENDMODE_MUL
       case .invalid:              return SDL_BLENDMODE_INVALID
-      case .custom(
+      case .custom(let rawValue): return rawValue
+      case .composed(
         let srcColorFactor,
         let dstColorFactor,
         let colorOperation,
@@ -62,6 +64,7 @@ public enum SDL_BlendMode: RawRepresentable, CustomDebugStringConvertible, Senda
       case .mul:          return "mul"
       case .invalid:      return "invalid"
       case .custom:       return "custom"
+      case .composed:     return "composed"
     }
   }
 }

@@ -89,23 +89,23 @@ extension SDL.Test {
     
     private var renderer: (any Renderer)! = nil
     private var sprite: (any Texture)! = nil
-    private var bgColor = SDL_Color(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF)
+    private var bgColor = SDL_Color(r: 0xA0, g: 0xA0, b: 0xA0, a: 0x00)
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       self.renderer = try window.createRenderer()
-      try self.renderer.set(vsync: options.vsync ? 1 : 0)
       
       self.sprite = try renderer
         .texture(from: Load(bitmap: image))
         .set(blendMode: blendMode)
-      
-      try window.sync(options: options)
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      try renderer.clear(color: bgColor)
-      try sprite.draw()
-      try renderer.present()
+      try renderer
+        .set(viewport: nil)
+        .set(viewport: renderer.safeArea)
+        .clear(color: bgColor)
+        .draw(texture: sprite)
+        .present()
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {

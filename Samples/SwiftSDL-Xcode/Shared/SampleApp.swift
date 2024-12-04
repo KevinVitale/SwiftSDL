@@ -20,6 +20,8 @@ import SwiftSDL
   public static let version: String = ""
   public static let identifier: String = ""
   
+  @OptionGroup public var options: SwiftSDL.GameOptions
+
   // private var camera: CameraID? = nil
   
   public func onReady(window: any Window) throws(SDL_Error) {

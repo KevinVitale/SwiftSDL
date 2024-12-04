@@ -15,6 +15,8 @@ public protocol Game: AnyObject, ParsableCommand {
   /// The default window properties  for creating the main window.
   static var windowProperties: [WindowProperty] { get }
   
+  var options: GameOptions { get }
+  
   func onInit() throws(SDL_Error) -> any Window
   func onReady(window: any Window) throws(SDL_Error)
   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
@@ -62,7 +64,9 @@ extension Game {
         do {
           App.window = try App.game.onInit()
           try App.game.onReady(window: App.window)
+          try App.window.sync(options: App.game.options)
           try App.window(SDL_ShowWindow)
+          
           return .continue
         } catch {
           return .failure
@@ -183,4 +187,185 @@ extension Game {
 
   public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
   public func will(remove gameController: GameController) { /* no-op */ }
+}
+
+public struct GameOptions: ParsableArguments {
+  public init() { }
+  
+  @Flag(help: "Hide the system's cursor")
+  public var hideCursor: Bool = false
+  
+  @Flag(help: "Stretch the content to fill the window")
+  public var autoScaleContent: Bool = false
+  
+  @Option(help: "Forces the rendered content to be a certain logical size (WxH)")
+  public var logicalSize: SDL_Size? = nil
+  
+  @Option(help: "Forces the rendered content to be a certain logical order; overrides '--auto-scale-content'")
+  public var logicalPresentation: SDL_RendererLogicalPresentation = .disabled
+  
+  @Option(name: .customLong("vsync-rate"), help: "Set vertical synchronization rate")
+  public var vsync: VSyncRate = .disabled
+  
+  @Flag(help: "Window is always kept on top")
+  public var windowAlwaysOnTop: Bool = false
+  
+  @Flag(help: "Create a maximized window; requires '--window-resizable'")
+  public var windowMaximized: Bool = false
+  
+  @Flag(help: "Create a minimized window")
+  public var windowMinimized: Bool = false
+  
+  @Option(help: "Specify the maximum window's size (WxH)")
+  public var windowMaxSize: SDL_Size?
+  
+  @Option(help: "Specify the minimum window's size (WxH)")
+  public var windowMinSize: SDL_Size?
+  
+  @Flag(help: "Force the window to have mouse focus")
+  public var windowMouseFocus: Bool = false
+  
+  @Flag(help: "Create a borderless window")
+  public var windowNoFrame: Bool = false
+  
+  @Flag(help: "Enable window resizability")
+  public var windowResizable: Bool = false
+  
+  @Option(help: "Specify the window's position (XxY)")
+  public var windowPosition: SDL_Point?
+  
+  @Option(help: "Specify the window's size (WxH)")
+  public var windowSize: SDL_Size?
+  
+  @Option(help: "Specify the window's title")
+  public var windowTitle: String?
+}
+
+extension GameOptions {
+  public enum VSyncRate: RawRepresentable, ExpressibleByArgument, Decodable {
+    public init?(argument: String) {
+      switch argument.lowercased() {
+        case "adaptive": self = .adaptive
+        case let value where Int(value) != nil:
+          let value = Int32(value)!
+          self = value != 0 ? .enabled(value) : .disabled
+        default: self = .disabled
+      }
+    }
+    
+    public init?(rawValue: Int32) {
+      switch rawValue {
+        case -1: self = .adaptive
+        case 0: self = .disabled
+        default: self = .enabled(rawValue)
+      }
+    }
+    
+    case adaptive
+    case disabled
+    case enabled(Int32)
+    
+    public var rawValue: RawValue {
+      switch self {
+        case .adaptive: return -1
+        case .enabled(let value): return value
+        case .disabled: return 0
+      }
+    }
+    
+    public var defaultValueDescription: String {
+      switch self {
+        case .adaptive: return "adaptive"
+        case .enabled: return "enabled"
+        case .disabled: return "disabled"
+      }
+    }
+    
+    public static var allValueStrings: [String] {
+      [
+        "adaptive",
+        "disabled",
+        "interger value"
+      ]
+    }
+  }
+}
+
+extension SDL_Point: @retroactive ExpressibleByArgument {
+  public init?(argument: String) {
+    let width = Int32(argument.split(separator: "x").first ?? "0") ?? .zero
+    let height = Int32(argument.split(separator: "x").last ?? "0") ?? .zero
+    self.init(x: width, y: height)
+  }
+}
+
+extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument {
+  public init?(argument: String) {
+    switch argument.lowercased() {
+      case "stretch": self = .stretch
+      case "letterbox": self = .letterbox
+      case "overscan": self = .overscan
+      case "integer-scale": self = .integerScale
+      default: self = .disabled
+    }
+  }
+  
+  public var defaultValueDescription: String {
+    switch self {
+      case .stretch: return "stretch"
+      case .letterbox: return "letterbox"
+      case .overscan: return "overscan"
+      case .integerScale: return "integer-scale"
+      default: return "disabled"
+    }
+  }
+  
+  public static var allValueStrings: [String] {
+    [
+      "disabled",
+      "stretch",
+      "letterbox",
+      "overscan",
+      "integer-scale"
+    ]
+  }
+}
+
+extension Window {
+  internal func sync(options: GameOptions) throws(SDL_Error) {
+    if let windowTitle    = options.windowTitle { try set(title: windowTitle) }
+    if let windowMinSize  = options.windowMinSize { try set(minSize: windowMinSize) }
+    if let windowMaxSize  = options.windowMaxSize { try set(maxSize: windowMaxSize) }
+    if let windowSize     = options.windowSize { try set(size: windowSize) }
+    if let windowPosition = options.windowPosition { try set(position: windowPosition) }
+    
+    /// These `has` checks ensure that flags which have already been set by the `Game` instance are overwritten.
+    if !has(.always_on_top) { try set(alwaysOnTop: options.windowAlwaysOnTop) }
+    if !has(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }
+    if !has(.resizable)  { try set(resizable: options.windowResizable) }
+    if !has(.borderless) { try set(showBorder: !options.windowNoFrame) }
+    if !has(.minimized) && options.windowMinimized { try self(SDL_MinimizeWindow) }
+    if !has(.maximized) && options.windowMaximized { try self(SDL_MaximizeWindow) }
+    
+    _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
+    
+    if let renderer = try? renderer.get() {
+      print("Attempting to set vsync to \"\(options.vsync)\"")
+      try renderer.set(vsync: options.vsync.rawValue)
+      
+      let existingLogicalSize = SDL_Size(try renderer.logicalSize.get())
+      var logicalSize         = options.logicalSize ?? existingLogicalSize
+      let logicalPresentation = options.autoScaleContent ? .stretch : options.logicalPresentation
+      
+      // Mirrors 'logicalSize' to `window.size` when empty...
+      if logicalSize.x == 0, logicalSize.y == 0 {
+        logicalSize = SDL_Size(try self.size(as: Int32.self))
+      }
+      
+      print("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y) -- \(logicalPresentation)")
+      try renderer.set(logicalSize: [logicalSize.x, logicalSize.y], presentation: logicalPresentation)
+    }
+    
+    try self(SDL_SyncWindow)
+  }
 }

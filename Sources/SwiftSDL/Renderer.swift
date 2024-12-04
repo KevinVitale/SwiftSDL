@@ -53,13 +53,6 @@ extension Renderer {
     return properties
   }
 
-  public var color: Result<SDL_Color, SDL_Error> {
-    var r: UInt8 = 0, g: UInt8 = 0, b: UInt8 = 0, a: UInt8 = 0
-    return self
-      .resultOf(SDL_GetRenderDrawColor, .some(&r), .some(&g), .some(&b), .some(&a))
-      .map({ _ in SDL_Color(r: r, g: g, b: b, a: a) })
-  }
-  
   public var viewport: Result<Rect<Int32>, SDL_Error> {
     var rect = SDL_Rect()
     return self
@@ -73,6 +66,20 @@ extension Renderer {
       .resultOf(SDL_GetRenderSafeArea, .some(&rect))
       .map({ _ in [rect.x, rect.y, rect.w, rect.h] })
   }
+  
+  public var logicalSize: Result<Size<Int32>, SDL_Error> {
+    var width: Int32 = 0, height: Int32 = 0
+    return self
+      .resultOf(SDL_GetRenderLogicalPresentation, .some(&width), .some(&height), nil)
+      .map({ _ in [width, height] })
+  }
+  
+  public var logicalPresentation: Result<SDL_RendererLogicalPresentation, SDL_Error> {
+    var mode: SDL_RendererLogicalPresentation = .disabled
+    return self
+      .resultOf(SDL_GetRenderLogicalPresentation, nil, nil, .some(&mode))
+      .map({ _ in mode })
+  }
 
   public var vsync: Result<Int32, SDL_Error> {
     var vsync: Int32 = 0
@@ -81,9 +88,11 @@ extension Renderer {
       .map({ _ in vsync })
   }
   
-  @discardableResult
-  public func set(vsync: Int32) throws(SDL_Error) -> Self {
-    try self(SDL_SetRenderVSync, vsync)
+  public var blendMode: Result<SDL_BlendMode, SDL_Error> {
+    var blendMode: SDL_BlendMode.RawValue = 0
+    return self
+      .resultOf(SDL_GetRenderDrawBlendMode, .some(&blendMode))
+      .map({ _ in SDL_BlendMode(rawValue: blendMode) ?? .invalid })
   }
 }
 
@@ -93,10 +102,22 @@ extension Renderer {
   public func set(blendMode: SDL_BlendMode) throws(SDL_Error) -> Self {
     try self(SDL_SetRenderDrawBlendMode, blendMode.rawValue)
   }
+  
+  @discardableResult
+  public func set(vsync: Int32) throws(SDL_Error) -> Self {
+    try self(SDL_SetRenderVSync, vsync)
+  }
 }
 
 // MARK: - Color Functions
 extension Renderer {
+  public var color: Result<SDL_Color, SDL_Error> {
+    var r: UInt8 = 0, g: UInt8 = 0, b: UInt8 = 0, a: UInt8 = 0
+    return self
+      .resultOf(SDL_GetRenderDrawColor, .some(&r), .some(&g), .some(&b), .some(&a))
+      .map({ _ in SDL_Color(r: r, g: g, b: b, a: a) })
+  }
+  
   @discardableResult
   public func set(color: SDL_Color) throws(SDL_Error) -> Self {
     let red = Float(color.r) / Float(UInt8.max)
@@ -200,6 +221,44 @@ extension Renderer {
       throw SDL_Error.error
     }
     return self
+  }
+  
+  @discardableResult
+  public func set(viewport rect: UnsafePointer<SDL_Rect>! = nil) throws(SDL_Error) -> Self {
+    guard case(.success) = self.resultOf(SDL_SetRenderViewport, rect) else {
+      throw SDL_Error.error
+    }
+    return self
+  }
+  
+  @discardableResult
+  public func set(viewport rect: SDL_Rect) throws(SDL_Error) -> Self {
+    var rect = rect
+    return try self.set(viewport: .some(&rect))
+  }
+  
+  @discardableResult
+  public func set<T: SIMDScalar>(viewport rect: Rect<T>) throws(SDL_Error) -> Self where T: FixedWidthInteger {
+    var rect = SDL_Rect(rect.to(Int32.self))
+    return try self.set(viewport: .some(&rect))
+  }
+  
+  @discardableResult
+  public func set<T: SIMDScalar>(viewport rect: Rect<T>) throws(SDL_Error) -> Self where T: BinaryFloatingPoint {
+    var rect = SDL_Rect(rect.to(Int32.self))
+    return try self.set(viewport: .some(&rect))
+  }
+  
+  @discardableResult
+  public func set<T: SIMDScalar>(viewport rect: Result<Rect<T>, SDL_Error>) throws(SDL_Error) -> Self where T: FixedWidthInteger {
+    var rect = SDL_Rect(try rect.get().to(Int32.self))
+    return try self.set(viewport: .some(&rect))
+  }
+  
+  @discardableResult
+  public func set<T: SIMDScalar>(viewport rect: Result<Rect<T>, SDL_Error>) throws(SDL_Error) -> Self where T: BinaryFloatingPoint {
+    var rect = SDL_Rect(try rect.get().to(Int32.self))
+    return try self.set(viewport: .some(&rect))
   }
 }
   

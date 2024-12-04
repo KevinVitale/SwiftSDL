@@ -44,8 +44,6 @@ extension SDL.Test {
       try icon.set(blendMode: blendMode)
       
       self.icon = icon
-      
-      try window.sync(options: options)
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
