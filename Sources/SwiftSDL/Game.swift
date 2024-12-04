@@ -15,20 +15,54 @@ public protocol Game: AnyObject, ParsableCommand {
   /// The default window properties  for creating the main window.
   static var windowProperties: [WindowProperty] { get }
   
+  /** Runtime options that customize a game's behavior and presentation.
+   
+   These options get applied **immediately after**  `onReady(window:)` completes.
+   
+   Those options which correspond to flags used when creating the `window` are ignored if
+   they were already defined in `windowProperties` at compile time.
+
+   - seealso: _GameOptions_
+   */
   var options: GameOptions { get }
   
   /**
+   Called once to initialize SDL and create the game's main window.
    
+   - note: A default implementation is provided which automatically initializes SDL's _video_ subsystem,
+   and creates the `window` based on `windowProperties`.
+
+   The default implementation automatically:
+   1. Initializes SDL's video subsystem.
+   2. Creates a window using the properties specified in `windowProperties`.
+   
+   If this method throws an error:
+   1. `onShutdown(window_:)` will be invoked to handle cleanup and unwind any partially initialized state.
+   2. Following that, `onQuit(_:)` will be called, terminating the application with an appropriate exit code.
+
+   - returns: Main window, created by calling `SDL_CreateWindow(with:)`.
+   
+   - warning: If you override this function, you must manually create the window
+   and initialize any required SDL subsystems yourself. Overriding introduces significant responsibility and complexity; use caution.
    */
   func onInit() throws(SDL_Error) -> any Window
   
   /**
+   Called **immediately after** the application's `window` is created and ready. After this function
+   returns, the game's event-loop is started.
    
+   Use `onReady(window:)`to perform one-time startup operations, such as:
+   - initializing additional SDL subsytems (`joystick`, `audio`, etc.); or,
+   - creating the window's accelerated _renderer_; and,
+   - setting default game state; and,
+   - loading initial assets or other required content.
+   
+   - parameter window: The `window` created by `onInit()`.
    */
   func onReady(window: any Window) throws(SDL_Error)
   
   /**
-   This is called over and over, possibly at the refresh rate of the display or some other metric that the platform dictates.
+   Called over and over, possibly at the refresh rate of the display or some other metric that the platform dictates.
    
    This function should return as quickly as reasonably possible, during which,
    your game should update state, and render a frame of video.
@@ -50,7 +84,7 @@ public protocol Game: AnyObject, ParsableCommand {
   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
   
   /**
-   This will be called whenever an SDL event arrives.
+   Called whenever an SDL event arrives.
    
    - note: Your app should not call SDL_PollEvent, SDL_PumpEvent, etc, as SDL will manage all this for you.
    
@@ -59,7 +93,7 @@ public protocol Game: AnyObject, ParsableCommand {
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
   
   /**
-   This method is called immediately before the application quits.
+   Called **immediately before** the application quits.
    
    Use this method to clean up resources such as game assets or memory allocations
    that were previously created or retained.
@@ -219,7 +253,6 @@ extension Game {
   }
   
   public func onQuit(_ result: SDL_Error?) {
-    print("Game: \(#function)")
     SDL_Quit()
   }
   
@@ -414,8 +447,10 @@ extension Window {
     _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
     
     if let renderer = try? renderer.get() {
-      print("Attempting to set vsync to \"\(options.vsync)\"")
-      try renderer.set(vsync: options.vsync.rawValue)
+      if try renderer.vsync.get() == 0, options.vsync != .disabled {
+        print("Attempting to set vsync to \"\(options.vsync)\"")
+        try renderer.set(vsync: options.vsync.rawValue)
+      }
       
       let existingLogicalSize = SDL_Size(try renderer.logicalSize.get())
       var logicalSize         = options.logicalSize ?? existingLogicalSize
