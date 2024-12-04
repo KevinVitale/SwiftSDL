@@ -1,4 +1,4 @@
-///
+
 public protocol Game: AnyObject, ParsableCommand {
   /// The name of the application (“My Game 2: Bad Guy’s Revenge!”).
   /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_NAME_STRING_.
@@ -17,11 +17,74 @@ public protocol Game: AnyObject, ParsableCommand {
   
   var options: GameOptions { get }
   
+  /**
+   
+   */
   func onInit() throws(SDL_Error) -> any Window
+  
+  /**
+   
+   */
   func onReady(window: any Window) throws(SDL_Error)
+  
+  /**
+   This is called over and over, possibly at the refresh rate of the display or some other metric that the platform dictates.
+   
+   This function should return as quickly as reasonably possible, during which,
+   your game should update state, and render a frame of video.
+   
+   For example, this how the `Geometry` test bench  implements its `onUpdate(window:, _:`:
+   
+   ```
+   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+     try renderer
+     .clear(color: .gray)
+     .set(blendMode: blendMode)
+     .draw(into: self._drawGeometry(_:))
+     .present()
+   }
+   ```
+   
+   - seealso: _SDL_AppIterate_
+   */
   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
+  
+  /**
+   This will be called whenever an SDL event arrives.
+   
+   - note: Your app should not call SDL_PollEvent, SDL_PumpEvent, etc, as SDL will manage all this for you.
+   
+   - seealso: _SDL_AppEvent_
+   */
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
+  
+  /**
+   This method is called immediately before the application quits.
+   
+   Use this method to clean up resources such as game assets or memory allocations
+   that were previously created or retained.
+   
+   - parameter window: the main `window`, or `nil` if it couldn't be created.
+
+   - note: This function is **always called** whether or not the game initialized successfully.
+   The `window` property may be `nil` if the application was unable to create it due to an initialization failure.
+   */
   func onShutdown(window: (any Window)?) throws(SDL_Error)
+  
+  /**
+   This method is called once during the application shutdown process as a last chance to clean up.
+   
+   Use  `onShutdown(window:)` rather than overriding `onQuit(_:)`. Otherwise,
+   you're responsible for shutting down SDL's subsytem.
+   
+   - parameter result: An optional `SDL_Error` that indicates whether an error occurred
+   prior to the process quitting.
+
+   - warning: Implementing this method **overrides** the default implementation.
+   The default implementation will automatically call `SDL_Quit` to shut down SDL's subsystems.
+   
+   - seealso: _SDL_AppQuit_
+   */
   func onQuit(_ result: SDL_Error?)
   
   func did(connect gameController: inout GameController) throws(SDL_Error)
@@ -156,6 +219,7 @@ extension Game {
   }
   
   public func onQuit(_ result: SDL_Error?) {
+    print("Game: \(#function)")
     SDL_Quit()
   }
   

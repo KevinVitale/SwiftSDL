@@ -47,16 +47,15 @@ extension SDL.Test {
     }
     
     func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      // Clears the framebuffer (uses 'blendMode' option passed in at runtime).
       try renderer
-        .set(blendMode: blendMode)
+        // Clears the framebuffer
         .clear(color: .init(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF))
-      
-      // Draws geometry (evaluates 'useTexture' option passed in at runtime).
-      try self._drawGeometry(renderer)
-      
-      // Presents framebuffer content onto 'window'.
-      try renderer.present()
+        // Use the 'blendMode' option passed in at runtime
+        .set(blendMode: blendMode)
+        // Draws geometry (evaluates 'useTexture' option passed in at runtime)
+        .draw(into: self._drawGeometry(_:))
+        // Presents framebuffer content onto 'window'
+        .present()
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
