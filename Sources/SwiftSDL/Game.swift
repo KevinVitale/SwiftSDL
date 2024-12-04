@@ -38,10 +38,10 @@ public protocol Game: AnyObject, ParsableCommand {
    ```
    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
      try renderer
-     .clear(color: .gray)
-     .set(blendMode: blendMode)
-     .draw(into: self._drawGeometry(_:))
-     .present()
+       .clear(color: .gray)
+       .set(blendMode: blendMode)
+       .draw(into: self._drawGeometry(_:))
+       .present()
    }
    ```
    
