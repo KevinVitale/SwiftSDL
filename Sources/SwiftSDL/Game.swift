@@ -249,7 +249,11 @@ extension Game {
   
   public func onInit() throws(SDL_Error) -> any Window {
     try SDL_Init(.video)
-    return try SDL_CreateWindow(with: Self.windowProperties)
+    
+    var windowProperties = Self.windowProperties
+    windowProperties.append(.transparent(options.windowTransparent))
+    
+    return try SDL_CreateWindow(with: windowProperties)
   }
   
   public func onQuit(_ result: SDL_Error?) {
@@ -307,6 +311,9 @@ public struct GameOptions: ParsableArguments {
   @Flag(help: "Window is always kept on top")
   public var windowAlwaysOnTop: Bool = false
   
+  @Flag(help: "Window is uses a transparent buffer")
+  public var windowTransparent: Bool = false
+
   @Flag(help: "Create a maximized window; requires '--window-resizable'")
   public var windowMaximized: Bool = false
   

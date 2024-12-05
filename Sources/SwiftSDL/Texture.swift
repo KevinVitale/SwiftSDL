@@ -125,15 +125,46 @@ extension Renderer {
     return try self(SDL_RenderTextureRotated, texture.pointer, .some(&sourceRect), .some(&destRect), 0, nil, .none)
   }
   
-  public func texture(from surface: any Surface, tag: String? = nil) throws(SDL_Error) -> any Texture {
+  public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
     guard case(.some(let pointer)) = try self(SDL_CreateTextureFromSurface, surface.pointer) else {
       throw .error
     }
     
+    // TODO: Set transparent pixel as the pixel at (0,0)
+    /*
+    if (transparent) {
+      if (SDL_GetSurfacePalette(temp)) {
+        const Uint8 bpp = SDL_BITSPERPIXEL(temp->format);
+        const Uint8 mask = (1 << bpp) - 1;
+        if (SDL_PIXELORDER(temp->format) == SDL_BITMAPORDER_4321)
+            SDL_SetSurfaceColorKey(temp, true, (*(Uint8 *)temp->pixels) & mask);
+        else
+          SDL_SetSurfaceColorKey(temp, true, ((*(Uint8 *)temp->pixels) >> (8 - bpp)) & mask);
+      } else {
+        switch (SDL_BITSPERPIXEL(temp->format)) {
+          case 15:
+            SDL_SetSurfaceColorKey(temp, true,
+                                   (*(Uint16 *)temp->pixels) & 0x00007FFF);
+            break;
+          case 16:
+            SDL_SetSurfaceColorKey(temp, true, *(Uint16 *)temp->pixels);
+            break;
+          case 24:
+            SDL_SetSurfaceColorKey(temp, true,
+                                   (*(Uint32 *)temp->pixels) & 0x00FFFFFF);
+            break;
+          case 32:
+            SDL_SetSurfaceColorKey(temp, true, *(Uint32 *)temp->pixels);
+            break;
+        }
+      }
+    }
+     */
+    
     return SDLObject(pointer, tag: .custom(tag ?? "texture (from surface)"), destroy: SDL_DestroyTexture)
   }
   
-  public func texture(from bitmap: inout [UInt8]) throws(SDL_Error) -> any Texture {
+  public func texture(from bitmap: inout [UInt8], transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
     guard let srcPtr = SDL_IOFromMem(&bitmap, bitmap.count) else {
       throw .error
     }
@@ -143,6 +174,6 @@ extension Renderer {
     }
     
     let surface: any Surface = SDLObject(pointer, tag: .custom("surface (bitmap)"), destroy: SDL_DestroySurface)
-    return try self.texture(from: surface)
+    return try self.texture(from: surface, transparent: transparent, tag: tag)
   }
 }

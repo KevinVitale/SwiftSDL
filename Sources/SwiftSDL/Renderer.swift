@@ -306,6 +306,34 @@ extension Renderer {
       )
       .set(color: color)
   }
+  
+  @discardableResult
+  public func lines(_ lines: SDL_FPoint..., color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try self.lines(lines, color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+  
+  @discardableResult
+  public func lines(_ lines: SDL_FPoint..., color: SDL_Color) throws(SDL_Error) -> Self {
+    try self.lines(lines, color: color)
+  }
+  
+  @discardableResult
+  public func lines(_ lines: [SDL_FPoint], color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
+    try self.lines(lines, color: SDL_Color(r: r, g: g, b: b, a: a))
+  }
+  
+  @discardableResult
+  public func lines(_ lines: [SDL_FPoint], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
+    let color = try color.get()
+    return try self
+      .set(color: fillColor)
+      .callAsFunction(
+        SDL_RenderLines,
+        lines.withUnsafeBufferPointer(\.baseAddress),
+        Int32(lines.count)
+      )
+      .set(color: color)
+  }
 
   @discardableResult
   public func fill(rects: SDL_FRect..., color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8) throws(SDL_Error) -> Self {
