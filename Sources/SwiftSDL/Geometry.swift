@@ -87,14 +87,6 @@ extension SDL_FPoint: @retroactive SIMD {
     var this = self
     return block(&this, repeat each argument)
   }
-
-  public func to<S: SIMDScalar & FixedWidthInteger>(_ type: S.Type) -> SDL_Point where Scalar: BinaryFloatingPoint {
-    var s = SIMD2<Int32>()
-    for i in indices {
-      s[i] = Int32(self[i])
-    }
-    return SDL_Point(x: s[0], y: s[1])
-  }
 }
 
 
@@ -131,20 +123,17 @@ extension SDL_Rect: @retroactive SIMD {
   
   public typealias MaskStorage = SIMD4<Int32>.MaskStorage
   public typealias Scalar = SIMD4<Int32>.Scalar
+  
+  public var topLeft     : SDL_Point { [self[0], self[1]] }
+  public var topRight    : SDL_Point { [self[2], self[0]] }
+  public var bottomLeft  : SDL_Point { [self[0], self[3]] }
+  public var bottomRight : SDL_Point { [self[2], self[3]] }
 
   @discardableResult
   @inlinable
   public func callAsFunction<Value, each Argument>(_ block: (UnsafePointer<Self>?, repeat each Argument) -> Value, _ argument: repeat each Argument) -> Value {
     var this = self
     return block(&this, repeat each argument)
-  }
-
-  public func to<S: SIMDScalar & BinaryFloatingPoint>(_ type: S.Type) -> SDL_FRect where Scalar: FixedWidthInteger {
-    var s = SIMD4<Float>()
-    for i in indices {
-      s[i] = Float(self[i])
-    }
-    return SDL_FRect(x: s[0], y: s[1], w: s[2], h: s[3])
   }
 }
 
@@ -182,6 +171,11 @@ extension SDL_FRect: @retroactive SIMD {
   public typealias MaskStorage = SIMD4<Float>.MaskStorage
   public typealias Scalar = SIMD4<Float>.Scalar
   
+  public var topLeft     : SDL_FPoint { [self[0], self[1]] }
+  public var topRight    : SDL_FPoint { [self[2], self[0]] }
+  public var bottomLeft  : SDL_FPoint { [self[0], self[3]] }
+  public var bottomRight : SDL_FPoint { [self[2], self[3]] }
+
   @discardableResult
   @inlinable
   public func callAsFunction<Value, each Argument>(_ block: (UnsafePointer<Self>?, repeat each Argument) -> Value, _ argument: repeat each Argument) -> Value {
