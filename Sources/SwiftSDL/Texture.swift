@@ -99,7 +99,8 @@ extension Texture {
 }
 
 extension Renderer {
-  /// <#Description#>
+  /// Copy a portion of the source texture to the current rendering target, with rotation and flipping, at subpixel precision.
+  ///
   /// - Parameters:
   ///   - texture: The texture to be drawn. May be `nil`.
   ///   - position: The position within the rendering target where the texture will begin drawing.
@@ -108,6 +109,8 @@ extension Renderer {
   ///   - center: The point the texture is rotated around.
   ///   - textureRect: A vector with values between 0...1 used when copying the texture's source.
   ///   - flip: A value used which can flip the image horizontally or vertically.
+  ///
+  /// - seealso: _SDL_RenderTextureRotated_
   @discardableResult public func draw(
     texture: (any Texture)?
     , at position: SDL_FPoint = .zero
