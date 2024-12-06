@@ -37,20 +37,15 @@ open class TextureNode: SceneNode, RenderNode {
   }
 
   open func draw(_ graphics: any Renderer) throws(SDL_Error) {
-    let dstSize = size
     let dstPos = position
     let colorMod = try texture.colorMod.get()
     
-    try texture
-      .set(colorMod: self.colorMod)
-      .draw(
-        dstRect: [
-          dstPos.x, dstPos.y,
-          dstSize.x, dstSize.y
-        ],
-        angle: rotation.value,
-        flip: flipMode
-      )
-      .set(colorMod: colorMod)
+    try graphics.draw(
+      texture: texture.set(colorMod: colorMod),
+      at: dstPos(as: SDL_FPoint.self),
+      scaledBy: scale(as: SDL_FSize.self),
+      angle: rotation.value,
+      flip: flipMode
+    )
   }
 }

@@ -413,10 +413,7 @@ extension SDL.Test.Controller {
         case .front(let gameController) where gameController != .invalid:
           let texturePosition = self.position
           let textureSize = (try frontImage?.size(as: Float.self)) ?? .zero
-          try frontImage?.draw(dstRect: [
-            texturePosition.x, texturePosition.y,
-            textureSize.x, textureSize.y
-          ])
+          try graphics.draw(texture: frontImage, at: texturePosition(as: SDL_FPoint.self))
 
           let title = gamepad.title
           let titleSize = title.debugTextSize(as: Float.self) / 2
@@ -431,15 +428,13 @@ extension SDL.Test.Controller {
           
           for gamepadButton in SDL_GamepadButton.allCases {
             let texturePosition = position - [25, 25] + gamepadButton.position
-            let textureSize = (try highlight?.size(as: Float.self)) ?? .zero
             
             switch gameController.gamepad(isPressed: gamepadButton) {
               case true:
-                try highlight?.set(colorMod: pressedColor)
-                try highlight?.draw(dstRect: [
-                  texturePosition.x, texturePosition.y,
-                  textureSize.x, textureSize.y
-                ])
+                try graphics.draw(
+                  texture: try highlight?.set(colorMod: pressedColor),
+                  at: texturePosition(as: SDL_FPoint.self)
+                )
               case false:
                 try highlight?.set(colorMod: .white)
             }
@@ -448,35 +443,19 @@ extension SDL.Test.Controller {
           switch gameController.gamepad(labelFor: .south) {
             case .a:
               let texturePosition = position + [363, 118]
-              let textureSize = (try abxy?.size(as: Float.self)) ?? .zero
-              try abxy?.draw(dstRect: [
-                texturePosition.x, texturePosition.y,
-                textureSize.x, textureSize.y
-              ])
+              try graphics.draw(texture: abxy, at: texturePosition(as: SDL_FPoint.self))
             case .b:
               let texturePosition = position + [363, 118]
-              let textureSize = (try bayx?.size(as: Float.self)) ?? .zero
-              try bayx?.draw(dstRect: [
-                texturePosition.x, texturePosition.y,
-                textureSize.x, textureSize.y
-              ])
+              try graphics.draw(texture: bayx, at: texturePosition(as: SDL_FPoint.self))
             case .cross:
               let texturePosition = position + [363, 118]
-              let textureSize = (try sony?.size(as: Float.self)) ?? .zero
-              try sony?.draw(dstRect: [
-                texturePosition.x, texturePosition.y,
-                textureSize.x, textureSize.y
-              ])
+              try graphics.draw(texture: sony, at: texturePosition(as: SDL_FPoint.self))
             default: ()
           }
           
         case .back(let gameController) where gameController != .invalid:
           let texturePosition = position
-          let textureSize = (try backImage?.size(as: Float.self)) ?? .zero
-          try backImage?.draw(dstRect: [
-            texturePosition.x, texturePosition.y,
-            textureSize.x, textureSize.y
-          ])
+          try graphics.draw(texture: backImage, at: texturePosition(as: SDL_FPoint.self))
         default: ()
       }
       
@@ -562,17 +541,13 @@ extension SDL.Test.Controller {
             try graphics.debug(text: text, position: position, scale: scale)
             
             let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
-            let textureSize = (try smallButtonTexture?.size(as: Float.self)) ?? .zero
             
             switch gameController.joystick(isPressed: button) {
               case true: try smallButtonTexture?.set(colorMod: pressedColor)
               case false: try smallButtonTexture?.set(colorMod: .white)
             }
             
-            try smallButtonTexture?.draw(dstRect: [
-              texturePosition.x, texturePosition.y,
-              textureSize.x, textureSize.y
-            ])
+            try graphics.draw(texture: smallButtonTexture, at: texturePosition(as: SDL_FPoint.self))
           }
           
         case .axes(let gameController) where gameController != .invalid:
@@ -591,14 +566,13 @@ extension SDL.Test.Controller {
             let value = gameController.joystick(axis: axis)
 
             let leftArrowPosition = position + [26, -2]
-            let leftArrowSize = try arrowTexture?.size(as: Float.self) ?? .zero
             let leftArrowColorMod = value == (Int16.min + 1) ? pressedColor : .white
             
-            try arrowTexture?.set(colorMod: leftArrowColorMod)
-            try arrowTexture?.draw(dstRect: [
-              leftArrowPosition.x, leftArrowPosition.y,
-              leftArrowSize.x, leftArrowSize.y
-            ], flip: .horizontal)
+            try graphics.draw(
+              texture: try arrowTexture?.set(colorMod: leftArrowColorMod),
+              at: leftArrowPosition(as: SDL_FPoint.self),
+              flip: .horizontal
+            )
             
             var width: Float = 0
             if value < 0 { width = Float(value) / Float(Int16.min) * -48 }
@@ -612,13 +586,11 @@ extension SDL.Test.Controller {
             ], color: valueColor)
 
             let rightArrowPosition = leftArrowPosition + [102, 0]
-            let rightArrowSize = try arrowTexture?.size(as: Float.self) ?? .zero
             let rightArrowColorMod = value == Int16.max ? pressedColor : .white
-            try arrowTexture?.set(colorMod: rightArrowColorMod)
-            try arrowTexture?.draw(dstRect: [
-              rightArrowPosition.x, rightArrowPosition.y,
-              rightArrowSize.x, rightArrowSize.y
-            ], flip: .none)
+            try graphics.draw(
+              texture: try arrowTexture?.set(colorMod: rightArrowColorMod),
+              at: rightArrowPosition(as: SDL_FPoint.self)
+            )
           }
           
         case .hats(let gameController) where gameController != .invalid:
@@ -637,17 +609,16 @@ extension SDL.Test.Controller {
             try graphics.debug(text: text, position: position, scale: scale)
             
             let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
-            let textureSize = (try smallButtonTexture?.size(as: Float.self)) ?? .zero
             
             switch gameController.gamepad(isPressed: gamepadButton) {
               case true: try smallButtonTexture?.set(colorMod: pressedColor)
               case false: try smallButtonTexture?.set(colorMod: .white)
             }
             
-            try smallButtonTexture?.draw(dstRect: [
-              texturePosition.x, texturePosition.y,
-              textureSize.x, textureSize.y
-            ])
+            try graphics.draw(
+              texture: smallButtonTexture,
+              at: texturePosition(as: SDL_FPoint.self)
+            )
           }
         default: ()
       }

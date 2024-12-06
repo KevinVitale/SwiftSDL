@@ -126,7 +126,11 @@ extension Texture {
 
 extension Renderer {
   @discardableResult
-  public func draw(texture: any Texture, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, angle: Double = 0, textureRect: SDL_FRect = [0, 0, 1, 1], flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
+  public func draw(texture: (any Texture)?, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, angle: Double = 0, textureRect: SDL_FRect = [0, 0, 1, 1], flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
+    guard let texture = texture else {
+      return self
+    }
+    
     let textureSize = try texture.size(as: Float.self)
     
     let sourceRectX = 0 + (textureSize.x * textureRect[0])
