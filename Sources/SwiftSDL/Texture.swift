@@ -69,8 +69,18 @@ extension Texture {
   }
   
   @discardableResult
+  public func set(alphaMod component: UInt8) throws(SDL_Error) -> Self {
+    try self(SDL_SetTextureAlphaMod, component)
+  }
+
+  @discardableResult
   public func set(colorMod color: SDL_Color) throws(SDL_Error) -> Self {
     try self(SDL_SetTextureColorMod, color.r, color.g, color.b)
+  }
+  
+  @discardableResult
+  public func set(colorMod r: UInt8, _ g: UInt8, _ b: UInt8) throws(SDL_Error) -> Self {
+    try self(SDL_SetTextureColorMod, r, g, b)
   }
   
   public var renderer: Result<any Renderer, SDL_Error> {
@@ -126,40 +136,41 @@ extension Renderer {
   }
   
   public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
+    if transparent, let bpp = surface.bits_per_pixel, let pixels = surface.pixels {
+      if try surface.palette.get() != nil {
+        let mask: UInt8 = (1 << bpp) - 1
+        if surface.format.order == SDL_BITMAPORDER_4321 {
+          let key = pixels.load(as: UInt8.self) & mask
+          try surface(SDL_SetSurfaceColorKey, true, UInt32(key))
+        }
+        else {
+          let key = pixels.load(as: UInt8.self) >> (8 - bpp) & mask
+          try surface(SDL_SetSurfaceColorKey, true, UInt32(key))
+        }
+      }
+      else {
+        switch surface.bits_per_pixel ?? .zero {
+          case 15: print("\(#function) -- BPP: 15")
+            let key = UInt32(pixels.load(as: UInt8.self)) & 0x00007FFF
+            try surface(SDL_SetSurfaceColorKey, true, key)
+          case 16: print("\(#function) -- BPP: 16")
+            let key = UInt32(pixels.load(as: UInt16.self))
+            try surface(SDL_SetSurfaceColorKey, true, key)
+          case 24: print("\(#function) -- BPP: 24")
+            let key = UInt32(pixels.load(as: UInt32.self)) & 0x00FFFFFF
+            try surface(SDL_SetSurfaceColorKey, true, key)
+          case 32: print("\(#function) -- BPP: 32")
+            let key = UInt32(pixels.load(as: UInt32.self))
+            try surface(SDL_SetSurfaceColorKey, true, key)
+          default: ()
+        }
+      }
+    }
+
     guard case(.some(let pointer)) = try self(SDL_CreateTextureFromSurface, surface.pointer) else {
       throw .error
     }
     
-    // TODO: Set transparent pixel as the pixel at (0,0)
-    /*
-    if (transparent) {
-      if (SDL_GetSurfacePalette(temp)) {
-        const Uint8 bpp = SDL_BITSPERPIXEL(temp->format);
-        const Uint8 mask = (1 << bpp) - 1;
-        if (SDL_PIXELORDER(temp->format) == SDL_BITMAPORDER_4321)
-            SDL_SetSurfaceColorKey(temp, true, (*(Uint8 *)temp->pixels) & mask);
-        else
-          SDL_SetSurfaceColorKey(temp, true, ((*(Uint8 *)temp->pixels) >> (8 - bpp)) & mask);
-      } else {
-        switch (SDL_BITSPERPIXEL(temp->format)) {
-          case 15:
-            SDL_SetSurfaceColorKey(temp, true,
-                                   (*(Uint16 *)temp->pixels) & 0x00007FFF);
-            break;
-          case 16:
-            SDL_SetSurfaceColorKey(temp, true, *(Uint16 *)temp->pixels);
-            break;
-          case 24:
-            SDL_SetSurfaceColorKey(temp, true,
-                                   (*(Uint32 *)temp->pixels) & 0x00FFFFFF);
-            break;
-          case 32:
-            SDL_SetSurfaceColorKey(temp, true, *(Uint32 *)temp->pixels);
-            break;
-        }
-      }
-    }
-     */
     
     return SDLObject(pointer, tag: .custom(tag ?? "texture (from surface)"), destroy: SDL_DestroyTexture)
   }
@@ -173,7 +184,7 @@ extension Renderer {
       throw .error
     }
     
-    let surface: any Surface = SDLObject(pointer, tag: .custom("surface (bitmap)"), destroy: SDL_DestroySurface)
+    let surface: any Surface = SDLObject(pointer, tag: .custom(tag ?? "surface (bitmap)"), destroy: SDL_DestroySurface)
     return try self.texture(from: surface, transparent: transparent, tag: tag)
   }
 }

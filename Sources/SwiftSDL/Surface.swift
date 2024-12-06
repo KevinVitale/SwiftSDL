@@ -10,12 +10,24 @@ extension Surface {
   public subscript<T>(dynamicMember keyPath: KeyPath<Self.Pointer.Pointee, T>) -> T {
     self.pointer.pointee[keyPath: keyPath]
   }
+  
+  public subscript<T>(dynamicMember keyPath: KeyPath<SDL_PixelFormatDetails, T>) -> T? {
+    guard let details = SDL_GetPixelFormatDetails(self.format) else {
+      return nil
+    }
+    
+    return details.pointee[keyPath: keyPath]
+  }
 }
 
 // MARK: - Computed Properties
 extension Surface {
   public var size: Size<Int32> {
     [self.w, self.h]
+  }
+  
+  public var palette: Result<UnsafeMutablePointer<SDL_Palette>?, SDL_Error> {
+    self.resultOf(SDL_GetSurfacePalette)
   }
 }
 
@@ -97,4 +109,10 @@ public func SDL_Load(
   }
   
   return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
+}
+
+extension SDL_PixelFormat {
+  public var order: SDL_BitmapOrder {
+    SDL_BitmapOrder(rawValue: (rawValue >> 20) & 0x0F)
+  }
 }

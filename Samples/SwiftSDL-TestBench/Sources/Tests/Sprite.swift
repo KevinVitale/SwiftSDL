@@ -92,7 +92,9 @@ extension SDL.Test {
     private var velocities: [SDL_FPoint] = []
     private var bgColor = SDL_Color(r: 0xA0, g: 0xA0, b: 0xA0, a: 0x00)
     private var frameCounter = FrameCounter()
-    
+    private var colorCycle: CycleValue = .color(0, 1)
+    private var alphaCycle: CycleValue = .alpha(0, 1)
+
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       self.renderer = try window.createRenderer()
       
@@ -122,6 +124,10 @@ extension SDL.Test {
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
+      colorCycle.step(); alphaCycle.step()
+      try sprite.set(colorMod: .max, colorCycle.component, colorCycle.component)
+      try sprite.set(alphaMod: alphaCycle.component)
+
       try renderer
         .set(viewport: nil)
         .set(viewport: renderer.safeArea)
@@ -132,7 +138,7 @@ extension SDL.Test {
         .pass(to: _drawSprites(_:viewport:), renderer.viewport)
         .present()
       
-      frameCounter.increment(delta)
+      frameCounter.increment()
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
@@ -145,25 +151,48 @@ extension SDL.Test {
     
     private func _drawTestPoints(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
       let viewport    = SDL_FRect(try viewport.get().to(Float.self))
-      let topLeft     = SDL_FPoint([0, 0])
-      let topRight    = SDL_FPoint([viewport[2] - 1, 0])
-      let bottomLeft  = SDL_FPoint([0, viewport[3] - 1])
-      let bottomRight = SDL_FPoint([viewport[2] - 1, viewport[3] - 1])
+      let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
+      let topRight    = SDL_FPoint([viewport[2], viewport[0]])
+      let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
+      let bottomRight = SDL_FPoint([viewport[2], viewport[3]])
       try renderer.points(topLeft, topRight, bottomLeft, bottomRight, color: 0xFF, 0x00, 0x00, 0xFF)
     }
 
     private func _drawTestLines(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
       let viewport    = SDL_FRect(try viewport.get().to(Float.self))
-      let topLeft     = SDL_FPoint([0, 0])
-      let topRight    = SDL_FPoint([viewport[2] - 1, 0])
-      let bottomLeft  = SDL_FPoint([0, viewport[3] - 1])
-      let bottomRight = SDL_FPoint([viewport[2] - 1, viewport[3] - 1])
-      try renderer.lines(topLeft, topRight, bottomLeft, bottomRight, topLeft, color: 0x00, 0xFF, 0x00, 0xFF)
+      let spriteSize  = SDL_FSize(try sprite.size(as: Float.self))
+      let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
+      let topRight    = SDL_FPoint([viewport[2], viewport[0]])
+      let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
+      let bottomRight = SDL_FPoint([viewport[2], viewport[3]])
+      // Top-Bottom (Green)
+      try renderer.lines(topLeft, topRight, color: 0x00, 0xFF, 0x00, 0xFF)
+      try renderer.lines(bottomLeft - [0, 1], bottomRight - [0, 1], color: 0x00, 0xFF, 0x00, 0xFF)
+      
+      // Left-Right (Blue)
       try renderer.lines(topLeft, bottomLeft, color: 0x00, 0x00, 0xFF, 0xFF)
-      try renderer.lines(topRight, bottomRight, color: 0x00, 0x00, 0xFF, 0xFF)
+      try renderer.lines(topRight - [1, 0], bottomRight - [1, 0], color: 0x00, 0x00, 0xFF, 0xFF)
+      
+      // Diagonal 1 (Green)
+      try renderer.lines(topLeft + spriteSize, bottomRight - spriteSize, color: 0x00, 0xFF, 0x00, 0xFF)
+
+      // Diagonal 2 (Green)
+      try renderer.lines(topRight - [spriteSize.x, -spriteSize.y], bottomLeft - [-spriteSize.x, spriteSize.y], color: 0x00, 0xFF, 0x00, 0xFF)
     }
     
     private func _drawTestRects(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
+      let viewport    = SDL_FRect(try viewport.get().to(Float.self))
+      let spriteSize  = SDL_FSize(try sprite.size(as: Float.self))
+      let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
+      let topRight    = SDL_FPoint([viewport[2], viewport[0]])
+      let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
+      let bottomRight = SDL_FPoint([viewport[2], viewport[3]])
+      try renderer.fill(rects: [
+        [topLeft.x, topLeft.y, spriteSize.x, spriteSize.y],
+        [topRight.x - spriteSize.x, topRight.y, spriteSize.x, spriteSize.y],
+        [bottomLeft.x, bottomLeft.y - spriteSize.y, spriteSize.x, spriteSize.y],
+        [bottomRight.x - spriteSize.x, bottomRight.y - spriteSize.y, spriteSize.x, spriteSize.y],
+      ], color: .white)
     }
 
     private func _drawSprites(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
@@ -183,6 +212,11 @@ extension SDL.Test {
         
         try renderer.draw(texture: sprite, at: position)
       }
+      
+      // Decrement the iteration value. Only applies when the test
+      // was started with an explicit iteration value. Otherwise,
+      // sprites are moved forever.
+      iterations.decrement()
     }
     
     private func _moveSprite(sized size: SDL_FSize, to position: inout  SDL_FPoint, at velocity: inout SDL_FPoint, in viewport: Rect<Float>) {
@@ -215,6 +249,50 @@ extension SDL.Test.Sprite {
 }
 
 extension SDL.Test.Sprite {
+  enum CycleValue {
+    case color(Int16, Int16)
+    case alpha(Int16, Int16)
+    
+    var component: UInt8 {
+      UInt8(rawValue)
+    }
+    
+    private var rawValue: Int16 {
+      switch self {
+        case .color(let value, _): return value
+        case .alpha(let value, _): return value
+      }
+    }
+    
+    private var direction: Int16 {
+      switch self {
+        case .color(_, let direction): return direction
+        case .alpha(_, let direction): return direction
+      }
+    }
+    
+    mutating func step() {
+      var direction = direction
+      var rawValue = rawValue + direction
+      
+      if rawValue <= UInt8.min {
+        rawValue = 0
+        direction.negate()
+      }
+      if rawValue > UInt8.max {
+        rawValue = Int16(UInt8.max)
+        direction.negate()
+      }
+      
+      switch self {
+        case .color: self = .color(rawValue, direction)
+        case .alpha: self = .alpha(rawValue, direction)
+      }
+    }
+  }
+}
+
+extension SDL.Test.Sprite {
   struct FrameCounter {
     private var frameDelayAmount: UInt64 = 0
     private var nextFPSCheck: UInt64 = 0
@@ -225,7 +303,7 @@ extension SDL.Test.Sprite {
       nextFPSCheck = SDL_GetTicks() + delayAmount
     }
     
-    mutating func increment(_ delta: UInt64) {
+    mutating func increment() {
       frames += 1
       let now = SDL_GetTicks()
       if now >= nextFPSCheck {
