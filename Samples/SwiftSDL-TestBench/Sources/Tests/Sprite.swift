@@ -87,6 +87,7 @@ extension SDL.Test {
     ) var image: String = "icon.bmp"
     
     private var renderer: (any Renderer)! = nil
+    private var rendererMode: RenderMode = .default
     private var sprite: (any Texture)! = nil
     private var positions: [SDL_FPoint] = []
     private var velocities: [SDL_FPoint] = []
@@ -96,6 +97,9 @@ extension SDL.Test {
     private var alphaCycle: CycleValue = .alpha(0, 1)
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      guard renderMode == .default else {
+        fatalError("\"\(renderMode)\" is not yet implemented. Don't use --render-mode")
+      }
       self.renderer = try window.createRenderer()
       
       self.sprite = try renderer
