@@ -96,37 +96,27 @@ extension Texture {
       .resultOf(SDL_GetRendererFromTexture)
       .map({ SDLObject($0, tag: .custom("texture.renderer")) })
   }
-  
-  @discardableResult
-  @available(*, deprecated, message: "Use `draw(texture:at:scaledBy:angle:flip:)` instead")
-  public func draw(
-    sourceRect: SDL_FRect? = nil,
-    dstRect: SDL_FRect? = nil,
-    angle: Double = 0,
-    center: SDL_FPoint? = nil,
-    flip: SDL_FlipMode = .none
-  ) throws(SDL_Error) -> Self {
-    let renderer = try renderer.get()
-    let textureSize = try self.size(as: Float.self)
-    var sourceRect: SDL_FRect? = sourceRect ?? nil
-    var dstRect: SDL_FRect? = dstRect ?? [0, 0, textureSize.x, textureSize.y]
-    var center: SDL_FPoint? = center ?? nil
-    try renderer(
-      SDL_RenderTextureRotated,
-      pointer,
-      sourceRect != nil ? .some(&sourceRect!) : nil,
-      dstRect != nil ? .some(&dstRect!) : nil,
-      angle,
-      center != nil ? .some(&center!) : nil,
-      flip
-    )
-    return self
-  }
 }
 
 extension Renderer {
-  @discardableResult
-  public func draw(texture: (any Texture)?, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, angle: Double = 0, textureRect: SDL_FRect = [0, 0, 1, 1], flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
+  /// <#Description#>
+  /// - Parameters:
+  ///   - texture: The texture to be drawn. May be `nil`.
+  ///   - position: The position within the rendering target where the texture will begin drawing.
+  ///   - scale: A scaling vector used to adjust the size which the texture is drawn at.
+  ///   - angle: The amount of rotation the texture is drawn with.
+  ///   - center: The point the texture is rotated around.
+  ///   - textureRect: A vector with values between 0...1 used when copying the texture's source.
+  ///   - flip: A value used which can flip the image horizontally or vertically.
+  @discardableResult public func draw(
+    texture: (any Texture)?
+    , at position: SDL_FPoint = .zero
+    , scaledBy scale: SDL_FSize = .one
+    , angle: Double = 0
+    , center: SDL_FPoint? = nil
+    , textureRect: SDL_FRect = [0, 0, 1, 1]
+    , flip: SDL_FlipMode = .none
+  ) throws(SDL_Error) -> Self {
     guard let texture = texture else {
       return self
     }
@@ -145,7 +135,17 @@ extension Renderer {
     let destRectH = scale.y * textureSize.y
     var destRect: SDL_FRect = [destRectX, destRectY, destRectW, destRectH]
     
-    return try self(SDL_RenderTextureRotated, texture.pointer, .some(&sourceRect), .some(&destRect), angle, nil, flip)
+    var center = center ?? nil
+    
+    return try self(
+      SDL_RenderTextureRotated,
+      texture.pointer,
+      .some(&sourceRect),
+      .some(&destRect),
+      angle,
+      center != nil ? .some(&center!) : nil,
+      flip
+    )
   }
   
   public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
