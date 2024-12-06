@@ -232,7 +232,24 @@ extension SIMD2 {
   }
 }
 
+extension SIMD2 where Scalar: FixedWidthInteger {
+  public func callAsFunction(as type: SDL_Point.Type) -> SDL_Point {
+    SDL_Size(self)
+  }
+}
+
+extension SIMD2 where Scalar: BinaryFloatingPoint {
+  public func callAsFunction(as type: SDL_FPoint.Type) -> SDL_FPoint {
+    SDL_FSize(self)
+  }
+}
+
 extension SIMD4 {
+  public var topLeft     : SIMD2<Scalar> { [self[0], self[1]] }
+  public var topRight    : SIMD2<Scalar> { [self[2], self[0]] }
+  public var bottomLeft  : SIMD2<Scalar> { [self[0], self[3]] }
+  public var bottomRight : SIMD2<Scalar> { [self[2], self[3]] }
+
   public func to<S: SIMDScalar>(_ type: S.Type) -> SIMD4<S> where S: FixedWidthInteger, Scalar: FixedWidthInteger {
     var s = SIMD4<S>()
     for i in indices {

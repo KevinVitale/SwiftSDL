@@ -155,20 +155,20 @@ extension SDL.Test {
     
     private func _drawTestPoints(_ renderer: any Renderer) throws(SDL_Error) {
       let viewport    = try renderer.viewport.get().to(Float.self)
-      let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
-      let topRight    = SDL_FPoint([viewport[2], viewport[0]])
-      let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
-      let bottomRight = SDL_FPoint([viewport[2], viewport[3]])
+      let topLeft     = viewport.topLeft(as: SDL_FSize.self)
+      let topRight    = viewport.topRight(as: SDL_FSize.self)
+      let bottomLeft  = viewport.bottomLeft(as: SDL_FSize.self)
+      let bottomRight = viewport.bottomRight(as: SDL_FSize.self)
       try renderer.points(topLeft, topRight, bottomLeft, bottomRight, color: 0xFF, 0x00, 0x00, 0xFF)
     }
 
     private func _drawTestLines(_ renderer: any Renderer) throws(SDL_Error) {
       let viewport    = try renderer.viewport.get().to(Float.self)
       let spriteSize  = try sprite.size(as: SDL_FSize.self)
-      let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
-      let topRight    = SDL_FPoint([viewport[2], viewport[0]])
-      let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
-      let bottomRight = SDL_FPoint([viewport[2], viewport[3]])
+      let topLeft     = viewport.topLeft(as: SDL_FSize.self)
+      let topRight    = viewport.topRight(as: SDL_FSize.self)
+      let bottomLeft  = viewport.bottomLeft(as: SDL_FSize.self)
+      let bottomRight = viewport.bottomRight(as: SDL_FSize.self)
       // Top-Bottom (Green)
       try renderer.lines(topLeft, topRight, color: 0x00, 0xFF, 0x00, 0xFF)
       try renderer.lines(bottomLeft - [0, 1], bottomRight - [0, 1], color: 0x00, 0xFF, 0x00, 0xFF)
@@ -187,10 +187,10 @@ extension SDL.Test {
     private func _drawTestRects(_ renderer: any Renderer) throws(SDL_Error) {
       let viewport    = try renderer.viewport.get().to(Float.self)
       let spriteSize = try sprite.size(as: SDL_FSize.self)
-      let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
-      let topRight    = SDL_FPoint([viewport[2], viewport[0]])
-      let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
-      let bottomRight = SDL_FPoint([viewport[2], viewport[3]])
+      let topLeft     = viewport.topLeft(as: SDL_FSize.self)
+      let topRight    = viewport.topRight(as: SDL_FSize.self)
+      let bottomLeft  = viewport.bottomLeft(as: SDL_FSize.self)
+      let bottomRight = viewport.bottomRight(as: SDL_FSize.self)
       try renderer.fill(rects: [
         [topLeft.x, topLeft.y, spriteSize.x, spriteSize.y],
         [topRight.x - spriteSize.x, topRight.y, spriteSize.x, spriteSize.y],
