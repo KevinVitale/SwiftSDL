@@ -186,7 +186,7 @@ extension SDL.Test {
     
     private func _drawTestRects(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
       let viewport    = SDL_FRect(try viewport.get().to(Float.self))
-      let spriteSize  = SDL_FSize(try sprite.size(as: Float.self))
+      let spriteSize = try sprite.size(as: SDL_FSize.self)
       let topLeft     = SDL_FPoint([viewport[0], viewport[1]])
       let topRight    = SDL_FPoint([viewport[2], viewport[0]])
       let bottomLeft  = SDL_FPoint([viewport[0], viewport[3]])
@@ -201,7 +201,7 @@ extension SDL.Test {
 
     private func _drawSprites(_ renderer: any Renderer, viewport: Result<Rect<Int32>, SDL_Error>) throws(SDL_Error) {
       let viewport = try viewport.get().to(Float.self)
-      let spriteSize = SDL_FSize(try sprite.size(as: Float.self))
+      let spriteSize = try sprite.size(as: SDL_FSize.self)
       
       for (idx, (var position, var velocity)) in zip(positions, velocities).enumerated() {
         _moveSprite(

@@ -465,7 +465,7 @@ extension Window {
       
       // Mirrors 'logicalSize' to `window.size` when empty...
       if logicalSize.x == 0, logicalSize.y == 0 {
-        logicalSize = SDL_Size(try self.size(as: Int32.self))
+        logicalSize = try self.size(as: SDL_Size.self)
       }
       
       print("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y); presentation: \(logicalPresentation)")

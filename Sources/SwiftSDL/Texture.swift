@@ -47,6 +47,22 @@ extension Texture {
     return [T(width), T(height)]
   }
   
+  public func size<T: SIMD>(as type: T.Type) throws(SDL_Error) -> T where T.Scalar: FixedWidthInteger {
+    var width = Float(), height = Float()
+    guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
+      throw SDL_Error.error
+    }
+    return T([T.Scalar(width), T.Scalar(height)])
+  }
+  
+  public func size<T: SIMD>(as type: T.Type) throws(SDL_Error) -> T where T.Scalar: BinaryFloatingPoint {
+    var width = Float(), height = Float()
+    guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
+      throw SDL_Error.error
+    }
+    return T([T.Scalar(width), T.Scalar(height)])
+  }
+
   public var blendMode: Result<SDL_BlendMode, SDL_Error> {
     Result {
       var blendMode: SDL_BlendMode.RawValue = .zero
@@ -90,6 +106,7 @@ extension Texture {
   }
   
   @discardableResult
+  @available(*, deprecated, message: "Use `draw(texture:at:scaledBy:angle:flip:)` instead")
   public func draw(
     sourceRect: SDL_FRect? = nil,
     dstRect: SDL_FRect? = nil,
@@ -117,7 +134,7 @@ extension Texture {
 
 extension Renderer {
   @discardableResult
-  public func draw(texture: any Texture, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, textureRect: SDL_FRect = [0, 0, 1, 1]) throws(SDL_Error) -> Self {
+  public func draw(texture: any Texture, at position: SDL_FPoint = .zero, scaledBy scale: SDL_FSize = .one, angle: Double = 0, textureRect: SDL_FRect = [0, 0, 1, 1], flip: SDL_FlipMode = .none) throws(SDL_Error) -> Self {
     let textureSize = try texture.size(as: Float.self)
     
     let sourceRectX = 0 + (textureSize.x * textureRect[0])
@@ -132,7 +149,7 @@ extension Renderer {
     let destRectH = scale.y * textureSize.y
     var destRect: SDL_FRect = [destRectX, destRectY, destRectW, destRectH]
     
-    return try self(SDL_RenderTextureRotated, texture.pointer, .some(&sourceRect), .some(&destRect), 0, nil, .none)
+    return try self(SDL_RenderTextureRotated, texture.pointer, .some(&sourceRect), .some(&destRect), angle, nil, flip)
   }
   
   public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
