@@ -283,3 +283,15 @@ extension SIMD4 {
   }
 }
 
+extension SIMD4 where Scalar: FixedWidthInteger {
+  public func callAsFunction(as type: SDL_Rect.Type) -> SDL_Rect {
+    SDL_Rect(self)
+  }
+}
+
+extension SIMD4 where Scalar: BinaryFloatingPoint {
+  public func callAsFunction(as type: SDL_FRect.Type) -> SDL_FRect {
+    SDL_FRect(self)
+  }
+}
+
