@@ -74,22 +74,13 @@ extension Window {
     return [T(width), T(height)]
   }
   
-  public func size<T: SIMD>(as type: T.Type) throws(SDL_Error) -> T where T.Scalar: FixedWidthInteger {
-    var width = Int32(), height = Int32()
-    guard case(.success) = self.resultOf(SDL_GetWindowSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
-    }
-    return T([T.Scalar(width), T.Scalar(height)])
+  public func size(as type: SDL_Size.Type) throws(SDL_Error) -> SDL_Size {
+    return .init(try self.size(as: Int32.self))
   }
   
-  public func size<T: SIMD>(as type: T.Type) throws(SDL_Error) -> T where T.Scalar: BinaryFloatingPoint {
-    var width = Int32(), height = Int32()
-    guard case(.success) = self.resultOf(SDL_GetWindowSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
-    }
-    return T([T.Scalar(width), T.Scalar(height)])
+  public func size(as type: SDL_FSize.Type) throws(SDL_Error) -> SDL_FSize {
+    return .init(try self.size(as: Float.self))
   }
-
   
   @discardableResult
   public func set(alwaysOnTop: Bool) throws(SDL_Error) -> some Window {

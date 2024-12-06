@@ -47,20 +47,12 @@ extension Texture {
     return [T(width), T(height)]
   }
   
-  public func size<T: SIMD>(as type: T.Type) throws(SDL_Error) -> T where T.Scalar: FixedWidthInteger {
-    var width = Float(), height = Float()
-    guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
-    }
-    return T([T.Scalar(width), T.Scalar(height)])
+  public func size(as type: SDL_Size.Type) throws(SDL_Error) -> SDL_Size {
+    return .init(try size(as: Int32.self))
   }
   
-  public func size<T: SIMD>(as type: T.Type) throws(SDL_Error) -> T where T.Scalar: BinaryFloatingPoint {
-    var width = Float(), height = Float()
-    guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
-    }
-    return T([T.Scalar(width), T.Scalar(height)])
+  public func size(as type: SDL_FSize.Type) throws(SDL_Error) -> SDL_FSize {
+    return .init(try size(as: Float.self))
   }
 
   public var blendMode: Result<SDL_BlendMode, SDL_Error> {
