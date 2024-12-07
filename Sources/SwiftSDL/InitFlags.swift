@@ -75,6 +75,6 @@ public func SDL_Init(_ flags: SDL_InitFlags...) throws(SDL_Error) {
 
 public func SDL_Init(_ flags: [SDL_InitFlags]) throws(SDL_Error) {
   guard SDL_Init(flags.reduce(0) { $0 | $1.rawValue }) else {
-    throw SDL_Error.error
+    throw .error
   }
 }

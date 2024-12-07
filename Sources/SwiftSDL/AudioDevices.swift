@@ -63,7 +63,7 @@ public enum AudioDeviceID: Decodable, CustomDebugStringConvertible {
       case .defaultRecording: return .success("Default Recording Device")
       default:
         guard let name = SDL_GetAudioDeviceName(id) else {
-          return .failure(SDL_Error.error)
+          return .failure(.error)
         }
         return .success(String(cString: name))
     }
@@ -73,7 +73,7 @@ public enum AudioDeviceID: Decodable, CustomDebugStringConvertible {
     var spec: SDL_AudioSpec! = .init()
     var frames: Int32 = 0
     guard SDL_GetAudioDeviceFormat(id, &spec, &frames) else {
-      return .failure(SDL_Error.error)
+      return .failure(.error)
     }
     return .success((spec, bufferSize: frames))
   }

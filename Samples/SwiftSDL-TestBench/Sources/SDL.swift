@@ -19,6 +19,7 @@ extension SDL {
         Camera.self,
         Controller.self,
         Geometry.self,
+        SpinningCube.self,
         Sandbox.self,
         Sprite.self,
       ]

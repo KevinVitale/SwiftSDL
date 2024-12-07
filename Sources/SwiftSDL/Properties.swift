@@ -1,3 +1,4 @@
+// TODO: Make this a struct
 extension SDL_PropertiesID {
   private struct EnumerateUserData {
     var count: Int = 0
@@ -51,7 +52,7 @@ extension SDL_PropertiesID {
     
     var userdata = EnumerateUserData()
     guard SDL_EnumerateProperties(self, callback, &userdata) else {
-      throw SDL_Error.error
+      throw .error
     }
     
     return userdata.properties.enumerated()

@@ -166,6 +166,7 @@ extension Game {
           
           return .continue
         } catch {
+          App.runtimeError = error as? SDL_Error
           return .failure
         }
       }, /* onIterate */ { state in
@@ -181,6 +182,7 @@ extension Game {
 
           return .continue
         } catch {
+          App.runtimeError = error as? SDL_Error
           return .failure
         }
       }, /* onEvent */ { state, event in
@@ -224,10 +226,11 @@ extension Game {
           try App.game.onEvent(window: App.window, event)
           return .continue
         } catch {
+          App.runtimeError = error as? SDL_Error
           return .failure
         }
       }, /* onQuit */ { state, result in
-        let error: SDL_Error? = (result == .failure ? .error : nil)
+        let error: SDL_Error? = (result == .failure ? App.runtimeError : nil)
         if let error = error, !error.debugDescription.isEmpty {
           debugPrint(error)
         }
@@ -281,7 +284,7 @@ extension Game {
   public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
     let properties = try self.properties.get()
     guard properties.set(property, value: value) else {
-      throw SDL_Error.error
+      throw .error
     }
     return properties
   }

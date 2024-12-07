@@ -44,7 +44,7 @@ public func SDL_AttachVirtualJoystick(
   
   let virtualID = SDL_AttachVirtualJoystick(&desc)
   guard virtualID != .zero else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return virtualID
@@ -339,7 +339,7 @@ public enum GameController: Hashable {
     let OpenFunc = SDL_IsGamepad(id) ? SDL_OpenGamepad : SDL_OpenJoystick
     
     guard OpenFunc(id) != nil else {
-      throw SDL_Error.error
+      throw .error
     }
     
     GameControllers = try SDL_BufferPointer(SDL_GetJoysticks).map(\.gameController)
@@ -404,9 +404,9 @@ extension SDL_JoystickID {
 
 @propertyWrapper
 public struct SDL_GamepadMapping: CaseIterable {
-  public init(guid: SDL_GUID) throws {
+  public init(guid: SDL_GUID) throws(SDL_Error) {
     guard let mapping = SDL_GetGamepadMappingForGUID(guid) else {
-      throw SDL_Error.error
+      throw .error
     }
     defer { SDL_free(mapping) }
     self.init(wrappedValue: String(cString: mapping))

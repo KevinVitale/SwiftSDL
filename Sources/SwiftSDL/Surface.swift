@@ -81,7 +81,7 @@ extension Surface {
 @discardableResult
 public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SDL_Error) -> any Surface {
   guard let pointer = SDL_LoadBMP(file) else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
@@ -101,11 +101,11 @@ public func SDL_Load(
     )
   }).first else {
     SDL_LoadBMP(nil)
-    throw SDL_Error.error
+    throw .error
   }
   
   guard let pointer = SDL_LoadBMP(filePath) else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)

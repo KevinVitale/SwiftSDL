@@ -13,12 +13,12 @@ public func SDL_CreateTexture<P: PropertyValue>(with properties: [(String, value
   
   for property in properties {
     guard textureProperties.set(property.0, value: property.value) else {
-      throw SDL_Error.error
+      throw .error
     }
   }
   
   guard let pointer = SDL_CreateTextureWithProperties(renderer.pointer, textureProperties) else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return SDLObject(pointer, tag: .custom("texture"), destroy: SDL_DestroyTexture)
@@ -34,7 +34,7 @@ extension Texture {
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Float(), height = Float()
     guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return [T(width), T(height)]
   }
@@ -42,7 +42,7 @@ extension Texture {
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: BinaryFloatingPoint {
     var width = Float(), height = Float()
     guard case(.success) = self.resultOf(SDL_GetTextureSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return [T(width), T(height)]
   }

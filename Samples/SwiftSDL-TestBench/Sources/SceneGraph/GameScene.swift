@@ -60,7 +60,7 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
             try surface?.draw(node: child)
           }
         }
-      default: try SDL_Error.set(throwing: "Unsupported graphics type: \(graphics)")
+      default: throw .custom("Unsupported graphics type: \(graphics)")
     }
   }
 }

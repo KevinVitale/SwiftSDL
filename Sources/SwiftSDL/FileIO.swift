@@ -1,6 +1,6 @@
 public func SDL_GetBasePath() throws(SDL_Error) -> String {
   guard let basePath = SDL_GetBasePath() else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return String(cString: basePath)

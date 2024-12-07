@@ -14,7 +14,7 @@ public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, valu
   
   for property in properties {
     guard rendererProperties.set(property.0, value: property.value) else {
-      throw SDL_Error.error
+      throw .error
     }
   }
   
@@ -26,7 +26,7 @@ public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, valu
   }
 
   guard let pointer = SDL_CreateRendererWithProperties(rendererProperties) else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return SDLObject(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
@@ -48,7 +48,7 @@ extension Renderer {
   public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
     let properties = try self.properties.get()
     guard properties.set(property, value: value) else {
-      throw SDL_Error.error
+      throw .error
     }
     return properties
   }
@@ -204,7 +204,7 @@ extension Renderer {
   public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetRenderOutputSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return [T(width), T(height)]
   }
@@ -213,7 +213,7 @@ extension Renderer {
   public func outputSize<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: BinaryFloatingPoint {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetRenderOutputSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return [T(width), T(height)]
   }
@@ -223,7 +223,7 @@ extension Renderer {
     let sizeAsInt32 = size.to(Int32.self)
     let width = sizeAsInt32.x, height = sizeAsInt32.y
     guard case(.success) = self.resultOf(SDL_SetRenderLogicalPresentation, width, height, presentation) else {
-      throw SDL_Error.error
+      throw .error
     }
     return self
   }
@@ -233,7 +233,7 @@ extension Renderer {
     let sizeAsInt32 = size.to(Int32.self)
     let width = sizeAsInt32.x, height = sizeAsInt32.y
     guard case(.success) = self.resultOf(SDL_SetRenderLogicalPresentation, width, height, presentation) else {
-      throw SDL_Error.error
+      throw .error
     }
     return self
   }
@@ -241,7 +241,7 @@ extension Renderer {
   @discardableResult
   public func set(viewport rect: UnsafePointer<SDL_Rect>! = nil) throws(SDL_Error) -> Self {
     guard case(.success) = self.resultOf(SDL_SetRenderViewport, rect) else {
-      throw SDL_Error.error
+      throw .error
     }
     return self
   }

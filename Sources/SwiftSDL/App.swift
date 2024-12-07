@@ -2,6 +2,7 @@ enum App {
   nonisolated(unsafe) static weak var game: (any Game)!
   nonisolated(unsafe) static var window: (any Window)!
   nonisolated(unsafe) static var ticks: Uint64 = .max
+  nonisolated(unsafe) static var runtimeError: SDL_Error? = nil
 }
 
 public struct SDL_AppMetadataFlags: RawRepresentable, Equatable, Sendable {

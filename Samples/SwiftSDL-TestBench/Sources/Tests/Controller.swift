@@ -86,7 +86,7 @@ extension SDL.Test {
     
     private func createWindow() throws(SDL_Error) -> some Window {
       print("Calculate the size of the window....")
-      let display = try Displays.primary.get()
+      let display = try primaryDisplay.get()
       let contentScale = (try display.contentScale.get())
       let screenSize = Layout
         .screenSize(scaledBy: contentScale)

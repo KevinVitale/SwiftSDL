@@ -38,7 +38,7 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked S
 public func SDL_BufferPointer<Value>(_ allocate: (UnsafeMutablePointer<Int32>) -> UnsafeMutablePointer<Value>?) throws(SDL_Error) -> [Value] {
   var count: Int32 = 0
   guard let pointer = allocate(&count) else {
-    throw SDL_Error.error
+    throw .error
   }
   defer { SDL_free(pointer) }
   let bufferPtr = UnsafeMutableBufferPointer.init(start: pointer, count: Int(count))
@@ -50,7 +50,7 @@ extension SDLObjectProtocol {
   @inlinable
   public func callAsFunction<Value, each Argument>(_ block: (Pointer, repeat each Argument) -> Value?, _ argument: repeat each Argument) throws(SDL_Error) -> Value {
     guard let value = block(pointer, repeat each argument) else {
-      throw SDL_Error.error
+      throw .error
     }
     return value
   }
@@ -59,7 +59,7 @@ extension SDLObjectProtocol {
   @inlinable
   public func callAsFunction<each Argument>(_ block: (Pointer, repeat each Argument) -> Bool, _ arguments: repeat each Argument) throws(SDL_Error) -> Self {
     guard block(pointer, repeat each arguments) else {
-      throw SDL_Error.error
+      throw .error
     }
     return self
   }

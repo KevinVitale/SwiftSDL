@@ -72,7 +72,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
   
   public var name: Result<String, SDL_Error> {
     guard let name = SDL_GetCameraName(id) else {
-      return .failure(SDL_Error.error)
+      return .failure(.error)
     }
     return .success(String(cString: name))
   }
@@ -125,13 +125,13 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
         print("Opening:", self.id, try! self.name.get())
         if var spec = spec {
           guard let pointer = SDL_OpenCamera(id, &spec) else {
-            return .failure(SDL_Error.error)
+            return .failure(.error)
           }
           return .success(.open(pointer: pointer, frame: (nil, 0), spec: spec))
         }
         else {
           guard let pointer = SDL_OpenCamera(id, nil) else {
-            return .failure(SDL_Error.error)
+            return .failure(.error)
           }
           return .success(.open(pointer: pointer, frame: (nil, 0), spec: nil))
         }

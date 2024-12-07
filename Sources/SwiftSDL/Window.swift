@@ -23,7 +23,7 @@ extension Window {
   public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
     let properties = try self.properties.get()
     guard properties.set(property, value: value) else {
-      throw SDL_Error.error
+      throw .error
     }
     return properties
   }
@@ -38,6 +38,10 @@ extension Window {
     self
       .resultOf(SDL_GetRenderer)
       .map({ SDLObject($0, tag: .custom("renderer")) })
+  }
+  
+  public var displayMode: Result<Any, SDL_Error> {
+    fatalError()
   }
   
   @discardableResult
@@ -61,7 +65,7 @@ extension Window {
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: FixedWidthInteger {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetWindowSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return [T(width), T(height)]
   }
@@ -69,7 +73,7 @@ extension Window {
   public func size<T: SIMDScalar>(as type: T.Type) throws(SDL_Error) -> Size<T> where T: BinaryFloatingPoint {
     var width = Int32(), height = Int32()
     guard case(.success) = self.resultOf(SDL_GetWindowSize, .some(&width), .some(&height)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return [T(width), T(height)]
   }
@@ -149,7 +153,7 @@ extension Window {
     // 'callAsFunction' not working as expected?
     // Forced to invoke the C-function explicitly.
     guard SDL_SetWindowTitle(pointer, title.cString(using: .utf8)) else {
-      throw SDL_Error.error
+      throw .error
     }
     return self
   }
@@ -170,12 +174,12 @@ public func SDL_CreateWindow(with properties: [WindowProperty]) throws(SDL_Error
   
   for property in properties {
     guard windowProperties.set(property.value.0.rawValue, value: property.value.1) else {
-      throw SDL_Error.error
+      throw .error
     }
   }
   
   guard let pointer = SDL_CreateWindowWithProperties(windowProperties) else {
-    throw SDL_Error.error
+    throw .error
   }
   
   return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
@@ -183,7 +187,7 @@ public func SDL_CreateWindow(with properties: [WindowProperty]) throws(SDL_Error
 
 public func SDL_CreateWindow(_ title: String, size: Size<Int32>, flags: SDL_WindowFlags) throws(SDL_Error) -> some Window {
   guard let pointer = SDL_CreateWindow(title, size.x, size.y, flags.rawValue) else {
-    throw SDL_Error.error
+    throw .error
   }
   return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
 }
@@ -192,7 +196,7 @@ public func SDL_CreateWindow(_ title: String, size: Size<Int32>, flags: SDL_Wind
 public func SDL_GetWindows() throws(SDL_Error) -> [any Window] {
   var count: UInt32 = 0
   guard let windows = SDL_GetWindows(&count) else {
-    throw SDL_Error.error
+    throw .error
   }
   
   defer { SDL_free(windows) }

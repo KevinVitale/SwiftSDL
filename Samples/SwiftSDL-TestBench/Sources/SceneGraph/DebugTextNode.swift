@@ -57,7 +57,7 @@ extension Renderer {
       .set(scale: scale)
     
     guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
-      throw SDL_Error.error
+      throw .error
     }
     
     return try self

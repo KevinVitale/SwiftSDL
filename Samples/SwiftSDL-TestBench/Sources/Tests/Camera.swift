@@ -48,8 +48,7 @@ extension SDL.Test {
       }
       
       if let cameraName = self.cameraName, self.camera == nil {
-        print("Could not find camera \"\(cameraName)\"")
-        throw SDL_Error.error
+        throw .custom("Could not find camera \"\(cameraName)\"")
       }
     }
     

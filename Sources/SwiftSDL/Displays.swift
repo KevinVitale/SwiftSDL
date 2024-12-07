@@ -1,20 +1,15 @@
-public enum Displays {
-  public static var connected: Result<[DisplayID], SDL_Error> {
-    var deviceCount: Int32 = 0
-    guard let devicePtr = SDL_GetDisplays(&deviceCount) else {
-      return .failure(.error)
+extension Game {
+  public var displays: Result<[SDL_DisplayID], SDL_Error> {
+    Result {
+      try SDL_BufferPointer(SDL_GetDisplays)
+        .map({ .connected($0) })
     }
-    defer { SDL_free(devicePtr) }
-    
-    var devices = [DisplayID](repeating: .invalid, count: Int(deviceCount))
-    for index in 0..<Int(deviceCount) {
-      devices[index] = .connected(devicePtr[index])
-    }
-    
-    return .success(devices)
+    .mapError({
+      $0 as! SDL_Error
+    })
   }
   
-  public static var primary: Result<DisplayID, SDL_Error> {
+  public var primaryDisplay: Result<SDL_DisplayID, SDL_Error> {
     let displayID = SDL_GetPrimaryDisplay()
     guard displayID != 0 else {
       return .failure(.error)
@@ -23,11 +18,11 @@ public enum Displays {
   }
 }
 
-public enum DisplayID: Decodable, CustomDebugStringConvertible {
-  case connected(SDL_DisplayID)
+public enum SDL_DisplayID: Decodable, CustomDebugStringConvertible {
+  case connected(UInt32)
   case invalid
   
-  public var id: SDL_DisplayID {
+  public var id: UInt32 {
     switch self {
       case .connected(let displayID): return displayID
       case .invalid: return .zero
@@ -48,7 +43,7 @@ public enum DisplayID: Decodable, CustomDebugStringConvertible {
     }
     return .success(contentScale)
   }
-  
+
   public var debugDescription: String {
     ""
   }
