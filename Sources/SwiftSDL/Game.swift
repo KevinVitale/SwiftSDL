@@ -166,7 +166,7 @@ extension Game {
           
           return .continue
         } catch {
-          App.runtimeError = error as? SDL_Error
+          App.failure = .onInit(error as? SDL_Error)
           return .failure
         }
       }, /* onIterate */ { state in
@@ -182,7 +182,7 @@ extension Game {
 
           return .continue
         } catch {
-          App.runtimeError = error as? SDL_Error
+          App.failure = .onIterate(error as? SDL_Error)
           return .failure
         }
       }, /* onEvent */ { state, event in
@@ -226,13 +226,13 @@ extension Game {
           try App.game.onEvent(window: App.window, event)
           return .continue
         } catch {
-          App.runtimeError = error as? SDL_Error
+          App.failure = .onEvent(error as? SDL_Error)
           return .failure
         }
       }, /* onQuit */ { state, result in
-        let error: SDL_Error? = (result == .failure ? App.runtimeError : nil)
-        if let error = error, !error.debugDescription.isEmpty {
-          debugPrint(error)
+        switch App.failure {
+          case .noFailure: break
+          default: print(App.failure)
         }
         
         defer { App.window = nil }
@@ -243,7 +243,7 @@ extension Game {
         }
         GameControllers = []
         
-        App.game.onQuit(error)
+        App.game.onQuit(App.failure.error)
       })
       
       return 0

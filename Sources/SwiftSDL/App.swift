@@ -1,8 +1,40 @@
 enum App {
+  enum Failure: CustomStringConvertible, CustomDebugStringConvertible {
+    case noFailure
+    case onInit(SDL_Error?)
+    case onIterate(SDL_Error?)
+    case onEvent(SDL_Error?)
+    
+    var error: SDL_Error? {
+      switch self {
+        case .noFailure: return nil
+        case .onInit(let error): return error
+        case .onIterate(let error): return error
+        case .onEvent(let error): return error
+      }
+    }
+    
+    var debugDescription: String {
+      switch self {
+        case .noFailure: return ""
+        case .onInit: return "onInit"
+        case .onIterate: return "onIterate"
+        case .onEvent: return "onEvent"
+      }
+    }
+    
+    var description: String {
+      guard let error = error else {
+        return debugDescription
+      }
+      return "\(debugDescription): \(error)"
+    }
+  }
+  
   nonisolated(unsafe) static weak var game: (any Game)!
   nonisolated(unsafe) static var window: (any Window)!
   nonisolated(unsafe) static var ticks: Uint64 = .max
-  nonisolated(unsafe) static var runtimeError: SDL_Error? = nil
+  nonisolated(unsafe) static var failure: Failure = .noFailure
 }
 
 public struct SDL_AppMetadataFlags: RawRepresentable, Equatable, Sendable {

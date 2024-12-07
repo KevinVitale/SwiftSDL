@@ -2,8 +2,8 @@ import class Foundation.Thread
 
 public enum SDL_Error: Error, CustomDebugStringConvertible, @unchecked Sendable {
   case error
-  case custom(String)
-  case customWithArgs(String, [CVarArg])
+  case custom(_ message: String)
+  case customWithArgs(_ fmt: String, _ args: [CVarArg])
   
   static var callStackDescription: String {
     Thread.callStackSymbols.joined(separator: "\n")

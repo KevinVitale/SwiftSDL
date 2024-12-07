@@ -34,6 +34,14 @@ extension SDL.Test {
     }
     
     func onReady(window: any Window) throws(SDL_Error) {
+      switch window
+        .resultOf(SDL_GetWindowTitle)
+        .map(String.init(cString:))
+      {
+        case .success(let title): print(title)
+        case .failure(let error): print(error)
+      }
+
       print("Creating renderer...")
       self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
       
