@@ -11,12 +11,16 @@ func SDL_AcquireGPUCommandBuffer(with gpuDevice: any GPUDevice) throws(SDL_Error
 
 extension CommandBuffer {
   public typealias SwapchainRenderPassTuple =
-  (ColorTargetInfos: [SDL_GPUColorTargetInfo], depthStencilTargetInfo:  SDL_GPUDepthStencilTargetInfo?)
+  (String, ColorTargetInfos: [SDL_GPUColorTargetInfo], depthStencilTargetInfo:  SDL_GPUDepthStencilTargetInfo?)
   
   public typealias SwapchainRenderPassCallback = (_ swapchain: OpaquePointer) throws -> [SwapchainRenderPassTuple]
   
   @discardableResult
-  public func render(to window: any Window, passes: SwapchainRenderPassCallback) throws(SDL_Error) -> Self {
+  public func render(
+    to window: any Window
+    , passes: SwapchainRenderPassCallback
+    , bindAndDraw: ((_ tag: String, _ renderPass: any RenderPass) throws -> Void) = { _, _ in }
+  ) throws(SDL_Error) -> Self {
     var swapchainTexture: OpaquePointer! = nil
     try self(
       SDL_AcquireGPUSwapchainTexture
@@ -27,12 +31,13 @@ extension CommandBuffer {
     )
     
     do {
-      for (colorTargetInfos, depthStencilTargetInfo) in try passes(swapchainTexture) {
+      for (tag, colorTargetInfos, depthStencilTargetInfo) in try passes(swapchainTexture) {
         let renderPass = try SDL_BeginGPURenderPass(
           commandBuffer: self,
           colorTargetInfos: colorTargetInfos,
           depthStencilTargetInfo: depthStencilTargetInfo
         )
+        try bindAndDraw(tag, renderPass)
         try renderPass(SDL_EndGPURenderPass)
       }
     }

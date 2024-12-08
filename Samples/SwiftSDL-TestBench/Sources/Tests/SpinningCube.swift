@@ -24,12 +24,16 @@ extension SDL.Test {
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
       try gpuDevice
         .acquireCommandBuffer()
-        .render(to: window) { swapchain in
+        .render(to: window, passes: { swapchain in
           let colorTargetInfo = SDL_GPUColorTargetInfo(
             texture: swapchain
             , clearColor: 0.3, g: 0.4, b: 0.5
           )
-          return [([colorTargetInfo], depthStencilTargetInfo: nil)]
+          return [
+            ("Clear Color", [colorTargetInfo], depthStencilTargetInfo: nil)
+          ]
+        }) { tag, renderPass in
+          print("Render Pass:", tag)
         }
         .submit()
     }
