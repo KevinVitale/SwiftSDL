@@ -140,6 +140,11 @@ extension Renderer {
     }
     return try self(SDL_RenderClear)
   }
+  
+  @discardableResult
+  public func clear(color r: UInt8, _ g: UInt8, _ b: UInt8, _ a: UInt8 = .max) throws(SDL_Error) -> Self {
+    try self.clear(color: .init(r: r, g: g, b: b, a: a))
+  }
 }
   
 // MARK: - Drawing

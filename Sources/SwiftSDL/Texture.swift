@@ -153,7 +153,7 @@ extension Renderer {
   
   public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
     if transparent, let bpp = surface.bits_per_pixel, let pixels = surface.pixels {
-      if try surface.palette.get() != nil {
+      if (try? surface.palette.get()) != nil {
         let mask: UInt8 = (1 << bpp) - 1
         if surface.format.order == SDL_BITMAPORDER_4321 {
           let key = pixels.load(as: UInt8.self) & mask
@@ -166,16 +166,16 @@ extension Renderer {
       }
       else {
         switch surface.bits_per_pixel ?? .zero {
-          case 15: print("\(#function) -- BPP: 15")
+          case 15:
             let key = UInt32(pixels.load(as: UInt8.self)) & 0x00007FFF
             try surface(SDL_SetSurfaceColorKey, true, key)
-          case 16: print("\(#function) -- BPP: 16")
+          case 16:
             let key = UInt32(pixels.load(as: UInt16.self))
             try surface(SDL_SetSurfaceColorKey, true, key)
-          case 24: print("\(#function) -- BPP: 24")
+          case 24:
             let key = UInt32(pixels.load(as: UInt32.self)) & 0x00FFFFFF
             try surface(SDL_SetSurfaceColorKey, true, key)
-          case 32: print("\(#function) -- BPP: 32")
+          case 32:
             let key = UInt32(pixels.load(as: UInt32.self))
             try surface(SDL_SetSurfaceColorKey, true, key)
           default: ()

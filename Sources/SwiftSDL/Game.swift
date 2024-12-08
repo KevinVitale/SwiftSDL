@@ -463,9 +463,11 @@ extension Window {
       }
       
       let existingLogicalSize = SDL_Size(try renderer.logicalSize.get())
-      var logicalSize         = options.logicalSize ?? existingLogicalSize
-      let logicalPresentation = options.autoScaleContent ? .stretch : options.logicalPresentation
+      let existingLogicalPres = try renderer.logicalPresentation.get()
       
+      var logicalSize         = options.logicalSize ?? existingLogicalSize
+      let logicalPresentation = options.autoScaleContent ? .stretch : (existingLogicalPres != .disabled ? existingLogicalPres : options.logicalPresentation)
+
       // Mirrors 'logicalSize' to `window.size` when empty...
       if logicalSize.x == 0, logicalSize.y == 0 {
         logicalSize = try self.size(as: SDL_Size.self)

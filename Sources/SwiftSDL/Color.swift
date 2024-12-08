@@ -55,4 +55,9 @@ extension SDL_Color: @retroactive Codable {
       a: 255
     )
   }
+  
+  @inlinable
+  public func setAlpha(to a: UInt8) -> Self {
+    .init(r: r, g: g, b: b, a: a)
+  }
 }
