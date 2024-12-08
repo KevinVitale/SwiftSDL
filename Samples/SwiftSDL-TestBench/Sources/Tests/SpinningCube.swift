@@ -8,6 +8,8 @@ extension SDL.Test {
     static let configuration = CommandConfiguration(
       abstract: "Simple program to test the SDL gpu device routines using a spinning cube"
     )
+    
+    static let name: String = "SDL Test: Spinning Cube"
 
     @OptionGroup var options: Options
     
