@@ -1,3 +1,6 @@
+/// SDL3 Documentation
+/// https://wiki.libsdl.org/SDL3/CategoryGPU
+
 // MARK: - Protocol
 public protocol GPUDevice: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
@@ -38,10 +41,8 @@ extension GPUDevice {
       .map(String.init(cString:))
   }
   
-  public var commandBuffer: Result<any CommandBuffer, SDL_Error> {
-    self
-      .resultOf(SDL_AcquireGPUCommandBuffer)
-      .map { SDLObject($0, tag: .custom("command buffer")) }
+  public func acquireCommandBuffer() throws(SDL_Error) -> some CommandBuffer {
+    try SDL_AcquireGPUCommandBuffer(with: self)
   }
   
   public func render(_ commandBuffer: some CommandBuffer, pass: (OpaquePointer) throws -> Void) throws(SDL_Error) -> some GPUDevice {

@@ -17,12 +17,21 @@ extension SDL.Test {
     private var resolveTexture: OpaquePointer? = nil
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      gpuDevice = try SDL_CreateGPUDevice(claimFor: window)
+      self.gpuDevice = try SDL_CreateGPUDevice(claimFor: window)
       print("GPU Driver:", try gpuDevice.deviceName.get())
-      throw .custom("This is a custom error")
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
+      try gpuDevice
+        .acquireCommandBuffer()
+        .render(to: window) { swapchain in
+          let colorTargetInfo = SDL_GPUColorTargetInfo(
+            texture: swapchain
+            , clearColor: 0.3, g: 0.4, b: 0.5
+          )
+          return [([colorTargetInfo], depthStencilTargetInfo: nil)]
+        }
+        .submit()
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
