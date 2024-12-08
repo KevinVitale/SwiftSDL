@@ -3,6 +3,7 @@
 @main struct SDL: ParsableCommand {
   static let configuration = CommandConfiguration(
     groupedSubcommands: [
+      .init(name: "games", subcommands: [Games.self]),
       .init(name: "test", subcommands: [Test.self])
     ]
   )
@@ -20,12 +21,25 @@ extension SDL {
         Controller.self,
         Geometry.self,
         SpinningCube.self,
-        Sandbox.self,
         Sprite.self,
       ]
     )
   }
 }
+
+extension SDL {
+  struct Games: ParsableCommand {
+    typealias Options = GameOptions
+    
+    static let configuration = CommandConfiguration(
+      abstract: "Run a variety SDL game examples implemented using SwiftSDL.",
+      subcommands: [
+        Sandbox.self,
+      ]
+    )
+  }
+}
+
 
 func Load(bitmap: String) throws(SDL_Error) -> any Surface {
   try SDL_Load(

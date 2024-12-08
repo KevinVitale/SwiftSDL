@@ -1,10 +1,17 @@
-extension SDL.Test {
+extension SDL.Games {
   final class Sandbox: Game {
-    enum CodingKeys: CodingKey { case options }
+    enum CodingKeys: CodingKey {
+      case options
+    }
     
-    @OptionGroup var options: Options
+    static let configuration = CommandConfiguration(
+      abstract: "Kevin's Personal Sandbox"
+    )
     
     static let name: String = "Kevin's Personal Sandbox"
+
+    @OptionGroup var options: Options
+    
     private var scene: Scene!
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
@@ -35,7 +42,7 @@ extension SDL.Test {
   }
 }
 
-extension SDL.Test.Sandbox {
+extension SDL.Games.Sandbox {
   class Scene: GameScene<any Surface> {
     var square: RectangleNode<Graphics>? {
       guard let square = children.first as? RectangleNode<Graphics> else {
