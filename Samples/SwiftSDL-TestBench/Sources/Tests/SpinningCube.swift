@@ -32,8 +32,7 @@ extension SDL.Test {
           return [
             ("Clear Color", [colorTargetInfo], depthStencilTargetInfo: nil)
           ]
-        }) { tag, renderPass in
-        }
+        })
         .submit()
     }
     
