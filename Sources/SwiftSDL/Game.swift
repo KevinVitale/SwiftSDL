@@ -449,10 +449,11 @@ extension Window {
     /// These `has` checks ensure that flags which have already been set by the `Game` instance are overwritten.
     if !has(.always_on_top) { try set(alwaysOnTop: options.windowAlwaysOnTop) }
     if !has(.minimized) && options.windowMinimized { try self(SDL_MinimizeWindow) }
+    // Must have 'resizable' before 'maximized'
+    if !has(.resizable)  { try set(resizable: options.windowResizable) }
     if !has(.maximized) && options.windowMaximized { try self(SDL_MaximizeWindow) }
     if !has(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }
     if !has(.borderless) { try set(showBorder: !options.windowNoFrame) }
-    if !has(.resizable)  { try set(resizable: options.windowResizable) }
 
     _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
     
