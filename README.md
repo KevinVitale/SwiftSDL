@@ -1,12 +1,69 @@
 # SwiftSDL — Cross-Platform Targets with Swift & SDL3
+ 
+ **SwiftSDL** is an open-source Swift library that provides a complete interface for working with the C-based [SDL (Simple DirectMedia Layer)](https://www.libsdl.org/) library. This wrapper allows developers to leverage SDL's cross-platform multimedia and game development capabilities in Swift applications across macOS, iOS, and Linux.
+ 
+ ## <img src="https://www.libsdl.org/media/SDL_logo.png" height="20" max-width="90%" alt="SDL2" /> Simple DirectMedia Layer 3.0
 
-## Overview
+ > _"Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL/Direct3D/Metal/Vulkan. It is used by video playback software, emulators, and popular games including Valve's award winning catalog and many Humble Bundle games."_ - [wiki.libsdl.org](https://wiki.libsdl.org/SDL3/FrontPage)
 
-**SwiftSDL** is an open-source Swift library that provides a convenient interface for working with the C-based [SDL (Simple DirectMedia Layer)](https://www.libsdl.org/) library. This wrapper allows developers to leverage SDL's cross-platform multimedia and game development capabilities in Swift applications across macOS, Linux, Windows, and iOS.
+## 🏁 Getting Started
 
-The library integrates seamlessly with the **Swift Package Manager (SPM)**, making it simple to manage dependencies and build your projects without requiring a framework file on macOS. In addition, the library includes a **sample application** for iOS to demonstrate how to integrate SDL within iOS apps using a bridging header.
+### 📋 Requirements
 
-## Features
+- [Swift 6.0.2](https://www.swift.org/install/macos/), or later; and,
+- [SDL v3.1.6-preview](https://github.com/libsdl-org/SDL/releases/tag/preview-3.1.6), (required only for Linux).
+
+### 🔧 Installation
+
+```swift
+// swift-tools-version: 6.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "MySDLGame",
+    dependencies: [
+      .package(url: "https://github.com/KevinVitale/SwiftSDL.git", from: "0.2.0-alpha.16"),),
+    ],
+    targets: [
+        .executableTarget(
+            name: "SwiftSDLTest",
+            dependencies: [
+              "SwiftSDL"
+            ],
+            resources: [
+              .process("../Resources/BMP"),
+            ]
+        ),
+    ]
+)
+```
+
+### 💻 Platform-Specific Instructions
+
+SwiftSDL doesn't work without SDL3. 
+
+#### Apple
+
+SwiftSDL works on **macOS**, **iOS**, and **tvOS** simply by adding it to your project's `Package.swift` file. A precompiled XCFramework containing the SDL3 library is provided. 
+
+**You do not need to** build the XCFramework yourself. However, if you need to, the available [`Makefile`](https://github.com/KevinVitale/SwiftSDL/blob/main/Makefile) can be used:
+
+```bash
+# Clone KevinVitale/SwiftSDL
+git clone https://github.com/KevinVitale/SwiftSDL
+cd SwiftSDL
+
+# Build XCFramework...grab some ☕️
+make build-sdl-xcframework
+```
+
+#### Linux
+
+#### Windows
+
+## 🎁 Features
 
 - Swift wrapper for the SDL library (vers. 3), exposing SDL's core functionality in an easy-to-use Swift API.
 - Cross-platform support for macOS, Linux, and Windows, with simplified project management using the Swift Package Manager.
