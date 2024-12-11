@@ -23,6 +23,9 @@ import PackageDescription
 
 let package = Package(
     name: "MySDLGame",
+    platforms: [
+      .macOS(.v13)
+    ],
     dependencies: [
       .package(url: "https://github.com/KevinVitale/SwiftSDL.git", from: "0.2.0-alpha.16"),),
     ],
@@ -42,11 +45,13 @@ let package = Package(
 
 ### 💻 Platform-Specific Instructions
 
-SwiftSDL doesn't work without SDL3. 
+SwiftSDL doesn't work without SDL3. Refer to the following sections to ensure SwiftSDL compiles properly.
 
 #### Apple
 
 SwiftSDL works on **macOS**, **iOS**, and **tvOS** simply by adding it to your project's `Package.swift` file. A precompiled XCFramework containing the SDL3 library is provided. 
+
+##### Building the XCFramework with the Makefile
 
 **You do not need to** build the XCFramework yourself. However, if you need to, the available [`Makefile`](https://github.com/KevinVitale/SwiftSDL/blob/main/Makefile) can be used:
 
@@ -58,31 +63,89 @@ cd SwiftSDL
 # Build XCFramework...grab some ☕️
 make build-sdl-xcframework
 ```
+![]()
+<img src="https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/osx-example.png" width="320" alt="macOS-example" /> 
+<img src="https://github.com/KevinVitale/SwiftSDL/blob/main/Samples/SwiftSDL-Xcode/ios-example.gif" width="320" alt="iOS-example" />
 
 #### Linux
 
+You must build and install SDL3 from source. Thankfully, it's easy and should take only a few minutes:
+
+ 1. [Install whichever dependencies your need](https://wiki.libsdl.org/SDL3/README/linux) for your game; and,
+ 2. [Build and install from source](https://wiki.libsdl.org/SDL3/Installation#linuxunix).
+
+<img src="https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/linux-example.png" height="480" max-width="50%" alt="linux-example" />
+
 #### Windows
 
-## 🎁 Features
+Support for Windows is currently unavailable.
 
-- Swift wrapper for the SDL library (vers. 3), exposing SDL's core functionality in an easy-to-use Swift API.
-- Cross-platform support for macOS, Linux, and Windows, with simplified project management using the Swift Package Manager.
-- iOS support using Objective-C to Swift bridging for SDL integration.
-- A sample iOS application that demonstrates how to set up and use SDL3 with this library.
+## 👀 Overview
 
-## Sample Code
+Like Swift itself, SwiftSDL makes SDL3 approachable for newcomers and powerful for experts.
 
-Below is a basic example of how you can use SwiftSDL to initialize an SDL window in Swift:
+### 👾 Introduction
 
-| `Example.swift`  | Output  |
-|---|---|
-|<pre width="0" lang="swift">import SwiftSDL&#13;&#13;@main final class Example: Game {&#13;  @OptionGroup var options: GameOptions&#13;  func onReady(window: any Window) throws(SDL_Error) { }&#13;  func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {&#13;    let surface = try window.surface.get()&#13;    try surface.clear(color: .red)&#13;    try window.updateSurface()&#13;  }&#13;  func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) { }&#13;  func onShutdown(window: (any Window)?) throws(SDL_Error) { }&#13;}</pre> | <img align="right" width="100%" alt="Screenshot 2024-10-26 at 2 30 44 PM" src="https://github.com/user-attachments/assets/8868d4b8-b714-4c87-90d0-ef82dd46b02f"> |
+A complete SwiftSDL game consists of the following 22-lines of code:
 
-## Installation
+```swift
+import SwiftSDL
 
-### Swift Package Manager (SPM)
+@main
+final class MyGame: Game {
+    private enum CodingKeys: String, CodingKey {
+        case options
+    }
 
-You can add **SwiftSDL** as a dependency in your project by adding the following to your `Package.swift` file:
+    @OptionGroup
+    var options: GameOptions
+
+    func onReady(window: any Window) throws(SDL_Error) {
+      /* create a renderer, or acquire a gpu device. */
+      /* load assets or resources. */
+    }
+
+    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+      /* handle game logic and render frames */
+    }
+
+    func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {
+      /* respond to events */
+    }
+
+    func onShutdown(window: (any Window)?) throws(SDL_Error) {
+      /* release objects and unload resources */
+    }
+}
+```
+
+The class, `MyGame`, conforms to the `Game` protocol. A window is created automatically using reasonable defaults, although, it's possible to override the window's creation manually.
+
+Underneath the hood, the `Game` protocol has implemented [SDL3's new main callbacks](https://wiki.libsdl.org/SDL3/README/main-functions#how-to-use-main-callbacks-in-sdl3).
+
+`GameOptions` are runtime arguments which alter the behavior or your application, such as your window's appearance.
+
+### 🧩 Tutorial
+
+Let's create an app using SwiftSDL from start-to-finish.
+
+#### Step 1: Create the project
+Using Swift's command-line utility, we'll create the project in an empty directory
+
+```bash
+# Create an empty directory for our project
+mkdir MyGame
+cd MyGame
+
+# Create the executable package
+swift package init --type executable
+```
+ 
+#### Step 2: Add SwiftSDL
+
+Update the `Package.swift` file to include SwiftSDL as a dependency:
+
+> **Note:** you may need adjust `platforms` to use `.macOS(.v13)`.
 
 ```swift
 // swift-tools-version: 6.0
@@ -91,69 +154,149 @@ You can add **SwiftSDL** as a dependency in your project by adding the following
 import PackageDescription
 
 let package = Package(
-  name: "SwiftSDLTest",
-  platforms: [.macOS(.v10_15)],
-  dependencies: [
-    .package(url: "https://github.com/KevinVitale/SwiftSDL.git", from: "0.2.0-alpha.4"),
-  ],
-  targets: [
-    .executableTarget(
-      name: "SwiftSDLTest",
-      dependencies: ["SwiftSDL"],
-
-      // Optional: bundle resources!
-      resources: [
-        .process("../Resources/BMP")
-      ],
-
-      // Required: when using SPM YOU MUST
-      // have libSDL3.{dylib|so|a} installed.
-      linkerSettings: [.unsafeFlags(
-        [
-          "-Xlinker", "-F", "-Xlinker", "/usr/local/lib",
-          "-Xlinker", "-rpath", "-Xlinker", "/usr/local/lib",
-        ], .when(platforms: [.macOS])
-      )]
-    ),
-  ]
+    name: "MyGame",
+    platforms: [
+        .macOS(.v13)
+    ],
+    dependencies: [
+      .package(url: "https://github.com/KevinVitale/SwiftSDL.git", from: "0.2.0-alpha.17")
+    ],
+    targets: [
+        // Targets can depend on other targets in this package and products from dependencies.
+        .executableTarget(
+            name: "MyGame",
+            dependencies: [
+               "SwiftSDL"
+            ]
+        ),
+    ]
 )
 ```
 
-### CMake (for non-SPM platforms)
+#### Step 3: Create the game
 
+Rename `main.swift` to `MyGame.swift`:
+
+```bash
+mv Sources/main.swift Sources/MyGame.swift
 ```
-// TODO
+
+Then replace `MyGame.swift` with the following code:
+
+```swift
+import SwiftSDL
+
+@main
+final class MyGame: Game {
+    private enum CodingKeys: String, CodingKey {
+      case options, message
+    }
+
+    @OptionGroup
+    var options: GameOptions
+
+    @Argument
+    var message: String = "Hello, SwiftSDL!"
+
+    private var renderer: (any Renderer)! = nil
+
+    func onReady(window: any Window) throws(SDL_Error) {
+      renderer = try window.createRenderer()
+    }
+
+    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+      try renderer
+        .clear(color: .gray)
+        .debug(text: message, position: [12, 12], scale: [2, 2])
+        .fill(rects: [24, 48, 128, 128], color: .white)
+        .fill(rects: [36, 60, 104, 104], color: .green)
+        .present()
+    }
+
+    func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {
+    }
+
+    func onShutdown(window: (any Window)?) throws(SDL_Error) {
+      renderer = nil
+    }
+}
 ```
 
-## Platform-Specific Instructions
+Then start the game:
 
-### macOS
-![](https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/osx-example.png)
+```bash
+swift run
+```
 
-### Linux
-![](https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/linux-example.png)
+> **Note:** You should see a window with a gray background, a message saying _"Hello, SwiftSDL!"_, and two squares: one large white one, and a smaller green one.
 
-### Windows
+Your game has several options built-in. To see them all, use `--help`:
 
-### iOS
-![](https://github.com/KevinVitale/SwiftSDL/blob/main/Samples/SwiftSDL-Xcode/ios-example.gif)
+```bash
+swift run MyGame --help
+USAGE: my-game [<options>] [<message>]
 
-## Contributions
+ARGUMENTS:
+  <message>               (default: Hello, SwiftSDL!)
 
-**Fix Me:** Something like:
+OPTIONS:
+  --hide-cursor           Hide the system's cursor
+  --auto-scale-content    Stretch the content to fill the window
+  --logical-size <logical-size>
+                          Forces the rendered content to be a certain logical size (WxH)
+  --logical-presentation <logical-presentation>
+                          Forces the rendered content to be a certain logical order; overrides '--auto-scale-content' (values: disabled,
+                          stretch, letterbox, overscan, integer-scale; default: disabled)
+  --vsync-rate <vsync-rate>
+                          Set vertical synchronization rate (values: adaptive, disabled, interger value; default: disabled)
+  --window-always-on-top  Window is always kept on top
+  --window-fullscreen     Window is set to fullscreen
+  --window-transparent    Window is uses a transparent buffer
+  --window-maximized      Create a maximized window; requires '--window-resizable'
+  --window-minimized      Create a minimized window
+  --window-max-size <window-max-size>
+                          Specify the maximum window's size (WxH)
+  --window-min-size <window-min-size>
+                          Specify the minimum window's size (WxH)
+  --window-mouse-focus    Force the window to have mouse focus
+  --window-no-frame       Create a borderless window
+  --window-resizable      Enable window resizability
+  --window-position <window-position>
+                          Specify the window's position (XxY)
+  --window-size <window-size>
+                          Specify the window's size (WxH)
+  --window-title <window-title>
+                          Specify the window's title
+  -h, --help              Show help information.
+```
 
-> _We welcome contributions from the community! Feel free to fork the repository, submit issues, or create pull requests. Be sure to follow the contribution guidelines and coding standards outlined in `CONTRIBUTING.md`._
+#### Step 4: Sample Apps
+
+SwiftSDL includes several samples to help you get started.
+
+##### Test Bench
+
+| Build Command | Image Preview |
+|-|-|
+| `swift run sdl test controller` |  |
+| `swift run sdl test camera`     |  |
+| `swift run sdl test geometry`   |  |
+| `swift run sdl test sprite`     |  |
+
+##### Games
+
+| Build Command | Image Preview |
+|-|-|
+| `swift run sdl games flappy-bird` | <img width="480" alt="image" src="https://github.com/user-attachments/assets/2817f22c-8557-4871-bfb8-b2bf496ffb77"> |
+
+##### Xcode Project: macOS, iOS, tvOS
+
+Explore: [Samples/SwiftSDL-Xcode](https://github.com/KevinVitale/SwiftSDL/tree/main/Samples/SwiftSDL-Xcode)
+
+## Authors
+
+ - [Kevin Vitale](https://github.com/KevinVitale)
 
 ## License
 
 SwiftSDL is open-sourced under the MIT license. See the `LICENSE` file for details.
-
-## Contact
-
-**Fix Me:** Something like:
-
-> _For questions or further assistance, please reach out via GitHub issues or contact the maintainers directly at `email@example.com`._
-
----
-
-With **SwiftSDL**, you can effortlessly bring SDL's cross-platform multimedia power into the world of Swift!
