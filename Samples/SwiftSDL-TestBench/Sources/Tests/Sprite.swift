@@ -129,8 +129,13 @@ extension SDL.Test {
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
       colorCycle.step(); alphaCycle.step()
-      try sprite.set(colorMod: .max, colorCycle.component, colorCycle.component)
-      try sprite.set(alphaMod: alphaCycle.component)
+      
+      if cyclecolor {
+        try sprite.set(colorMod: .max, colorCycle.component, colorCycle.component)
+      }
+      if cyclealpha {
+        try sprite.set(alphaMod: alphaCycle.component)
+      }
 
       try renderer
         .set(viewport: nil)
