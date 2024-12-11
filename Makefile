@@ -40,10 +40,10 @@ build-sdl-appletvsimulator:
 	cmake --build ${SDL_BUILD_DIR}/appletvsimulator
 
 .PHONY: build-sdl-frameworks
-build-sdl-libraries: clone-sdl build-sdl-macOS build-sdl-iphoneos build-sdl-iphonesimulator build-sdl-appletvos build-sdl-appletvsimulator
+build-sdl-frameworks: clone-sdl build-sdl-macOS build-sdl-iphoneos build-sdl-iphonesimulator build-sdl-appletvos build-sdl-appletvsimulator
 
 .PHONY: build-sdl-xcframework
-build-sdl-xcframework:
+build-sdl-xcframework: build-sdl-frameworks
 	-rm -rdf "${SDL_BUILD_DIR}/SDL3.xcframework"
 
 	xcodebuild -create-xcframework \
