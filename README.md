@@ -276,27 +276,29 @@ SwiftSDL includes several samples to help you get started.
 
 ##### Test Bench
 
+These are reimplementations of a variety of [SDL3's tests](https://github.com/libsdl-org/SDL/tree/main/test) using SwiftSDL:
+
 | Build Command | Image Preview |
 |-|-|
-| `swift run sdl test controller` |  |
-| `swift run sdl test camera`     |  |
-| `swift run sdl test geometry`   |  |
-| `swift run sdl test sprite`     |  |
+| `swift run sdl test controller` | <img width="480" alt="test-controller" src="https://github.com/user-attachments/assets/c67d6e8b-3a25-48d6-b195-b501ae536f4f"> |
+| `swift run sdl test camera`     | <img width="480" alt="test-camera" src="https://github.com/user-attachments/assets/e817a454-970b-4b63-ba74-3541b951f532"> |
+| `swift run sdl test geometry`   | <img width="480" alt="test-geometry" src="https://github.com/user-attachments/assets/13a9af58-6668-48a0-9cca-70b76472a569"> |
+| `swift run sdl test sprite`     | <img width="480" alt="test-sprite" src="https://github.com/user-attachments/assets/9e1b8c5e-d4bd-471c-9d61-a3337442981f"> |
 
 ##### Games
 
 | Build Command | Image Preview |
 |-|-|
-| `swift run sdl games flappy-bird` | <img width="480" alt="image" src="https://github.com/user-attachments/assets/2817f22c-8557-4871-bfb8-b2bf496ffb77"> |
+| `swift run sdl games flappy-bird` | <img width="480" alt="game-flappy-bird" src="https://github.com/user-attachments/assets/2817f22c-8557-4871-bfb8-b2bf496ffb77"> |
 
 ##### Xcode Project: macOS, iOS, tvOS
 
 Explore: [Samples/SwiftSDL-Xcode](https://github.com/KevinVitale/SwiftSDL/tree/main/Samples/SwiftSDL-Xcode)
 
-## Authors
+## 🎨 Authors
 
  - [Kevin Vitale](https://github.com/KevinVitale)
 
-## License
+## 📁 License
 
 SwiftSDL is open-sourced under the MIT license. See the `LICENSE` file for details.
