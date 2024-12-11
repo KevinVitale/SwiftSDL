@@ -381,6 +381,26 @@ extension Renderer {
   }
 }
 
+extension Renderer {
+  @discardableResult
+  public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .black, scale: Size<Float> = .one) throws(SDL_Error) -> Self {
+    let renderColor = try self.color.get()
+    let renderScale = try self.scale.get()
+    
+    try self
+      .set(color: fillColor)
+      .set(scale: scale)
+    
+    guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
+      throw .error
+    }
+    
+    return try self
+      .set(color: renderColor)
+      .set(scale: renderScale)
+  }
+}
+
 // MARK: - Logical Presentation
 extension SDL_RendererLogicalPresentation: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
   public static let disabled = SDL_LOGICAL_PRESENTATION_DISABLED
