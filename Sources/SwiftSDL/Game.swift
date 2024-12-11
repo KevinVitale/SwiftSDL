@@ -314,6 +314,9 @@ public struct GameOptions: ParsableArguments {
   @Flag(help: "Window is always kept on top")
   public var windowAlwaysOnTop: Bool = false
   
+  @Flag(help: "Window is set to fullscreen")
+  public var windowFullscreen: Bool = false
+
   @Flag(help: "Window is uses a transparent buffer")
   public var windowTransparent: Bool = false
 
@@ -455,6 +458,7 @@ extension Window {
     if !has(.maximized) && options.windowMaximized { try self(SDL_MaximizeWindow) }
     if !has(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }
     if !has(.borderless) { try set(showBorder: !options.windowNoFrame) }
+    if !has(.fullscreen) { try self(SDL_SetWindowFullscreen, options.windowFullscreen) }
 
     _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
     
