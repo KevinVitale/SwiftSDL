@@ -44,24 +44,24 @@ extension SDL {
 
 extension SDL.Games {
   @dynamicMemberLookup
-  enum RenderContext<Game: SwiftSDL.Game> {
+  enum RenderContext {
     /// A context with no associate `renderer` or `game`.
     case invalid
     
     /// A context with an associated `renderer` and `game`.
-    case valid(any Renderer, Game, Uint64)
+    case valid(any Renderer, Uint64)
     
     var delta: Uint64 {
       get {
         switch self {
           case .invalid: return .zero
-          case .valid(_, _, let delta): return delta
+          case .valid(_, let delta): return delta
         }
       }
       set {
         switch self {
           case .invalid: break
-          case .valid(let renderer, let game, _): self = .valid(renderer, game, newValue)
+          case .valid(let renderer, _): self = .valid(renderer, newValue)
         }
       }
     }
@@ -73,49 +73,19 @@ extension SDL.Games {
       get {
         switch self {
           case .invalid: return nil
-          case .valid(let renderer, _, _): return renderer
+          case .valid(let renderer, _): return renderer
         }
       }
       set {
-        guard case(.valid(_, let game, let delta)) = self, let renderer = newValue else {
+        guard case(.valid(_, let delta)) = self, let renderer = newValue else {
           return
         }
-        self = .valid(renderer, game, delta)
-      }
-    }
-    
-    var game: Game? {
-      get {
-        guard case(.valid(_, let game, _)) = self else {
-          return nil
-        }
-        return game
-      }
-      set {
-        guard case(.valid(let renderer, _, let delta)) = self, let game = newValue else {
-          return
-        }
-        self = .valid(renderer, game, delta)
+        self = .valid(renderer, delta)
       }
     }
     
     subscript<Value>(dynamicMember keyPath: KeyPath<any Renderer, Value>) -> Value? {
       renderer?[keyPath: keyPath]
-    }
-  }
-}
-
-
-extension SDL.Games {
-  enum State<Game: SwiftSDL.Game> {
-    case uninitialized
-    case loading(Game)
-    case ready(Game)
-    
-    func render(with renderContext: RenderContext<Game>) throws(SDL_Error) -> Void {
-      guard case(.valid(let renderer, let game, let delta)) = renderContext  else {
-        return
-      }
     }
   }
 }

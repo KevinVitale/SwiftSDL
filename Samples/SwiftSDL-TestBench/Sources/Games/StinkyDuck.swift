@@ -7,7 +7,7 @@ extension SDL.Games {
     @OptionGroup
     var options: GameOptions
     
-    fileprivate var renderContext : RenderContext<StinkyDuck> = .invalid
+    fileprivate var renderContext : RenderContext = .invalid
     private var gameState         : GameState = .uninitialized
     private var gameController    : GameController = .invalid
     private var gameTextures      : [ImageAsset : any Texture] = [:]
@@ -29,12 +29,12 @@ extension SDL.Games {
           presentation: .overscan
         )
       
-      self.renderContext = .valid(renderer, self, .zero)
+      self.renderContext = .valid(renderer, .zero)
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
       self.renderContext.delta = delta
-      try self.gameState.update(with: renderContext)
+      try self.gameState.update(with: renderContext, game: self)
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
@@ -292,8 +292,8 @@ extension SDL.Games.StinkyDuck {
       }
     }
     
-    fileprivate func update(with renderContext: SDL.Games.RenderContext<SDL.Games.StinkyDuck>) throws(SDL_Error) -> Void {
-      guard case(.valid(let renderer, let game, let delta)) = renderContext  else {
+    fileprivate func update(with renderContext: SDL.Games.RenderContext, game: SDL.Games.StinkyDuck) throws(SDL_Error) -> Void {
+      guard case(.valid(let renderer, let delta)) = renderContext  else {
         return
       }
       
