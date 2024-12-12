@@ -1,6 +1,6 @@
 # SwiftSDL — Cross-Platform Targets with Swift & SDL3
 
-[![license](https://img.shields.io/badge/license-mit-brightgreen.svg)](LICENSE)
+[![license](https://img.shields.io/badge/license-mit-brightgreen.svg)](LICENSE.md)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FKevinVitales%2FSwiftSDL%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/KevinVitale/SwiftSDL)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FKevinVitale%2FSwiftSDL%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/KevinVitale/SwiftSDL)
  
