@@ -36,6 +36,7 @@ extension SDL {
       subcommands: [
         FlappyBird.self,
         Sandbox.self,
+        StinkyDuck.self
       ]
     )
   }

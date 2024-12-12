@@ -99,6 +99,7 @@ extension Texture {
 }
 
 extension Renderer {
+  
   /// Copy a portion of the source texture to the current rendering target, with rotation and flipping, at subpixel precision.
   ///
   /// - Parameters:
@@ -108,6 +109,7 @@ extension Renderer {
   ///   - angle: The amount of rotation the texture is drawn with.
   ///   - center: The point the texture is rotated around.
   ///   - textureRect: A vector with values between 0...1 used when copying the texture's source.
+  ///   - destinationSize: Forces the texture to be drawn at the specified size (BEFORE being scaled).
   ///   - flip: A value used which can flip the image horizontally or vertically.
   ///
   /// - seealso: _SDL_RenderTextureRotated_
@@ -134,8 +136,8 @@ extension Renderer {
     
     let destRectX = position.x
     let destRectY = position.y
-    let destRectW = scale.x * textureSize.x
-    let destRectH = scale.y * textureSize.y
+    let destRectW = scale.x * sourceRect[2]
+    let destRectH = scale.y * sourceRect[3]
     var destRect: SDL_FRect = [destRectX, destRectY, destRectW, destRectH]
     
     var center = center ?? nil
@@ -150,7 +152,7 @@ extension Renderer {
       flip
     )
   }
-  
+
   public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
     if transparent, let bpp = surface.bits_per_pixel, let pixels = surface.pixels {
       if (try? surface.palette.get()) != nil {
