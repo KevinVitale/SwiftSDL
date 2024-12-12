@@ -43,43 +43,6 @@ let package = Package(
 )
 ```
 
-### 💻 Platform-Specific Instructions
-
-SwiftSDL doesn't work without SDL3. Refer to the following sections to ensure SwiftSDL compiles properly.
-
-#### Apple
-
-SwiftSDL works on **macOS**, **iOS**, and **tvOS** simply by adding it to your project's `Package.swift` file. A precompiled XCFramework containing the SDL3 library is provided. 
-
-##### Building the XCFramework with the Makefile
-
-**You do not need to** build the XCFramework yourself. However, if you need to, the available [`Makefile`](https://github.com/KevinVitale/SwiftSDL/blob/main/Makefile) can be used:
-
-```bash
-# Clone KevinVitale/SwiftSDL
-git clone https://github.com/KevinVitale/SwiftSDL
-cd SwiftSDL
-
-# Build XCFramework...grab some ☕️
-make build-sdl-xcframework
-```
-![]()
-<img src="https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/osx-example.png" width="320" alt="macOS-example" /> 
-<img src="https://github.com/KevinVitale/SwiftSDL/blob/main/Samples/SwiftSDL-Xcode/ios-example.gif" width="320" alt="iOS-example" />
-
-#### Linux
-
-You must build and install SDL3 from source. Thankfully, it's easy and should take only a few minutes:
-
- 1. [Install whichever dependencies your need](https://wiki.libsdl.org/SDL3/README/linux) for your game; and,
- 2. [Build and install from source](https://wiki.libsdl.org/SDL3/Installation#linuxunix).
-
-<img src="https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/linux-example.png" height="480" max-width="50%" alt="linux-example" />
-
-#### Windows
-
-Support for Windows is currently unavailable.
-
 ## 👀 Overview
 
 Like Swift itself, SwiftSDL makes SDL3 approachable for newcomers and powerful for experts.
@@ -294,6 +257,43 @@ These are reimplementations of a variety of [SDL3's tests](https://github.com/li
 ##### Xcode Project: macOS, iOS, tvOS
 
 Explore: [Samples/SwiftSDL-Xcode](https://github.com/KevinVitale/SwiftSDL/tree/main/Samples/SwiftSDL-Xcode)
+
+## 💻 Platform-Specific Instructions
+
+SwiftSDL doesn't work without SDL3. Refer to the following sections to ensure SwiftSDL compiles properly.
+
+### Apple
+
+SwiftSDL works on **macOS**, **iOS**, and **tvOS** simply by adding it to your project's `Package.swift` file. A precompiled XCFramework containing the SDL3 library is provided. 
+
+##### Building the XCFramework with the Makefile
+
+**You do not need to** build the XCFramework yourself. However, if you need to, the available [`Makefile`](https://github.com/KevinVitale/SwiftSDL/blob/main/Makefile) can be used:
+
+```bash
+# Clone KevinVitale/SwiftSDL
+git clone https://github.com/KevinVitale/SwiftSDL
+cd SwiftSDL
+
+# Build XCFramework...grab some ☕️
+make build-sdl-xcframework
+```
+![]()
+<img src="https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/osx-example.png" width="320" alt="macOS-example" /> 
+<img src="https://github.com/KevinVitale/SwiftSDL/blob/main/Samples/SwiftSDL-Xcode/ios-example.gif" width="320" alt="iOS-example" />
+
+### Linux
+
+You must build and install SDL3 from source. Thankfully, it's easy and should take only a few minutes:
+
+ 1. [Install whichever dependencies your need](https://wiki.libsdl.org/SDL3/README/linux) for your game; and,
+ 2. [Build and install from source](https://wiki.libsdl.org/SDL3/Installation#linuxunix).
+
+<img src="https://github.com/KevinVitale/SwiftSDLTest/blob/main/Resources/GitHub/linux-example.png" height="480" max-width="50%" alt="linux-example" />
+
+### Windows
+
+Support for Windows is currently unavailable.
 
 ## 🎨 Authors
 
