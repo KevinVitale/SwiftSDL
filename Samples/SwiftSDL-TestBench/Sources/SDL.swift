@@ -70,9 +70,32 @@ extension SDL.Games {
     ///
     /// If the context is `invalid`, this returns `nil`.
     var renderer: (any Renderer)? {
-      switch self {
-        case .invalid: return nil
-        case .valid(let renderer, _, _): return renderer
+      get {
+        switch self {
+          case .invalid: return nil
+          case .valid(let renderer, _, _): return renderer
+        }
+      }
+      set {
+        guard case(.valid(_, let game, let delta)) = self, let renderer = newValue else {
+          return
+        }
+        self = .valid(renderer, game, delta)
+      }
+    }
+    
+    var game: Game? {
+      get {
+        guard case(.valid(_, let game, _)) = self else {
+          return nil
+        }
+        return game
+      }
+      set {
+        guard case(.valid(let renderer, _, let delta)) = self, let game = newValue else {
+          return
+        }
+        self = .valid(renderer, game, delta)
       }
     }
     
