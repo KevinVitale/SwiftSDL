@@ -33,7 +33,7 @@ extension SDL.Games {
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      self.renderContext.tick(delta)
+      self.renderContext.delta = delta
       try self.gameState.update(with: renderContext)
     }
     

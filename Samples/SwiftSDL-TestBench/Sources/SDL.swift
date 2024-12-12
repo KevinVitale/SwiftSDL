@@ -51,15 +51,18 @@ extension SDL.Games {
     /// A context with an associated `renderer` and `game`.
     case valid(any Renderer, Game, Uint64)
     
-    /**
-     Sets a `valid` rendering context to the latest `delta` value.
-     
-     - parameter delta: The amount (in nanoseconds) since the previous frame was drawn.
-     */
-    mutating func tick(_ delta: Uint64) {
-      switch self {
-        case .invalid: return
-        case .valid(let renderer, let game, _): self = .valid(renderer, game, delta)
+    var delta: Uint64 {
+      get {
+        switch self {
+          case .invalid: return .zero
+          case .valid(_, _, let delta): return delta
+        }
+      }
+      set {
+        switch self {
+          case .invalid: break
+          case .valid(let renderer, let game, _): self = .valid(renderer, game, newValue)
+        }
       }
     }
     
@@ -79,6 +82,20 @@ extension SDL.Games {
   }
 }
 
+
+extension SDL.Games {
+  enum State<Game: SwiftSDL.Game> {
+    case uninitialized
+    case loading(Game)
+    case ready(Game)
+    
+    func render(with renderContext: RenderContext<Game>) throws(SDL_Error) -> Void {
+      guard case(.valid(let renderer, let game, let delta)) = renderContext  else {
+        return
+      }
+    }
+  }
+}
 
 func Load(bitmap: String) throws(SDL_Error) -> any Surface {
   try SDL_Load(
