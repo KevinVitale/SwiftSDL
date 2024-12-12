@@ -70,43 +70,6 @@ extension SDL.Games {
 }
 
 extension SDL.Games.StinkyDuck {
-  @dynamicMemberLookup
-  fileprivate enum RenderContext<Game: SwiftSDL.Game> {
-    /// A context with no associate `renderer` or `game`.
-    case invalid
-    
-    /// A context with an associated `renderer` and `game`.
-    case valid(any Renderer, Game, Uint64)
-    
-    /**
-     Sets a `valid` rendering context to the latest `delta` value.
-     
-     - parameter delta: The amount (in nanoseconds) since the previous frame was drawn.
-     */
-    fileprivate mutating func tick(_ delta: Uint64) {
-      switch self {
-        case .invalid: return
-        case .valid(let renderer, let game, _): self = .valid(renderer, game, delta)
-      }
-    }
-    
-    /// The `renderer` of a `valid` context.
-    ///
-    /// If the context is `invalid`, this returns `nil`.
-    fileprivate var renderer: (any Renderer)? {
-      switch self {
-        case .invalid: return nil
-        case .valid(let renderer, _, _): return renderer
-      }
-    }
-    
-    fileprivate subscript<Value>(dynamicMember keyPath: KeyPath<any Renderer, Value>) -> Value? {
-      renderer?[keyPath: keyPath]
-    }
-  }
-}
-
-extension SDL.Games.StinkyDuck {
   fileprivate struct Fowl {
     /// https://caz-creates-games.itch.io/ducky-3?download
     fileprivate enum Animation: Identifiable {
@@ -329,7 +292,7 @@ extension SDL.Games.StinkyDuck {
       }
     }
     
-    fileprivate func update(with renderContext: RenderContext<SDL.Games.StinkyDuck>) throws(SDL_Error) -> Void {
+    fileprivate func update(with renderContext: SDL.Games.RenderContext<SDL.Games.StinkyDuck>) throws(SDL_Error) -> Void {
       guard case(.valid(let renderer, let game, let delta)) = renderContext  else {
         return
       }

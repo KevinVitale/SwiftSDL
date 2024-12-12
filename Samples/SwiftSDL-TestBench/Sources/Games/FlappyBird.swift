@@ -175,7 +175,7 @@ extension SDL.Games.FlappyBird {
       self = .flapping(player, pipes)
     }
     
-    fileprivate func update(with renderContext: RenderContext<SDL.Games.FlappyBird>) throws(SDL_Error) -> Void {
+    fileprivate func update(with renderContext: SDL.Games.RenderContext<SDL.Games.FlappyBird>) throws(SDL_Error) -> Void {
       guard case(.valid(let renderer, let game, let delta)) = renderContext  else {
         return
       }
@@ -530,43 +530,6 @@ extension SDL.Games.FlappyBird {
     let freezeDuration: Float = 50
     
     fileprivate static let `default` = FlapSettings()
-  }
-}
-
-extension SDL.Games.FlappyBird {
-  @dynamicMemberLookup
-  fileprivate enum RenderContext<Game: SwiftSDL.Game> {
-    /// A context with no associate `renderer` or `game`.
-    case invalid
-    
-    /// A context with an associated `renderer` and `game`.
-    case valid(any Renderer, Game, Uint64)
-    
-    /**
-     Sets a `valid` rendering context to the latest `delta` value.
-     
-     - parameter delta: The amount (in nanoseconds) since the previous frame was drawn.
-     */
-    fileprivate mutating func tick(_ delta: Uint64) {
-      switch self {
-        case .invalid: return
-        case .valid(let renderer, let game, _): self = .valid(renderer, game, delta)
-      }
-    }
-    
-    /// The `renderer` of a `valid` context.
-    ///
-    /// If the context is `invalid`, this returns `nil`.
-    fileprivate var renderer: (any Renderer)? {
-      switch self {
-        case .invalid: return nil
-        case .valid(let renderer, _, _): return renderer
-      }
-    }
-    
-    fileprivate subscript<Value>(dynamicMember keyPath: KeyPath<any Renderer, Value>) -> Value? {
-      renderer?[keyPath: keyPath]
-    }
   }
 }
 
