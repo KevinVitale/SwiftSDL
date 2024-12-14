@@ -1,3 +1,16 @@
+@dynamicMemberLookup
+protocol Sprite {
+  associatedtype State: AnimationState
+  associatedtype SceneProperties
+  
+  var state: State { get set }
+  var frameRate: Float { get set }
+  
+  mutating func animate(_ deltaInSeconds: Float)
+  
+  subscript<T>(dynamicMember keyPath: WritableKeyPath<SceneProperties, T>) -> T { get set }
+}
+
 extension SDL.Games {
   @dynamicMemberLookup
   @propertyWrapper

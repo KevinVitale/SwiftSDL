@@ -8,6 +8,10 @@ extension SDL.Games {
     @OptionGroup
     var options: GameOptions
     
+    private var ducks: [AnySpriteState] = [
+      .state(Duck.idle(.normal))
+    ]
+    
     private var knight: SpriteAnimation<Knight>?
     private var slime: SpriteAnimation<Slime>?
     
