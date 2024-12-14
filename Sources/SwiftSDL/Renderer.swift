@@ -155,9 +155,9 @@ extension Renderer {
   }
   
   @discardableResult
-  public func pass(to callback: (_ renderer: Self) throws -> Void) throws(SDL_Error) -> any Renderer {
+  public func pass(to callback: ((_ renderer: Self) throws -> Void)?) throws(SDL_Error) -> any Renderer {
     do {
-      try callback(self)
+      try callback?(self)
       return self
     }
     catch let error as SDL_Error {

@@ -1,3 +1,4 @@
+
 extension SDL.Games {
   final class StinkyDuck: Game {
     private enum CodingKeys: CodingKey {
@@ -7,16 +8,12 @@ extension SDL.Games {
     @OptionGroup
     var options: GameOptions
     
-    fileprivate var renderContext : RenderContext = .invalid
+    private var knight: SpriteAnimation<Knight>?
+    private var slime: SpriteAnimation<Slime>?
+    
     private var gameState         : GameState = .uninitialized
     private var gameController    : GameController = .invalid
     private var gameTextures      : [ImageAsset : any Texture] = [:]
-    private var ducks             : [Fowl] = [
-      .init(position: [128, 128], state: .idleNormal(.idleNormalUp, 0)),
-      .init(position: [128, 192], state: .idleBounce(.idleBounceStep1, 0)),
-      .init(position: [128, 256], state: .walkNormal(.walkNormalStep1, 0)),
-      .init(position: [128, 320], state: .walkBounce(.walkBounceStep1, 0))
-    ]
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       try SDL_Init(.gamepad)
@@ -26,26 +23,41 @@ extension SDL.Games {
         .createRenderer()
         .set(
           logicalSize: windowSize,
-          presentation: .overscan
+          presentation: .stretch
         )
       
-      self.renderContext = .valid(renderer, .zero)
+      /* Load each image asset into the renderer (as a texture) */
+      for imageAsset in ImageAsset.allCases {
+        let surface = try Load(bitmap: imageAsset.fileName)
+        let texture = try renderer.texture(
+          from: surface,
+          transparent: imageAsset.loadAsTransparent
+        )
+        self[imageAsset] = try texture(SDL_SetTextureScaleMode, SDL_SCALEMODE_NEAREST)
+      }
+      
+      self.slime = .init(self[.slimeBlob], animation: .idle, position: [128, 128], scale: [4, 4])
+      self.slime?.state = .move
+      self.slime?.frameRate = 3
+      
+      self.knight = .init(self[.knight], animation: .attack, scale: [4, 4])
+      
+      self.gameState = .ready(.valid(renderer, .zero))
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      self.renderContext.delta = delta
-      try self.gameState.update(with: renderContext, game: self)
+      try self.gameState.update(game: self, delta: delta)
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
       switch event.eventType {
         case .keyDown:
           switch event.key.key {
-            // case SDLK_RIGHT : self.player.state = .walkNormal(.walkNormalStep1)
+            case SDLK_RIGHT: break
+            case SDLK_LEFT: break
             default: break
           }
-        case .keyUp: ()
-          //  self.player.state = .idleNormal(.idleBounceStep1)
+        case .keyUp: break
         default: break
       }
     }
@@ -70,317 +82,226 @@ extension SDL.Games {
 }
 
 extension SDL.Games.StinkyDuck {
-  fileprivate struct Fowl {
-    /// https://caz-creates-games.itch.io/ducky-3?download
-    fileprivate enum Animation: Identifiable {
-      case idleNormalUp
-      case idleNormalDown
-      
-      case walkNormalStep1
-      case walkNormalStep2
-      case walkNormalStep3
-      case walkNormalStep4
-      case walkNormalStep5
-      case walkNormalStep6
-
-      case idleBounceStep1
-      case idleBounceStep2
-      case idleBounceStep3
-      case idleBounceStep4
-      
-      case walkBounceStep1
-      case walkBounceStep2
-      case walkBounceStep3
-      case walkBounceStep4
-      case walkBounceStep5
-      case walkBounceStep6
-
-      var id: Int {
-        switch self {
-          case .idleNormalUp: fallthrough
-          case .idleNormalDown: return 0
-            
-          case .walkNormalStep1: fallthrough
-          case .walkNormalStep2: fallthrough
-          case .walkNormalStep3: fallthrough
-          case .walkNormalStep4: fallthrough
-          case .walkNormalStep5: fallthrough
-          case .walkNormalStep6: return 1
-
-          case .idleBounceStep1: fallthrough
-          case .idleBounceStep2: fallthrough
-          case .idleBounceStep3: fallthrough
-          case .idleBounceStep4: return 2
-            
-          case .walkBounceStep1: fallthrough
-          case .walkBounceStep2: fallthrough
-          case .walkBounceStep3: fallthrough
-          case .walkBounceStep4: fallthrough
-          case .walkBounceStep5: fallthrough
-          case .walkBounceStep6: return 3
-        }
-      }
-      
-      var frame: Int {
-        switch self {
-          case .idleNormalUp: return 0
-          case .idleNormalDown: return 1
-            
-          case .walkNormalStep1: return 0
-          case .walkNormalStep2: return 1
-          case .walkNormalStep3: return 2
-          case .walkNormalStep4: return 3
-          case .walkNormalStep5: return 4
-          case .walkNormalStep6: return 5
-            
-          case .idleBounceStep1: return 0
-          case .idleBounceStep2: return 1
-          case .idleBounceStep3: return 2
-          case .idleBounceStep4: return 3
-            
-          case .walkBounceStep1: return 0
-          case .walkBounceStep2: return 1
-          case .walkBounceStep3: return 2
-          case .walkBounceStep4: return 3
-          case .walkBounceStep5: return 4
-          case .walkBounceStep6: return 5
-        }
-      }
-      
-      var duration: Float {
-        switch self {
-          case .idleNormalUp: fallthrough
-          case .idleNormalDown: return 45
-            
-          case .walkNormalStep1: fallthrough
-          case .walkNormalStep2: fallthrough
-          case .walkNormalStep3: fallthrough
-          case .walkNormalStep4: fallthrough
-          case .walkNormalStep5: fallthrough
-          case .walkNormalStep6: return 10
-
-          case .idleBounceStep1: fallthrough
-          case .idleBounceStep2: fallthrough
-          case .idleBounceStep3: fallthrough
-          case .idleBounceStep4: return 15
-            
-          case .walkBounceStep1: fallthrough
-          case .walkBounceStep2: fallthrough
-          case .walkBounceStep3: fallthrough
-          case .walkBounceStep4: fallthrough
-          case .walkBounceStep5: fallthrough
-          case .walkBounceStep6: return 15
-        }
-      }
-      
-      mutating func swap() {
-        switch self {
-          case .idleNormalUp: self = .idleNormalDown
-          case .idleNormalDown: self = .idleNormalUp
-            
-          case .walkNormalStep1: self = .walkNormalStep2
-          case .walkNormalStep2: self = .walkNormalStep3
-          case .walkNormalStep3: self = .walkNormalStep4
-          case .walkNormalStep4: self = .walkNormalStep5
-          case .walkNormalStep5: self = .walkNormalStep6
-          case .walkNormalStep6: self = .walkNormalStep1
-
-          case .idleBounceStep1: self = .idleBounceStep2
-          case .idleBounceStep2: self = .idleBounceStep3
-          case .idleBounceStep3: self = .idleBounceStep4
-          case .idleBounceStep4: self = .idleBounceStep1
-            
-          case .walkBounceStep1: self = .walkBounceStep2
-          case .walkBounceStep2: self = .walkBounceStep3
-          case .walkBounceStep3: self = .walkBounceStep4
-          case .walkBounceStep4: self = .walkBounceStep5
-          case .walkBounceStep5: self = .walkBounceStep6
-          case .walkBounceStep6: self = .walkBounceStep1
-        }
-      }
-    }
-    
-    fileprivate enum State: CaseIterable {
-      case idleNormal(Animation, Float)
-      case walkNormal(Animation, Float)
-      case idleBounce(Animation, Float)
-      case walkBounce(Animation, Float)
-
-      static var allCases: [Self] {
-        [
-          .idleNormal(.idleNormalUp, 0),
-          .idleBounce(.idleBounceStep1, 0),
-          .walkNormal(.walkNormalStep1, 0),
-          .walkBounce(.walkBounceStep1, 0)
-        ]
-      }
-      
-      var time: Float {
-        get {
-          switch self {
-            case .idleNormal(_, let time): return time
-            case .walkNormal(_, let time): return time
-            case .idleBounce(_, let time): return time
-            case .walkBounce(_, let time): return time
-          }
-        }
-        set {
-          switch self {
-            case .idleNormal: self = .idleNormal(animation, newValue)
-            case .walkNormal: self = .walkNormal(animation, newValue)
-            case .idleBounce: self = .idleBounce(animation, newValue)
-            case .walkBounce: self = .walkBounce(animation, newValue)
-          }
-        }
-      }
-      
-      var animation: Animation {
-        get {
-          switch self {
-            case .idleNormal(let animation, _): return animation
-            case .walkNormal(let animation, _): return animation
-            case .idleBounce(let animation, _): return animation
-            case .walkBounce(let animation, _): return animation
-          }
-        }
-        set {
-          switch self {
-            case .idleNormal: self = .idleNormal(newValue, time)
-            case .walkNormal: self = .walkNormal(newValue, time)
-            case .idleBounce: self = .idleBounce(newValue, time)
-            case .walkBounce: self = .walkBounce(newValue, time)
-          }
-        }
-      }
-      
-      mutating func update(_ delta: Float) {
-        self.time += delta
-        if self.time >= self.animation.duration {
-          self.time = 0
-          self.animation.swap()
-        }
-      }
-    }
-    
-    init(position: Point<Float>, state: State) {
-      self.position = position
-      self.state = state
-    }
-    
-    var position: Point<Float>
-    var state: State
-    
-    private var frameProgress: Float = 0
-  }
-}
-
-extension SDL.Games.StinkyDuck {
-  fileprivate enum GameState: CustomDebugStringConvertible {
+  fileprivate enum GameState {
     case uninitialized
-    case loading
-    case ready(SDL.Games.StinkyDuck)
-    case gameOver(SDL.Games.StinkyDuck)
-    indirect case pause(GameState)
+    case ready(SDL.Games.RenderContext)
     
-    var debugDescription: String {
-      switch self {
-        case .uninitialized: return "uninitialized"
-        case .loading: return "loading"
-        case .ready: return "ready"
-        case .gameOver: return "game over"
-        case .pause: return "paused"
-      }
-    }
-    
-    fileprivate func update(with renderContext: SDL.Games.RenderContext, game: SDL.Games.StinkyDuck) throws(SDL_Error) -> Void {
-      guard case(.valid(let renderer, let delta)) = renderContext  else {
+    func update(game: SDL.Games.StinkyDuck, delta: Uint64) throws(SDL_Error) {
+      guard case(.ready(let renderContext)) = self, case(.valid(let renderer, _)) = renderContext else {
         return
       }
       
-      try updateFunc(renderer, game, delta)
+      let deltaInSeconds = Float(delta) / 10_000_000
+      
+      game.slime?.animate(deltaInSeconds)
+      game.knight?.animate(deltaInSeconds)
+      
       try renderer
         .clear(color: .gray)
-        .pass(to: renderFunc, game)
+        .draw(sprite: game.knight)
+        .draw(sprite: game.slime)
         .present()
-    }
-    
-    private var updateFunc: (any Renderer, SDL.Games.StinkyDuck, UInt64) throws(SDL_Error) -> Void {
-      switch self {
-        case .uninitialized: return { renderer, game, _ in
-          game.gameState = .loading
-        }
-          
-        case .loading: return { renderer, game, _ in
-          /* Load each image asset into the renderer (as a texture) */
-          for imageAsset in ImageAsset.allCases {
-            let surface = try Load(bitmap: imageAsset.fileName)
-            let texture = try renderer.texture(
-              from: surface,
-              transparent: imageAsset.loadAsTransparent
-            )
-            game[imageAsset] = try texture(SDL_SetTextureScaleMode, SDL_SCALEMODE_NEAREST)
-          }
-          
-          /* The game is ready to begin... */
-          game.gameState = .ready(game)
-        }
-          
-        case .ready: return { renderer, game, delta in
-          let deltaInSecs = Float(delta) / 10000000
-          game.ducks = game.ducks.map({
-            var duck = $0
-            duck.state.update(deltaInSecs)
-            return duck
-          })
-        }
-          
-        default: return { _, _ ,_ in
-        }
-      }
-    }
-    
-    /// The rendering callback used for drawing the `GameState`.
-    private var renderFunc: (_ renderer: any Renderer, _ game: SDL.Games.StinkyDuck) throws(SDL_Error) -> Void {
-      switch self {
-        case .ready: return { renderer, game in
-          game.ducks.forEach {
-            let player = $0
-            let spriteSize: Size<Float> = [(32/192), (32/128)]
-            let sourcePos: Point<Float> = [
-              Float(player.state.animation.frame) * spriteSize.x,
-              Float(player.state.animation.id) * spriteSize.y
-            ]
-            _ = try? renderer.draw(
-              texture: game[.stinkDuckHero]
-              , at: SDL_FPoint(player.position)
-              , scaledBy: [2, 2]
-              , textureRect: [sourcePos.x, sourcePos.y, spriteSize.x, spriteSize.y]
-            )
-          }
-        }
-        default: return { _, _ in
-        }
-      }
     }
   }
 }
 
 extension SDL.Games.StinkyDuck {
   fileprivate enum ImageAsset: String, CaseIterable {
-    case stinkDuckHero = "Stink Duck (Hero)"
-    
+    case brownDuck  = "Brown Duck"
+    case yellowDuck = "Yellow Duck"
+    case slimeBlob  = "Slime Blob"
+    case froggy     = "Froggy"
+    case knight     = "Knight"
+
     var loadAsTransparent: Bool { true }
     
     var fileName: String {
       switch self {
-        case .stinkDuckHero: return "stinky_duck_hero.bmp"
+        case .brownDuck:  return "stinky_duck_brown.bmp"
+        case .yellowDuck: return "stinky_duck_yellow.bmp"
+        case .slimeBlob:  return "slime_blob.bmp"
+        case .froggy:     return "froggy.bmp"
+        case .knight:     return "knight.bmp"
+      }
+    }
+  }
+}
+
+extension SDL.Games.StinkyDuck {
+  /// https://caz-creates-games.itch.io/ducky-3
+  enum Duck: RawRepresentable, AnimationState, CaseIterable {
+    enum Style { case normal; case bounce }
+    
+    var id: Int { rawValue }
+    
+    private var frames: Int {
+      switch self {
+        case .idle(let style):
+          switch style {
+            case .normal: return 2
+            case .bounce: return 4
+          }
+        case .walk: return 6
       }
     }
     
+    var frameSize: SwiftSDL.Size<Float> {
+      [32, 32]
+    }
+    
+    func nextFrame(after frame: Int) -> Int {
+      guard frame < frames - 1 else {
+        return 0
+      }
+      
+      return frame + 1
+    }
+    
+    func frameDuration(for frame: Int) -> Float {
+      60 / Float(max(frames, 1))
+    }
+    
+    static let `default`: Self = .idle(.normal)
+    
+    init?(rawValue: Int) {
+      switch rawValue {
+        case 0: self = .idle(.normal)
+        case 1: self = .walk(.normal)
+        case 2: self = .idle(.bounce)
+        case 3: self = .walk(.bounce)
+        default: return nil
+      }
+    }
+    
+    var rawValue: Int {
+      switch self {
+        case .idle(let style):
+          switch style {
+            case .normal: return 0
+            case .bounce: return 2
+          }
+        case .walk(let style):
+          switch style {
+            case .normal: return 1
+            case .bounce: return 3
+          }
+      }
+    }
+    
+    case idle(Style)
+    case walk(Style)
+    
     static var allCases: [Self] {
       [
-        .stinkDuckHero
+        .idle(.normal),
+        .idle(.bounce),
+        .walk(.normal),
+        .walk(.bounce)
       ]
     }
+  }
+  
+  /// https://caz-creates-games.itch.io/slime-blob
+  enum Slime: Int, AnimationState, CaseIterable {
+    var id: Int { rawValue }
+    
+    private var frames: Int {
+      4
+    }
+    
+    var frameSize: SwiftSDL.Size<Float> {
+      [32, 32]
+    }
+    
+    func nextFrame(after frame: Int) -> Int {
+      guard frame < frames - 1 else {
+        return 0
+      }
+      
+      return frame + 1
+    }
+    
+    func frameDuration(for frame: Int) -> Float {
+      60 / Float(max(frames, 1))
+    }
+    
+    static let `default`: Self = .idle
+    
+    case idle = 0
+    case move
+  }
+  
+  /// https://caz-creates-games.itch.io/froggy
+  enum Froggy: Int, AnimationState, CaseIterable {
+    var id: Int { rawValue }
+    
+    private var frames: Int {
+      switch self {
+        case .idle: return 4
+        case .hop: return 7
+        case .hurt: return 2
+        case .attack: return 4
+      }
+    }
+    
+    var frameSize: SwiftSDL.Size<Float> {
+      [64, 32]
+    }
+    
+    func nextFrame(after frame: Int) -> Int {
+      guard frame < frames - 1 else {
+        return 0
+      }
+      
+      return frame + 1
+    }
+    
+    func frameDuration(for frame: Int) -> Float {
+      60 / Float(max(frames, 1))
+    }
+    
+    static let `default`: Self = .idle
+    
+    case idle = 0
+    case hop
+    case hurt
+    case attack
+  }
+  
+  /// https://caz-creates-games.itch.io/knight
+  enum Knight: Int, AnimationState, CaseIterable {
+    var id: Int { rawValue }
+    
+    private var frames: Int {
+      switch self {
+        case .walk: fallthrough
+        case .attack: return 4
+        default: return 1
+      }
+    }
+      
+    var frameSize: SwiftSDL.Size<Float> {
+      [40, 40]
+    }
+    
+    func nextFrame(after frame: Int) -> Int {
+      guard frame < frames - 1 else {
+        return 0
+      }
+      
+      return frame + 1
+    }
+    
+    func frameDuration(for frame: Int) -> Float {
+      60 / Float(max(frames, 1))
+    }
+
+    static let `default`: Self = .idle
+    
+    case idle = 0
+    case blink
+    case walk
+    case attack
+    case hurt
   }
 }
