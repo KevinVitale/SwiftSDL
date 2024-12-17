@@ -36,6 +36,9 @@ public enum SDL_DisplayID: Decodable, CustomDebugStringConvertible {
     return .success(String(cString: name))
   }
   
+  // Information on SDL3 window size:
+  // https://github.com/libsdl-org/SDL/blob/main/docs/README-highdpi.md
+  /// Retrieves the suggested amplification factor when drawing in native coordinates.
   public var contentScale: Result<Float, SDL_Error> {
     let contentScale = SDL_GetDisplayContentScale(id)
     guard contentScale > 0 else {

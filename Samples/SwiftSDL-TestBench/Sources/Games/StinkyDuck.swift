@@ -32,7 +32,7 @@ extension SDL.Games {
           presentation: .stretch
         )
       
-      self.gameState = .loadAssets(renderer: renderer)
+      self.gameState = .loadTextures(renderer: renderer)
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
@@ -77,13 +77,13 @@ extension SDL.Games {
 extension SDL.Games.StinkyDuck {
   fileprivate enum GameState {
     case uninitialized
-    case loadAssets(renderer: any Renderer)
+    case loadTextures(renderer: any Renderer)
     case loadSprites(renderer: any Renderer, spriteScale: Size<Float>)
     case ready(renderer: any Renderer)
     
     fileprivate var update: (_ game: SDL.Games.StinkyDuck, _ deltaInSeconds: Float) throws(SDL_Error) -> Void {
       switch self {
-        case .loadAssets(let renderer): return { game, _ in
+        case .loadTextures(let renderer): return { game, _ in
           /* Load each image asset into the renderer (as a texture) */
           for imageAsset in ImageAsset.allCases {
             let surface = try Load(bitmap: imageAsset.fileName)
