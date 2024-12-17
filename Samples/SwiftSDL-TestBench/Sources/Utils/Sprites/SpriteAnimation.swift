@@ -14,7 +14,7 @@ protocol Sprite {
 extension SDL.Games {
   @dynamicMemberLookup
   @propertyWrapper
-  struct SpriteAnimation<State: AnimationState> {
+  struct SpriteAnimation<State: AnimationState>: Sprite {
     init(_ wrappedValue: (any Texture)?, animation state: State, position: Point<Float> = .zero, scale: Size<Float> = .one, speed: Float = 1) {
       self.wrappedValue = wrappedValue
       self.state = state
@@ -28,7 +28,7 @@ extension SDL.Games {
     
     var frameRate: Float = 1
     
-    var properties = SceneProperties()
+    var properties = SDL.Games.SceneProperties()
 
     var state: State {
       didSet { reset() }
@@ -49,13 +49,16 @@ extension SDL.Games {
       }
     }
     
-    public subscript<T>(dynamicMember keyPath: KeyPath<State, T>) -> T {
-      state[keyPath: keyPath]
+    /*
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<State, T>) -> T {
+      get { state[keyPath: keyPath] }
+      set { state[keyPath: keyPath] = newValue }
     }
+     */
     
     public subscript<T>(dynamicMember keyPath: WritableKeyPath<SceneProperties, T>) -> T {
-      get { properties[keyPath: keyPath] }
-      set { properties[keyPath: keyPath] = newValue }
+      get { self.properties[keyPath: keyPath] }
+      set { self.properties[keyPath: keyPath] = newValue }
     }
     
     func draw(_ renderer: any Renderer) throws(SDL_Error) -> Void {
@@ -64,11 +67,11 @@ extension SDL.Games {
       }
       
       let textureSize = try texture.size(as: Float.self)
-      let spriteSize: Size<Float> = self.frameSize / textureSize
+      let spriteSize: Size<Float> = state.frameSize / textureSize
       
       let sourcePos: Point<Float> = [
         Float(currentFrame) * spriteSize.x,
-        Float(self.id) * spriteSize.y
+        Float(state.id) * spriteSize.y
       ]
       
       let sourceRect: SDL_FRect = [
@@ -98,6 +101,17 @@ extension Renderer {
   func draw<State: AnimationState>(sprite animation: SDL.Games.SpriteAnimation<State>?) throws(SDL_Error) -> some Renderer {
     guard let animation = animation else { return self }
     try self.pass(to: animation.draw(_:))
+    return self
+  }
+  
+  func draw<State: AnimationState>(sprites animations: SDL.Games.SpriteAnimation<State>...) throws(SDL_Error) -> some Renderer {
+    try draw(sprites: animations)
+  }
+  
+  func draw<State: AnimationState>(sprites animations: [SDL.Games.SpriteAnimation<State>]) throws(SDL_Error) -> some Renderer {
+    for animation in animations {
+      try self.pass(to: animation.draw(_:))
+    }
     return self
   }
 }

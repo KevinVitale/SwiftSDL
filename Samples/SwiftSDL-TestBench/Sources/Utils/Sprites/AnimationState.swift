@@ -6,7 +6,10 @@ protocol AnimationState: Identifiable where ID == Int {
 }
 
 extension SDL.Games {
-  enum AnySpriteState: AnimationState {
+  enum AnyAnimation: AnimationState {
+    case unknown
+    case state(any AnimationState)
+
     var frameSize: SwiftSDL.Size<Float> {
       switch self {
         case .state(let state): return state.frameSize
@@ -32,16 +35,6 @@ extension SDL.Games {
       switch self {
         case .state(let state): return state.id
         default: return .zero
-      }
-    }
-    
-    case unknown
-    case state(any AnimationState)
-    
-    func state<State: AnimationState>(as type: State.Type) -> State? {
-      switch self {
-        case .unknown: return nil
-        case .state(let state): return state as? State
       }
     }
   }

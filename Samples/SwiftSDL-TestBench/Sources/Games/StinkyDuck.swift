@@ -5,15 +5,17 @@ extension SDL.Games {
       case options
     }
     
+    static let configuration = CommandConfiguration(
+      abstract: "Them ducks need a bath!"
+    )
+    
+    static let name: String = "SwiftSDL Game: Stinky Duck"
+
     @OptionGroup
     var options: GameOptions
     
-    private var ducks: [AnySpriteState] = [
-      .state(Duck.idle(.normal))
-    ]
-    
-    private var knight: SpriteAnimation<Knight>?
-    private var slime: SpriteAnimation<Slime>?
+    private var spriteScale: Size<Float> = [2, 2]
+    private var sprites: [SpriteAnimation<AnyAnimation>] = []
     
     private var gameState         : GameState = .uninitialized
     private var gameController    : GameController = .invalid
@@ -30,27 +32,13 @@ extension SDL.Games {
           presentation: .stretch
         )
       
-      /* Load each image asset into the renderer (as a texture) */
-      for imageAsset in ImageAsset.allCases {
-        let surface = try Load(bitmap: imageAsset.fileName)
-        let texture = try renderer.texture(
-          from: surface,
-          transparent: imageAsset.loadAsTransparent
-        )
-        self[imageAsset] = try texture(SDL_SetTextureScaleMode, SDL_SCALEMODE_NEAREST)
-      }
-      
-      self.slime = .init(self[.slimeBlob], animation: .idle, position: [128, 128], scale: [4, 4])
-      self.slime?.state = .move
-      self.slime?.frameRate = 3
-      
-      self.knight = .init(self[.knight], animation: .attack, scale: [4, 4])
-      
-      self.gameState = .ready(.valid(renderer, .zero))
+      self.gameState = .loadAssets(renderer: renderer)
     }
     
     func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      try self.gameState.update(game: self, delta: delta)
+      let deltaInSeconds = Float(delta) / 10_000_000
+      try self.gameState.update(self, deltaInSeconds)
+      try self.gameState.render(self)
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
@@ -67,6 +55,7 @@ extension SDL.Games {
     }
     
     func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
+      self.gameState = .uninitialized
     }
     
     func did(connect gameController: inout GameController) throws(SDL_Error) {
@@ -88,23 +77,115 @@ extension SDL.Games {
 extension SDL.Games.StinkyDuck {
   fileprivate enum GameState {
     case uninitialized
-    case ready(SDL.Games.RenderContext)
+    case loadAssets(renderer: any Renderer)
+    case loadSprites(renderer: any Renderer, spriteScale: Size<Float>)
+    case ready(renderer: any Renderer)
     
-    func update(game: SDL.Games.StinkyDuck, delta: Uint64) throws(SDL_Error) {
-      guard case(.ready(let renderContext)) = self, case(.valid(let renderer, _)) = renderContext else {
-        return
+    fileprivate var update: (_ game: SDL.Games.StinkyDuck, _ deltaInSeconds: Float) throws(SDL_Error) -> Void {
+      switch self {
+        case .loadAssets(let renderer): return { game, _ in
+          /* Load each image asset into the renderer (as a texture) */
+          for imageAsset in ImageAsset.allCases {
+            let surface = try Load(bitmap: imageAsset.fileName)
+            let texture = try renderer.texture(
+              from: surface,
+              transparent: imageAsset.loadAsTransparent
+            )
+            game[imageAsset] = try texture(SDL_SetTextureScaleMode, SDL_SCALEMODE_NEAREST)
+            game.gameState = .loadSprites(renderer: renderer, spriteScale: game.spriteScale)
+          }
+        }
+        case .loadSprites(let renderer, let spriteScale): return { game, _ in
+          let brownDucks = Duck.allCases
+            .enumerated()
+            .map({ index, state -> SDL.Games.SpriteAnimation<SDL.Games.AnyAnimation> in
+              let texture   = game[.brownDuck]
+              let animation = SDL.Games.AnyAnimation.state(state)
+              return SDL.Games.SpriteAnimation(
+                texture
+                , animation: animation
+                , position: [0, state.frameSize.y * Float(index)] * spriteScale
+                , scale: spriteScale
+              )
+            })
+          let yellowDucks = Duck.allCases
+            .enumerated()
+            .map({ index, state -> SDL.Games.SpriteAnimation<SDL.Games.AnyAnimation> in
+              let texture   = game[.yellowDuck]
+              let animation = SDL.Games.AnyAnimation.state(state)
+              return SDL.Games.SpriteAnimation(
+                texture
+                , animation: animation
+                , position: [state.frameSize.x, state.frameSize.y * Float(index)] * spriteScale
+                , scale: spriteScale
+              )
+            })
+          let knights = Knight.allCases
+            .enumerated()
+            .map({ index, state -> SDL.Games.SpriteAnimation<SDL.Games.AnyAnimation> in
+              let texture   = game[.knight]
+              let animation = SDL.Games.AnyAnimation.state(state)
+              return SDL.Games.SpriteAnimation(
+                texture
+                , animation: animation
+                , position: [1.75 * state.frameSize.x, state.frameSize.y / 1.5 * Float(index)] * spriteScale - [0, state.frameSize.y / 1.5]
+                , scale: spriteScale
+              )
+            })
+          let slimes = Slime.allCases
+            .enumerated()
+            .map({ index, state -> SDL.Games.SpriteAnimation<SDL.Games.AnyAnimation> in
+              let texture   = game[.slimeBlob]
+              let animation = SDL.Games.AnyAnimation.state(state)
+              return SDL.Games.SpriteAnimation(
+                texture
+                , animation: animation
+                , position: [3.25 * state.frameSize.x, state.frameSize.y * Float(index)] * spriteScale
+                , scale: spriteScale
+              )
+            })
+          let froggies = Froggy.allCases
+            .enumerated()
+            .map({ index, state -> SDL.Games.SpriteAnimation<SDL.Games.AnyAnimation> in
+              let texture   = game[.froggy]
+              let animation = SDL.Games.AnyAnimation.state(state)
+              return SDL.Games.SpriteAnimation(
+                texture
+                , animation: animation
+                , position: [2.05 * state.frameSize.x, state.frameSize.y * Float(index)] * spriteScale
+                , scale: spriteScale
+              )
+            })
+          game.sprites = brownDucks
+          + yellowDucks
+          + knights
+          + slimes
+          + froggies
+          game.gameState = .ready(renderer: renderer)
+        }
+        case .ready: return { game, deltaInSeconds in
+          game.sprites = game.sprites.map {
+            var sprite = $0
+            sprite.animate(deltaInSeconds)
+            return sprite
+          }
+          
+        }
+        default: return { _, _ in }
       }
-      
-      let deltaInSeconds = Float(delta) / 10_000_000
-      
-      game.slime?.animate(deltaInSeconds)
-      game.knight?.animate(deltaInSeconds)
-      
-      try renderer
-        .clear(color: .gray)
-        .draw(sprite: game.knight)
-        .draw(sprite: game.slime)
-        .present()
+    }
+    
+    fileprivate var render: (_ game: SDL.Games.StinkyDuck) throws(SDL_Error) -> Void {
+      switch self {
+        case .ready(let renderer): return { game in
+          try renderer
+            .clear(color: .gray)
+            .draw(sprites: game.sprites)
+            .present()
+        }
+        default: return { _ in
+        }
+      }
     }
   }
 }
