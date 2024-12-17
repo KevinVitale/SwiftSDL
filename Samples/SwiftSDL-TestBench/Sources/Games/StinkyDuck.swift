@@ -180,6 +180,7 @@ extension SDL.Games.StinkyDuck {
         case .ready(let renderer): return { game in
           try renderer
             .clear(color: .gray)
+            .drawTiled(texture: game[.grassTile], scaledBy: 4)
             .draw(sprites: game.sprites)
             .present()
         }
@@ -197,8 +198,14 @@ extension SDL.Games.StinkyDuck {
     case slimeBlob  = "Slime Blob"
     case froggy     = "Froggy"
     case knight     = "Knight"
+    case grassTile  = "Grass Tile"
 
-    var loadAsTransparent: Bool { true }
+    var loadAsTransparent: Bool {
+      guard case(.grassTile) = self else {
+        return true
+      }
+      return false
+    }
     
     var fileName: String {
       switch self {
@@ -207,6 +214,7 @@ extension SDL.Games.StinkyDuck {
         case .slimeBlob:  return "slime_blob.bmp"
         case .froggy:     return "froggy.bmp"
         case .knight:     return "knight.bmp"
+        case .grassTile:  return "grass_tile.bmp"
       }
     }
   }

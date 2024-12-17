@@ -152,6 +152,40 @@ extension Renderer {
       flip
     )
   }
+  
+  @discardableResult public func drawTiled(
+    texture: (any Texture)?
+    , at position: SDL_FPoint = .zero
+    , scaledBy scale: Float = 1
+    , rowsAndColumns size: Size<Float>? = nil
+    , textureRect: SDL_FRect = [0, 0, 1, 1]
+  ) throws(SDL_Error) -> Self {
+    guard let texture = texture else {
+      return self
+    }
+    
+    let textureSize = try texture.size(as: Float.self)
+    
+    let sourceRectX = 0 + (textureSize.x * textureRect[0])
+    let sourceRectY = 0 + (textureSize.y * textureRect[1])
+    let sourceRectW = (textureSize.x * textureRect[2])
+    let sourceRectH = (textureSize.y * textureRect[3])
+    var sourceRect: SDL_FRect = [sourceRectX, sourceRectY, sourceRectW, sourceRectH]
+    
+    let destRectX = position.x
+    let destRectY = position.y
+    let destRectW = (size ?? .one).y * sourceRect[2]
+    let destRectH = (size ?? .one).x * sourceRect[3]
+    var destRect: SDL_FRect = [destRectX, destRectY, destRectW, destRectH]
+    
+    return try self(
+      SDL_RenderTextureTiled
+      , texture.pointer
+      , .some(&sourceRect)
+      , scale,
+      size != nil ? .some(&destRect) : nil
+    )
+  }
 
   public func texture(from surface: any Surface, transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
     if transparent, let bpp = surface.bits_per_pixel, let pixels = surface.pixels {
