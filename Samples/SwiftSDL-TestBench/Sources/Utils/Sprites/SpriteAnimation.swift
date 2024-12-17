@@ -49,13 +49,6 @@ extension SDL.Games {
       }
     }
     
-    /*
-    public subscript<T>(dynamicMember keyPath: WritableKeyPath<State, T>) -> T {
-      get { state[keyPath: keyPath] }
-      set { state[keyPath: keyPath] = newValue }
-    }
-     */
-    
     public subscript<T>(dynamicMember keyPath: WritableKeyPath<SceneProperties, T>) -> T {
       get { self.properties[keyPath: keyPath] }
       set { self.properties[keyPath: keyPath] = newValue }
