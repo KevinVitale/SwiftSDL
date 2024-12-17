@@ -303,13 +303,13 @@ public struct GameOptions: ParsableArguments {
   public var autoScaleContent: Bool = false
   
   @Option(help: "Forces the rendered content to be a certain logical size (WxH)")
-  public var logicalSize: SDL_Size? = nil
+  public var renderLogicalSize: SDL_Size? = nil
   
   @Option(help: "Forces the rendered content to be a certain logical order; overrides '--auto-scale-content'")
-  public var logicalPresentation: SDL_RendererLogicalPresentation = .disabled
+  public var renderLogicalPresentation: SDL_RendererLogicalPresentation = .disabled
   
-  @Option(name: .customLong("vsync-rate"), help: "Set vertical synchronization rate")
-  public var vsync: VSyncRate = .disabled
+  @Option(help: "Set vertical synchronization rate")
+  public var renderVsync: VSyncRate = .disabled
   
   @Flag(help: "Window is always kept on top")
   public var windowAlwaysOnTop: Bool = false
@@ -463,16 +463,16 @@ extension Window {
     _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
     
     if let renderer = try? renderer.get() {
-      if try renderer.vsync.get() == 0, options.vsync != .disabled {
-        print("Attempting to set vsync to \"\(options.vsync)\"")
-        try renderer.set(vsync: options.vsync.rawValue)
+      if try renderer.vsync.get() == 0, options.renderVsync != .disabled {
+        print("Attempting to set vsync to \"\(options.renderVsync)\"")
+        try renderer.set(vsync: options.renderVsync.rawValue)
       }
       
       let existingLogicalSize = SDL_Size(try renderer.logicalSize.get())
       let existingLogicalPres = try renderer.logicalPresentation.get()
       
-      var logicalSize         = options.logicalSize ?? existingLogicalSize
-      let logicalPresentation = options.autoScaleContent ? .stretch : (existingLogicalPres != .disabled ? existingLogicalPres : options.logicalPresentation)
+      var logicalSize         = options.renderLogicalSize ?? existingLogicalSize
+      let logicalPresentation = options.autoScaleContent ? .stretch : (existingLogicalPres != .disabled ? existingLogicalPres : options.renderLogicalPresentation)
 
       // Mirrors 'logicalSize' to `window.size` when empty...
       if logicalSize.x == 0, logicalSize.y == 0 {
