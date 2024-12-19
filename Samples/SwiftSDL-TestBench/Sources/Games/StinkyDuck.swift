@@ -3,6 +3,7 @@ extension SDL.Games {
   final class StinkyDuck: Game {
     private enum CodingKeys: CodingKey {
       case options
+      case gridSize
     }
     
     static let configuration = CommandConfiguration(
@@ -13,6 +14,8 @@ extension SDL.Games {
 
     @OptionGroup
     var options: GameOptions
+    
+    @Argument var gridSize: SDL_Size = [10, 10]
     
     private var spriteScale: Size<Float> = [2, 2]
     private var sprites: [SpriteAnimation<AnyAnimation>] = []
@@ -180,7 +183,12 @@ extension SDL.Games.StinkyDuck {
         case .ready(let renderer): return { game in
           try renderer
             .clear(color: .gray)
-            .drawTiled(texture: game[.grassTile], scaledBy: 4)
+            .drawTiled(
+              texture: game[.grassTile]
+              , at: [32 * game.spriteScale.x, 32 * game.spriteScale.y]
+              , scaledBy: 4
+              , rowsAndColumns: game.gridSize.to(Float.self)
+            )
             .draw(sprites: game.sprites)
             .present()
         }

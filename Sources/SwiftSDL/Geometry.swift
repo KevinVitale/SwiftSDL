@@ -42,12 +42,16 @@ extension SDL_Point: @retroactive SIMD {
     return block(&this, repeat each argument)
   }
   
-  public func to<S: SIMDScalar & BinaryFloatingPoint>(_ type: S.Type) -> SDL_FPoint where Scalar: FixedWidthInteger {
-    var s = SIMD2<Float>()
+  public func to<S: SIMDScalar & BinaryFloatingPoint>(_ type: S.Type) -> SIMD2<S> where Scalar: FixedWidthInteger {
+    var s = SIMD2<S>()
     for i in indices {
-      s[i] = Float(self[i])
+      s[i] = S(self[i])
     }
-    return SDL_FPoint(x: s[0], y: s[1])
+    return s
+  }
+
+  public func to<S: SIMDScalar & BinaryFloatingPoint>(_ type: S.Type) -> SDL_FPoint where Scalar: FixedWidthInteger {
+    SDL_FPoint(self.to(S.self))
   }
 }
 
@@ -183,12 +187,16 @@ extension SDL_FRect: @retroactive SIMD {
     return block(&this, repeat each argument)
   }
   
-  public func to<S: SIMDScalar & FixedWidthInteger>(_ type: S.Type) -> SDL_Rect where Scalar: BinaryFloatingPoint {
-    var s = SIMD4<Int32>()
+  public func to<S: SIMDScalar & FixedWidthInteger>(_ type: S.Type) -> Rect<S> where Scalar: BinaryFloatingPoint {
+    var s = SIMD4<S>()
     for i in indices {
-      s[i] = Int32(self[i])
+      s[i] = S(self[i])
     }
-    return SDL_Rect(x: s[0], y: s[1], w: s[2], h: s[3])
+    return s
+  }
+    
+  public func to<S: SIMDScalar & FixedWidthInteger>(_ type: S.Type) -> SDL_Rect where Scalar: BinaryFloatingPoint {
+    SDL_Rect(self.to(S.self))
   }
 }
 
