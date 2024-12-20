@@ -2,7 +2,10 @@ import SwiftSDL
 
 @main public final class MyGame: Game {
   #if os(macOS)
-  enum CodingKeys: CodingKey { case ignored }
+  enum CodingKeys: CodingKey {
+    case options
+    case ignored
+  }
   
   @Argument(parsing: .allUnrecognized)
   var ignored: [String]
