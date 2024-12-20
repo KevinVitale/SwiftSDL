@@ -38,8 +38,8 @@ extension SDL.Games {
       self.gameState = .loadTextures(renderer: renderer)
     }
     
-    func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      let deltaInSeconds = Float(delta) / 10_000_000
+    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      let deltaInSeconds = Float(deltaTime)
       try self.gameState.update(self, deltaInSeconds)
       try self.gameState.render(self)
     }
@@ -109,6 +109,7 @@ extension SDL.Games.StinkyDuck {
                 , animation: animation
                 , position: [0, state.frameSize.y * Float(index)] * spriteScale
                 , scale: spriteScale
+                , frameRate: 3
               )
             })
           let yellowDucks = Duck.allCases
@@ -145,6 +146,7 @@ extension SDL.Games.StinkyDuck {
                 , animation: animation
                 , position: [3.25 * state.frameSize.x, state.frameSize.y * Float(index)] * spriteScale
                 , scale: spriteScale
+                , frameRate: 4
               )
             })
           let froggies = Froggy.allCases
@@ -157,6 +159,7 @@ extension SDL.Games.StinkyDuck {
                 , animation: animation
                 , position: [2.05 * state.frameSize.x, state.frameSize.y * Float(index)] * spriteScale
                 , scale: spriteScale
+                , frameRate: 2
               )
             })
           game.sprites = brownDucks
@@ -259,7 +262,7 @@ extension SDL.Games.StinkyDuck {
     }
     
     func frameDuration(for frame: Int) -> Float {
-      60 / Float(max(frames, 1))
+      1 / Float(max(frames, 1))
     }
     
     static let `default`: Self = .idle(.normal)
@@ -323,7 +326,7 @@ extension SDL.Games.StinkyDuck {
     }
     
     func frameDuration(for frame: Int) -> Float {
-      60 / Float(max(frames, 1))
+      1 / Float(max(frames, 1))
     }
     
     static let `default`: Self = .idle
@@ -358,7 +361,7 @@ extension SDL.Games.StinkyDuck {
     }
     
     func frameDuration(for frame: Int) -> Float {
-      60 / Float(max(frames, 1))
+      1 / Float(max(frames, 1))
     }
     
     static let `default`: Self = .idle
@@ -394,7 +397,7 @@ extension SDL.Games.StinkyDuck {
     }
     
     func frameDuration(for frame: Int) -> Float {
-      60 / Float(max(frames, 1))
+      1 / Float(max(frames, 1))
     }
 
     static let `default`: Self = .idle

@@ -52,7 +52,7 @@ extension SDL.Test {
       }
     }
     
-    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+    func onUpdate(window: any Window) throws(SDL_Error) {
       guard useAcceleration else {
         try _surfaceDrawing(window)
         return

@@ -49,22 +49,7 @@ extension SDL.Games {
     case invalid
     
     /// A context with an associated `renderer` and `game`.
-    case valid(any Renderer, Uint64)
-    
-    var delta: Uint64 {
-      get {
-        switch self {
-          case .invalid: return .zero
-          case .valid(_, let delta): return delta
-        }
-      }
-      set {
-        switch self {
-          case .invalid: break
-          case .valid(let renderer, _): self = .valid(renderer, newValue)
-        }
-      }
-    }
+    case valid(any Renderer)
     
     /// The `renderer` of a `valid` context.
     ///
@@ -73,14 +58,14 @@ extension SDL.Games {
       get {
         switch self {
           case .invalid: return nil
-          case .valid(let renderer, _): return renderer
+          case .valid(let renderer): return renderer
         }
       }
       set {
-        guard case(.valid(_, let delta)) = self, let renderer = newValue else {
+        guard case(.valid) = self, let renderer = newValue else {
           return
         }
-        self = .valid(renderer, delta)
+        self = .valid(renderer)
       }
     }
     

@@ -29,11 +29,10 @@ extension SDL.Games {
           presentation: .overscan
         )
       
-      self.renderContext = .valid(renderer, .zero)
+      self.renderContext = .valid(renderer)
     }
     
-    func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      self.renderContext.delta = delta
+    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       try self.gameState.update(with: renderContext, game: self)
     }
     
@@ -176,24 +175,24 @@ extension SDL.Games.FlappyBird {
     }
     
     fileprivate func update(with renderContext: SDL.Games.RenderContext, game: SDL.Games.FlappyBird) throws(SDL_Error) -> Void {
-      guard case(.valid(let renderer, let delta)) = renderContext  else {
+      guard case(.valid(let renderer)) = renderContext  else {
         return
       }
       
-      try updateFunc(renderer, game, delta)
+      try updateFunc(renderer, game)
       try renderer
         .clear(color: bgColor)
         .pass(to: renderFunc, game)
         .present()
     }
     
-    private var updateFunc: (any Renderer, SDL.Games.FlappyBird, UInt64) throws(SDL_Error) -> Void {
+    private var updateFunc: (any Renderer, SDL.Games.FlappyBird) throws(SDL_Error) -> Void {
       switch self {
-        case .uninitialized: return { renderer, game, _ in
+        case .uninitialized: return { renderer, game in
           game.gameState = .loading
         }
           
-        case .loading: return { renderer, game, _ in
+        case .loading: return { renderer, game in
           /* Load each image asset into the renderer (as a texture) */
           for imageAsset in ImageAsset.allCases {
             let surface = try Load(bitmap: imageAsset.fileName)
@@ -208,12 +207,12 @@ extension SDL.Games.FlappyBird {
           game.gameState = .ready(game)
         }
           
-        case .flapping(var player, var pipes): return { renderer, game, delta in
+        case .flapping(var player, var pipes): return { renderer, game in
           let screenSize = try renderer.logicalSize.get().to(Float.self)
           let pipeSize = try game[.smallPipe]?.size(as: Float.self) ?? .zero
           
           // Let gravity take the wheel...
-          let deltaInSecs = Float(delta) / 10000000
+          let deltaInSecs = Float(game.deltaTime)
           player.fall(deltaInSecs)
           pipes = pipes.shifted(deltaInSecs, screenSize: screenSize, pipeSize: pipeSize, player: &player)
           
@@ -235,8 +234,8 @@ extension SDL.Games.FlappyBird {
           }
         }
           
-        case .deathFall(var player, let pipes, var freezeDuration): return { renderer, game, delta in
-          let deltaInSecs = Float(delta) / 10000000
+        case .deathFall(var player, let pipes, var freezeDuration): return { renderer, game in
+          let deltaInSecs = Float(game.deltaTime)
           
           guard freezeDuration <= 0 else {
             freezeDuration -= deltaInSecs
@@ -260,7 +259,7 @@ extension SDL.Games.FlappyBird {
           }
         }
           
-        default: return { renderer, game, _ in
+        default: return { renderer, game in
           /* no-op */
         }
       }
@@ -372,7 +371,7 @@ extension SDL.Games.FlappyBird {
         self.size.x, self.size.y
       ]
       
-      let playerBounds = playerBoundsOriginal * [1.005, 1.005, 0.75, 0.75]
+      let playerBounds = playerBoundsOriginal * [1.015, 1.015, 0.55, 0.55]
       try game.renderContext.renderer?.fill(rects: SDL_FRect(playerBounds), color: .blue)
       
       do {
@@ -455,7 +454,7 @@ extension SDL.Games.FlappyBird {
     }
 
     
-    fileprivate mutating func shift(rate: Float = -2, _ deltaInSeconds: Float) {
+    fileprivate mutating func shift(rate: Float = -200, _ deltaInSeconds: Float) {
       let velocity: Point<Float> = [rate, 0]
       let position = position + velocity * deltaInSeconds
       self = .pair(top, bottom, position, cleared)
@@ -525,9 +524,9 @@ extension SDL.Games.FlappyBird {
   fileprivate struct FlapSettings {
     private init() { }
     
-    let gravity: Float = 0.25
-    let strength: Float = -4
-    let freezeDuration: Float = 50
+    let gravity: Float = 2400
+    let strength: Float = -400
+    let freezeDuration: Float = 0.5
     
     fileprivate static let `default` = FlapSettings()
   }

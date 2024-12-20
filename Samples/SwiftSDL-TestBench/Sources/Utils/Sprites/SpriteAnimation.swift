@@ -15,12 +15,13 @@ extension SDL.Games {
   @dynamicMemberLookup
   @propertyWrapper
   struct SpriteAnimation<State: AnimationState>: Sprite {
-    init(_ wrappedValue: (any Texture)?, animation state: State, position: Point<Float> = .zero, scale: Size<Float> = .one, speed: Float = 1) {
+    init(_ wrappedValue: (any Texture)?, animation state: State, position: Point<Float> = .zero, scale: Size<Float> = .one, speed: Float = 1, frameRate: Float = 1) {
       self.wrappedValue = wrappedValue
       self.state = state
       self.speed = speed
       self.position = position
       self.scale = scale
+      self.frameRate = frameRate
     }
     
     private var currentFrame: Int = 0

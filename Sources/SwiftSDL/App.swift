@@ -33,8 +33,43 @@ enum App {
   
   nonisolated(unsafe) static weak var game: (any Game)!
   nonisolated(unsafe) static var window: (any Window)!
-  nonisolated(unsafe) static var ticks: Uint64 = .max
+  nonisolated(unsafe) static var frameInterval: (tick: Double, delta: Double) = (.nan, .nan)
   nonisolated(unsafe) static var failure: Failure = .noFailure
+}
+
+extension App {
+  // https://gist.github.com/xeekworx/4ed45c039ea1676ddef1c2d9f921973d
+  static func iterate(at now: Double = Double(SDL_GetPerformanceCounter()) / Double(SDL_GetPerformanceFrequency())) {
+    var (tick, _) = frameInterval
+    
+    if tick.isNaN {
+      tick = now
+    }
+    
+    App.frameInterval = (now, now - tick)
+  }
+}
+
+@propertyWrapper
+struct FrameInterval {
+  init(wrappedValue: Double = Double(SDL_GetPerformanceCounter())) {
+    self.wrappedValue = wrappedValue
+  }
+  
+  
+  private var delta: Double = .nan
+  private var tick: Double = .nan
+  
+  var wrappedValue: Double {
+    get { tick }
+    set {
+      if tick.isNaN { self.tick = newValue }
+      let prevTick = self.tick
+      
+      self.tick = newValue / Double(SDL_GetPerformanceFrequency())
+      delta = self.tick - prevTick
+    }
+  }
 }
 
 public struct SDL_AppMetadataFlags: RawRepresentable, Equatable, Sendable {

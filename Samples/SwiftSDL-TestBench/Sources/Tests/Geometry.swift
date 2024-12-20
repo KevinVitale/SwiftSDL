@@ -46,7 +46,7 @@ extension SDL.Test {
       self.icon = icon
     }
     
-    func onUpdate(window: any Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
+    func onUpdate(window: any Window) throws(SwiftSDL.SDL_Error) {
       try renderer
         // Clears the framebuffer
         .clear(color: .init(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF))

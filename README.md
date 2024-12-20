@@ -72,7 +72,7 @@ final class MyGame: Game {
       /* load assets or resources. */
     }
 
-    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+    func onUpdate(window: any Window) throws(SDL_Error) {
       /* handle game logic and render frames */
     }
 
@@ -171,7 +171,7 @@ final class MyGame: Game {
       renderer = try window.createRenderer()
     }
 
-    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+    func onUpdate(window: any Window) throws(SDL_Error) {
       try renderer
         .clear(color: .gray)
         .debug(text: message, position: [12, 12], scale: [2, 2])

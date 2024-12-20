@@ -19,8 +19,8 @@ extension SDL.Games {
       scene = Scene(size: try window.size(as: Float.self), bgColor: .gray)
     }
     
-    func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
-      try window.draw(scene: scene, updateAt: delta)
+    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      try window.draw(scene: scene, updateAt: Uint64(deltaTime))
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {

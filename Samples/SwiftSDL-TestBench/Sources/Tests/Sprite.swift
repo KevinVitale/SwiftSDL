@@ -127,7 +127,7 @@ extension SDL.Test {
       frameCounter.start(delayAmount: 5000)
     }
     
-    func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
+    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       colorCycle.step(); alphaCycle.step()
       
       if cyclecolor {

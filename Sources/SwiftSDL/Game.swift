@@ -67,10 +67,10 @@ public protocol Game: AnyObject, ParsableCommand {
    This function should return as quickly as reasonably possible, during which,
    your game should update state, and render a frame of video.
    
-   For example, this how the `Geometry` test bench  implements its `onUpdate(window:, _:`:
+   For example, this how the `Geometry` test bench  implements its `onUpdate(window:`:
    
    ```
-   func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
+   func onUpdate(window: any Window) throws(SDL_Error) {
      try renderer
        .clear(color: .gray)
        .set(blendMode: blendMode)
@@ -81,7 +81,7 @@ public protocol Game: AnyObject, ParsableCommand {
    
    - seealso: _SDL_AppIterate_
    */
-  func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error)
+  func onUpdate(window: any Window) throws(SDL_Error)
   
   /**
    Called whenever an SDL event arrives.
@@ -123,6 +123,9 @@ public protocol Game: AnyObject, ParsableCommand {
   
   func did(connect gameController: inout GameController) throws(SDL_Error)
   func will(remove gameController: GameController)
+  
+  /// Time since the last frame (in seconds).
+  var deltaTime: Double { get }
 }
 
 nonisolated(unsafe)
@@ -142,6 +145,10 @@ extension Game {
   
   public var gameControllers: [GameController] {
     GameControllers
+  }
+  
+  public var deltaTime: Double {
+    App.frameInterval.delta
   }
   
   public func run() throws {
@@ -171,14 +178,8 @@ extension Game {
         }
       }, /* onIterate */ { state in
         do {
-          let ticks = SDL_GetTicksNS()
-          if App.ticks == .max {
-            App.ticks = ticks
-          }
-          
-          let delta = ticks - App.ticks
-          App.ticks = ticks
-          try App.game.onUpdate(window: App.window, delta)
+          App.iterate()
+          try App.game.onUpdate(window: App.window)
 
           return .continue
         } catch {

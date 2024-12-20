@@ -43,8 +43,8 @@ extension SDL.Test {
       self.scene = try createScene(size: sceneSize, bgColor: .white, textures: sceneTextures)
     }
     
-    func onUpdate(window: any Window, _ delta: Uint64) throws(SDL_Error) {
-      try renderer.draw(scene: scene, updateAt: delta)
+    func onUpdate(window: any Window) throws(SDL_Error) {
+      try renderer.draw(scene: scene, updateAt: Uint64(deltaTime) / 100)
     }
     
     func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {

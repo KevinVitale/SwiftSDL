@@ -23,7 +23,7 @@ extension SDL.Test {
       print("GPU Driver:", try gpuDevice.deviceName.get())
     }
     
-    func onUpdate(window: any SwiftSDL.Window, _ delta: Uint64) throws(SwiftSDL.SDL_Error) {
+    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       try gpuDevice
         .acquireCommandBuffer()
         .render(to: window, passes: { swapchain in
