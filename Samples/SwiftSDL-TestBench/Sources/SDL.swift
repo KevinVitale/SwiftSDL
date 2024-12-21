@@ -20,6 +20,7 @@ extension SDL {
         Camera.self,
         Controller.self,
         Geometry.self,
+        MouseGrid.self,
         SpinningCube.self,
         Sprite.self,
       ]

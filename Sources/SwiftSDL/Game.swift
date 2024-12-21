@@ -410,6 +410,14 @@ extension SDL_Point: @retroactive ExpressibleByArgument {
   }
 }
 
+extension SDL_FPoint: @retroactive ExpressibleByArgument {
+  public init?(argument: String) {
+    let width = Float(argument.split(separator: "x").first ?? "0") ?? .zero
+    let height = Float(argument.split(separator: "x").last ?? "0") ?? .zero
+    self.init(x: width, y: height)
+  }
+}
+
 extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument {
   public init?(argument: String) {
     switch argument.lowercased() {
