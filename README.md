@@ -251,12 +251,14 @@ These are reimplementations of a variety of [SDL3's tests](https://github.com/li
 | `swift run sdl test camera`     | <img width="480" alt="test-camera" src="https://github.com/user-attachments/assets/e817a454-970b-4b63-ba74-3541b951f532"> |
 | `swift run sdl test geometry`   | <img width="480" alt="test-geometry" src="https://github.com/user-attachments/assets/13a9af58-6668-48a0-9cca-70b76472a569"> |
 | `swift run sdl test sprite`     | <img width="480" alt="test-sprite" src="https://github.com/user-attachments/assets/9e1b8c5e-d4bd-471c-9d61-a3337442981f"> |
+| `swift run sdl test mouse-grid` | <img width="480" alt="mouse-grid" src="https://github.com/user-attachments/assets/28902a4c-6fb1-4c08-aa9c-d1047831fb41"> |
 
 ##### Games
 
 | Build Command | Image Preview |
 |-|-|
 | `swift run sdl games flappy-bird` | <img width="480" alt="game-flappy-bird" src="https://github.com/user-attachments/assets/2817f22c-8557-4871-bfb8-b2bf496ffb77"> |
+| `swift run sdl games stinky-duck` | <img width="480" alt="game-flappy-bird" src="https://github.com/user-attachments/assets/afad73dd-bbd7-48f4-b6fd-144d61172968"> |
 
 ##### Xcode Project: macOS, iOS, tvOS
 
