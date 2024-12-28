@@ -46,7 +46,7 @@ extension GPUDevice {
   }
   
   public func render(_ commandBuffer: some CommandBuffer, pass: (OpaquePointer) throws -> Void) throws(SDL_Error) -> some GPUDevice {
-      SDL_BeginGPURenderPass(commandBuffer.pointer, nil , 0 , nil )
+    SDL_BeginGPURenderPass(commandBuffer.pointer, nil , 0 , nil )
     return self
   }
 }
@@ -82,7 +82,7 @@ public enum SDL_GPUShaderFormat: RawRepresentable, Decodable, CaseIterable {
       default: self = .invalid
     }
   }
-
+  
   public var rawValue: UInt32 {
     switch self {
       case .invalid: return UInt32(SDL_GPU_SHADERFORMAT_INVALID)

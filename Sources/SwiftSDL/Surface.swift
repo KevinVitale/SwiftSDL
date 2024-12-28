@@ -79,7 +79,7 @@ extension Surface {
 
 // MARK: - Load Bitmaps
 @discardableResult
-public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SDL_Error) -> any Surface {
+public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SDL_Error) -> some Surface {
   guard let pointer = SDL_LoadBMP(file) else {
     throw .error
   }
@@ -91,7 +91,7 @@ public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SD
 public func SDL_Load(
   bitmap file: String,
   searchingBundles bundles: [Bundle] = Bundle.resourceBundles(),
-  inDirectory directory: String? = nil) throws(SDL_Error) -> any Surface
+  inDirectory directory: String? = nil) throws(SDL_Error) -> some Surface
 {
   guard let filePath = bundles.compactMap({ bundle in
     bundle.path(

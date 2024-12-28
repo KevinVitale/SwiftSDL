@@ -15,7 +15,6 @@ extension SDL.Games {
     private var scene: Scene!
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      try SDL_Init(.gamepad)
       scene = Scene(size: try window.size(as: Float.self), bgColor: .gray)
     }
     

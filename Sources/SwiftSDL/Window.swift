@@ -221,19 +221,7 @@ public func SDL_CreateWindow(_ title: String, size: Size<Int32>, flags: SDL_Wind
 
 @discardableResult
 public func SDL_GetWindows() throws(SDL_Error) -> [any Window] {
-  var count: UInt32 = 0
-  guard let windows = SDL_GetWindows(&count) else {
-    throw .error
-  }
-  
-  defer { SDL_free(windows) }
-  
-  return Array<OpaquePointer?>.init(unsafeUninitializedCapacity: Int(count)) { buffer, initializedCount in
-    initializedCount = Int(count)
-    for i in 0..<initializedCount {
-      buffer[i] = windows[i]
-    }
-  }
+  try SDL_BufferPointer(SDL_GetWindows)
     .compactMap(\.self)
-    .map({ SDLObject($0, tag: .custom("tag"), destroy: SDL_DestroyWindow) })
+    .map({ SDLObject($0) as! (any Window) })
 }
