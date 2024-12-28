@@ -1,18 +1,12 @@
 extension SDL.Test {
   final class AudioInfo: ParsableCommand {
-    private enum CodingKeys: String, CodingKey {
-      case options
-    }
-    
     static let configuration = CommandConfiguration(
       abstract: "Simple program to test the SDL audio information routines"
     )
     
-    @OptionGroup var options: Options
-    
     static let name: String = "SDL Test: Audio Test"
     
-    func run() async throws {
+    func run() throws {
       try SDL_Init(.audio)
       
       guard case(.success(let audioDrivers)) = AudioDriver.available, audioDrivers.count > 0 else {
