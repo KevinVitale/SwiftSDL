@@ -247,11 +247,12 @@ These are reimplementations of a variety of [SDL3's tests](https://github.com/li
 
 | Build Command | Image Preview |
 |-|-|
+| `swift run sdl test audio-info` | <img width="240" alt="test-controller" src="https://github.com/user-attachments/assets/cd9574ca-92a2-4a4c-8bad-eeee9593bbb6"> |
 | `swift run sdl test controller` | <img width="480" alt="test-controller" src="https://github.com/user-attachments/assets/c67d6e8b-3a25-48d6-b195-b501ae536f4f"> |
 | `swift run sdl test camera`     | <img width="480" alt="test-camera" src="https://github.com/user-attachments/assets/e817a454-970b-4b63-ba74-3541b951f532"> |
 | `swift run sdl test geometry`   | <img width="480" alt="test-geometry" src="https://github.com/user-attachments/assets/13a9af58-6668-48a0-9cca-70b76472a569"> |
-| `swift run sdl test sprite`     | <img width="480" alt="test-sprite" src="https://github.com/user-attachments/assets/9e1b8c5e-d4bd-471c-9d61-a3337442981f"> |
 | `swift run sdl test mouse-grid` | <img width="480" alt="mouse-grid" src="https://github.com/user-attachments/assets/28902a4c-6fb1-4c08-aa9c-d1047831fb41"> |
+| `swift run sdl test sprite`     | <img width="480" alt="test-sprite" src="https://github.com/user-attachments/assets/9e1b8c5e-d4bd-471c-9d61-a3337442981f"> |
 
 ##### Games
 
