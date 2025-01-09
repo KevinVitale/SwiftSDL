@@ -38,7 +38,7 @@ extension Renderer {
     return try self
       .set(scale: node.scale)
       .pass(to: { try node.draw($0) })
-      .set(scale: renderScale) as! Self
+      .set(scale: renderScale)
    }
 }
 
