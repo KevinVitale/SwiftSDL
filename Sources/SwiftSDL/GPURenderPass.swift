@@ -32,3 +32,24 @@ extension SDL_GPUColorTargetInfo {
     self.store_op = store_op
   }
 }
+
+extension SDL_GPUDepthStencilTargetInfo {
+  public init(
+  texture: OpaquePointer?
+  , clearDepth: Float = 1
+  , clearStencil: UInt32 = 0
+  , load_op: SDL_GPULoadOp = SDL_GPU_LOADOP_CLEAR
+  , store_op: SDL_GPUStoreOp = SDL_GPU_STOREOP_DONT_CARE
+  , stencil_load_op: SDL_GPULoadOp = SDL_GPU_LOADOP_DONT_CARE
+  , stencil_store_op: SDL_GPUStoreOp = SDL_GPU_STOREOP_DONT_CARE
+  , cycle: Bool = false
+  ) {
+    self = .init()
+    self.texture = texture
+    self.load_op = load_op
+    self.store_op = store_op
+    self.stencil_load_op = stencil_load_op
+    self.stencil_store_op = stencil_store_op
+    self.cycle = cycle
+  }
+}

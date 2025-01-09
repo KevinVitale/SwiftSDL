@@ -13,7 +13,7 @@ extension CommandBuffer {
   public typealias SwapchainRenderPassTuple =
   (String, ColorTargetInfos: [SDL_GPUColorTargetInfo], depthStencilTargetInfo:  SDL_GPUDepthStencilTargetInfo?)
   
-  public typealias SwapchainRenderPassCallback = (_ swapchain: OpaquePointer) throws -> [SwapchainRenderPassTuple]
+  public typealias SwapchainRenderPassCallback = (_ swapchain: OpaquePointer, _ size: Size<UInt32>) throws -> [SwapchainRenderPassTuple]
   
   @discardableResult
   public func render(
@@ -22,16 +22,17 @@ extension CommandBuffer {
     , bindAndDraw: ((_ tag: String, _ renderPass: any RenderPass) throws -> Void) = { _, _ in }
   ) throws(SDL_Error) -> Self {
     var swapchainTexture: OpaquePointer! = nil
+    var width: UInt32 = 0, height: UInt32 = 0
     try self(
       SDL_AcquireGPUSwapchainTexture
       , window.pointer
       , .some(&swapchainTexture)
-      , nil
-      , nil
+      , .some(&width)
+      , .some(&height)
     )
     
     do {
-      for (tag, colorTargetInfos, depthStencilTargetInfo) in try passes(swapchainTexture) {
+      for (tag, colorTargetInfos, depthStencilTargetInfo) in try passes(swapchainTexture, .init(x: width, y: height)) {
         let renderPass = try SDL_BeginGPURenderPass(
           commandBuffer: self,
           colorTargetInfos: colorTargetInfos,
