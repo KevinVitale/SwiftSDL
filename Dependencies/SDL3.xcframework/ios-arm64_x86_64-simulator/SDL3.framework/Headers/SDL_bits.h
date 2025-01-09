@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -35,10 +35,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- *  \file SDL_bits.h
- */
 
 #if defined(__WATCOMC__) && defined(__386__)
 extern __inline int _SDL_bsr_watcom(Uint32);

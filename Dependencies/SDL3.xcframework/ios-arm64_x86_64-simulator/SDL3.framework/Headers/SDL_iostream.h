@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -25,7 +25,7 @@
  * # CategoryIOStream
  *
  * SDL provides an abstract interface for reading and writing data streams. It
- * offers implementations for files, memory, etc, and the app can provideo
+ * offers implementations for files, memory, etc, and the app can provide
  * their own implementations, too.
  *
  * SDL_IOStream is not related to the standard C++ iostream class, other than
@@ -541,10 +541,12 @@ extern SDL_DECLSPEC Sint64 SDLCALL SDL_TellIO(SDL_IOStream *context);
  * Read from a data source.
  *
  * This function reads up `size` bytes from the data source to the area
- * pointed at by `ptr`. This function may read less bytes than requested. It
- * will return zero when the data stream is completely read, and
- * SDL_GetIOStatus() will return SDL_IO_STATUS_EOF, or on error, and
- * SDL_GetIOStatus() will return SDL_IO_STATUS_ERROR.
+ * pointed at by `ptr`. This function may read less bytes than requested.
+ *
+ * This function will return zero when the data stream is completely read, and
+ * SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If zero is returned and
+ * the stream is not at EOF, SDL_GetIOStatus() will return a different error
+ * value and SDL_GetError() will offer a human-readable message.
  *
  * \param context a pointer to an SDL_IOStream structure.
  * \param ptr a pointer to a buffer to read data into.
@@ -664,6 +666,7 @@ extern SDL_DECLSPEC bool SDLCALL SDL_FlushIO(SDL_IOStream *context);
  * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_LoadFile
+ * \sa SDL_SaveFile_IO
  */
 extern SDL_DECLSPEC void * SDLCALL SDL_LoadFile_IO(SDL_IOStream *src, size_t *datasize, bool closeio);
 
@@ -684,8 +687,45 @@ extern SDL_DECLSPEC void * SDLCALL SDL_LoadFile_IO(SDL_IOStream *src, size_t *da
  * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_LoadFile_IO
+ * \sa SDL_SaveFile
  */
 extern SDL_DECLSPEC void * SDLCALL SDL_LoadFile(const char *file, size_t *datasize);
+
+/**
+ * Save all the data into an SDL data stream.
+ *
+ * \param src the SDL_IOStream to write all data to.
+ * \param data the data to be written. If datasize is 0, may be NULL or a
+ *             invalid pointer.
+ * \param datasize the number of bytes to be written.
+ * \param closeio if true, calls SDL_CloseIO() on `src` before returning, even
+ *                in the case of an error.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SaveFile
+ * \sa SDL_LoadFile_IO
+ */
+extern SDL_DECLSPEC bool SDLCALL SDL_SaveFile_IO(SDL_IOStream *src, const void *data, size_t datasize, bool closeio);
+
+/**
+ * Save all the data into a file path.
+ *
+ * \param file the path to read all available data from.
+ * \param data the data to be written. If datasize is 0, may be NULL or a
+ *             invalid pointer.
+ * \param datasize the number of bytes to be written.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SaveFile_IO
+ * \sa SDL_LoadFile
+ */
+extern SDL_DECLSPEC bool SDLCALL SDL_SaveFile(const char *file, const void *data, size_t datasize);
 
 /**
  *  \name Read endian functions
@@ -697,10 +737,15 @@ extern SDL_DECLSPEC void * SDLCALL SDL_LoadFile(const char *file, size_t *datasi
 /**
  * Use this function to read a byte from an SDL_IOStream.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the SDL_IOStream to read from.
  * \param value a pointer filled in with the data read.
- * \returns true on success or false on failure; call SDL_GetError() for more
- *          information.
+ * \returns true on success or false on failure or EOF; call SDL_GetError()
+ *          for more information.
  *
  * \since This function is available since SDL 3.1.3.
  */
@@ -708,6 +753,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU8(SDL_IOStream *src, Uint8 *value);
 
 /**
  * Use this function to read a signed byte from an SDL_IOStream.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the SDL_IOStream to read from.
  * \param value a pointer filled in with the data read.
@@ -725,6 +775,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadS8(SDL_IOStream *src, Sint8 *value);
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
  * \returns true on successful write or false on failure; call SDL_GetError()
@@ -740,6 +795,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU16LE(SDL_IOStream *src, Uint16 *value)
  *
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
@@ -757,6 +817,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadS16LE(SDL_IOStream *src, Sint16 *value)
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
  * \returns true on successful write or false on failure; call SDL_GetError()
@@ -772,6 +837,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU16BE(SDL_IOStream *src, Uint16 *value)
  *
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
@@ -789,6 +859,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadS16BE(SDL_IOStream *src, Sint16 *value)
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
  * \returns true on successful write or false on failure; call SDL_GetError()
@@ -804,6 +879,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU32LE(SDL_IOStream *src, Uint32 *value)
  *
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
@@ -821,6 +901,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadS32LE(SDL_IOStream *src, Sint32 *value)
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
  * \returns true on successful write or false on failure; call SDL_GetError()
@@ -836,6 +921,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU32BE(SDL_IOStream *src, Uint32 *value)
  *
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
@@ -853,6 +943,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadS32BE(SDL_IOStream *src, Sint32 *value)
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
  * \returns true on successful write or false on failure; call SDL_GetError()
@@ -868,6 +963,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU64LE(SDL_IOStream *src, Uint64 *value)
  *
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
@@ -885,6 +985,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadS64LE(SDL_IOStream *src, Sint64 *value)
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
  *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
+ *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
  * \returns true on successful write or false on failure; call SDL_GetError()
@@ -900,6 +1005,11 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ReadU64BE(SDL_IOStream *src, Uint64 *value)
  *
  * SDL byteswaps the data only if necessary, so the data returned will be in
  * the native byte order.
+ *
+ * This function will return false when the data stream is completely read,
+ * and SDL_GetIOStatus() will return SDL_IO_STATUS_EOF. If false is returned
+ * and the stream is not at EOF, SDL_GetIOStatus() will return a different
+ * error value and SDL_GetError() will offer a human-readable message.
  *
  * \param src the stream from which to read data.
  * \param value a pointer filled in with the data read.
