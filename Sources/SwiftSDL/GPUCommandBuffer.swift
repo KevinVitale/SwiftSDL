@@ -24,7 +24,7 @@ extension CommandBuffer {
     var swapchainTexture: OpaquePointer! = nil
     var width: UInt32 = 0, height: UInt32 = 0
     try self(
-      SDL_AcquireGPUSwapchainTexture
+      SDL_WaitAndAcquireGPUSwapchainTexture
       , window.pointer
       , .some(&swapchainTexture)
       , .some(&width)
