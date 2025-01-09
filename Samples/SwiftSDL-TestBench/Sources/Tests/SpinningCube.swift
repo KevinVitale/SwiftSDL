@@ -99,6 +99,7 @@ extension SDL.Test {
         // createinfo.code_size = shader == .vertex ? SDL_arraysize(D3D12_CubeVert) : SDL_arraysize(D3D12_CubeFrag)
         // createinfo.entrypoint = shader == .vertex ? "VSMain" : "PSMain"
       } else if ((format & SDL_GPU_SHADERFORMAT_METALLIB) != 0) {
+        #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
         createinfo.format = SDL_GPU_SHADERFORMAT_METALLIB
         createinfo.code = shader == .vertex ? cube_vert_metallib.withUnsafeBufferPointer(\.baseAddress) : cube_frag_metallib.withUnsafeBufferPointer(\.baseAddress)
         createinfo.code_size = shader == .vertex ? cube_vert_metallib_len : cube_frag_metallib_len
@@ -106,6 +107,7 @@ extension SDL.Test {
           case .vertex: "vs_main".withCString { createinfo.entrypoint = UnsafePointer($0) }
           case .fragment: "fs_main".withCString { createinfo.entrypoint = UnsafePointer($0) }
         }
+        #endif
       } else {
         createinfo.format = SDL_GPU_SHADERFORMAT_SPIRV
         // createinfo.code = shader == .vertex ? cube_vert_spv : cube_frag_spv
