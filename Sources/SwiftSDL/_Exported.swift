@@ -6,10 +6,6 @@
 @_exported import CSDL
 #endif
 
-#if canImport(Collections)
-@_exported import Collections
-#endif
-
 #if canImport(ArgumentParser)
 @_exported import ArgumentParser
 #endif

@@ -1,3 +1,5 @@
+import Collections
+
 open class SceneNode: Hashable, CustomDebugStringConvertible, Decodable {
   public typealias Child    = SceneNode
   public typealias Children = TreeSet<Child>

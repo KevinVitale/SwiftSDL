@@ -21,7 +21,7 @@ extension SDL {
         Controller.self,
         Geometry.self,
         MouseGrid.self,
-        SpinningCube.self,
+        GPUExamples.self,
         Sprite.self,
       ]
     )
@@ -76,9 +76,22 @@ extension SDL.Games {
   }
 }
 
-func Load(bitmap: String) throws(SDL_Error) -> any Surface {
+func Load(bitmap: String) throws(SDL_Error) -> some Surface {
   try SDL_Load(
     bitmap: bitmap,
+    searchingBundles: Bundle.resourceBundles(matching: {
+      $0.lastPathComponent.contains("SwiftSDL-TestBench")
+    })
+  )
+}
+
+func Load(
+  shader file: String,
+  device gpuDevice: any GPUDevice) throws(SDL_Error) -> some GPUShader
+{
+  try SDL_Load(
+    shader: file,
+    device: gpuDevice,
     searchingBundles: Bundle.resourceBundles(matching: {
       $0.lastPathComponent.contains("SwiftSDL-TestBench")
     })

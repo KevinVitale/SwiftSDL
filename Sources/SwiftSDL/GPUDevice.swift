@@ -21,9 +21,14 @@ public func SDL_CreateGPUDevice(claimFor window: (any Window)? = nil, flags: [SD
     throw .error
   }
   
+  var deviceDriver = ""
+  if let namePtr = SDL_GetGPUDeviceDriver(pointer) {
+    deviceDriver = String(cString: namePtr)
+  }
+  
   let gpuDevice: SDLObject<OpaquePointer> = SDLObject(
     pointer
-    , tag: .custom("gpu device (\(driver ?? "")")
+    , tag: .custom("gpu device (\(driver ?? deviceDriver))")
     , destroy: SDL_DestroyGPUDevice
   )
   
@@ -45,53 +50,16 @@ extension GPUDevice {
     try SDL_AcquireGPUCommandBuffer(with: self)
   }
   
+  public func has(format: SDL_GPUShaderFormat) -> Bool {
+    ((try? self(SDL_GetGPUShaderFormats) & format.rawValue) != 0)
+  }
+  
+  public func release(shader: any GPUShader) throws(SDL_Error) {
+    try self(SDL_ReleaseGPUShader, shader.pointer)
+  }
+  
   public func render(_ commandBuffer: some CommandBuffer, pass: (OpaquePointer) throws -> Void) throws(SDL_Error) -> some GPUDevice {
     SDL_BeginGPURenderPass(commandBuffer.pointer, nil , 0 , nil )
     return self
-  }
-}
-
-public enum SDL_GPUShaderFormat: RawRepresentable, Decodable, CaseIterable {
-  case invalid
-  case `private`
-  case spriv
-  case dxbc
-  case dxil
-  case msl
-  case metallib
-  
-  public static var allCases: [SDL_GPUShaderFormat] {
-    [
-      .private
-      , .spriv
-      , .dxbc
-      , .dxil
-      , .msl
-      , .metallib
-    ]
-  }
-  
-  public init?(rawValue: UInt32) {
-    switch rawValue {
-      case UInt32(SDL_GPU_SHADERFORMAT_PRIVATE): self = .private
-      case UInt32(SDL_GPU_SHADERFORMAT_SPIRV): self = .spriv
-      case UInt32(SDL_GPU_SHADERFORMAT_DXBC): self = .dxbc
-      case UInt32(SDL_GPU_SHADERFORMAT_DXIL): self = .dxil
-      case UInt32(SDL_GPU_SHADERFORMAT_MSL): self = .msl
-      case UInt32(SDL_GPU_SHADERFORMAT_METALLIB): self = .metallib
-      default: self = .invalid
-    }
-  }
-  
-  public var rawValue: UInt32 {
-    switch self {
-      case .invalid: return UInt32(SDL_GPU_SHADERFORMAT_INVALID)
-      case .private: return UInt32(SDL_GPU_SHADERFORMAT_PRIVATE)
-      case .spriv: return UInt32(SDL_GPU_SHADERFORMAT_SPIRV)
-      case .dxbc: return UInt32(SDL_GPU_SHADERFORMAT_DXBC)
-      case .dxil: return UInt32(SDL_GPU_SHADERFORMAT_DXIL)
-      case .msl: return UInt32(SDL_GPU_SHADERFORMAT_MSL)
-      case .metallib: return UInt32(SDL_GPU_SHADERFORMAT_METALLIB)
-    }
   }
 }
