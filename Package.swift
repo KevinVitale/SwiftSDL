@@ -49,7 +49,6 @@ let package = Package(
       dependencies: [
         .target(name: "CSDL", condition: .when(platforms: [.macOS, .iOS, .tvOS])),
         .target(name: "CSDL3", condition: .when(platforms: [.linux, .windows])),
-        .product(name: "Collections", package: "swift-collections"),
         .product(name: "ArgumentParser", package: "swift-argument-parser")
       ]
     ),
@@ -58,6 +57,7 @@ let package = Package(
       name: "SwiftSDL-TestBench",
       dependencies: [
         "SwiftSDL",
+        .product(name: "Collections", package: "swift-collections"),
       ],
       path: "Samples/SwiftSDL-TestBench",
       resources: [
