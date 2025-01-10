@@ -18,6 +18,7 @@ public func SDL_BeginGPURenderPass(
   }
   return SDLObject(pointer, tag: .custom("render pass"))
 }
+
 extension SDL_GPUColorTargetInfo {
   public init(
     texture: OpaquePointer

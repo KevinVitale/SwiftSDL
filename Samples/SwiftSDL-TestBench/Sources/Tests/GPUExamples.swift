@@ -15,21 +15,65 @@ extension SDL.Test {
     
     @Flag var msaa: Bool = false
     
-    private var gpuDevice: (any GPUDevice)! = nil
-    private var resolveTexture: OpaquePointer? = nil
-    private var depthTexture: OpaquePointer? = nil
-    private var fillPipeline: OpaquePointer? = nil
-    private var linePipeline: OpaquePointer? = nil
+    fileprivate weak var window: (any Window)! = nil
+    fileprivate var gpuDevice: (any GPUDevice)! = nil
     
-    private var smallViewport: SDL_GPUViewport = .init(x: 160, y: 120, w: 320, h: 240, min_depth: 0.1, max_depth: 1.0)
-    private var scissorRect: SDL_Rect = [ 320, 240, 320, 240 ];
-    private var useWireframe: Bool = false
+    private var examples: [Example] = [
+      BasicTriangle()
+    ]
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       SDL_SetHint(SDL_HINT_RENDER_GPU_DEBUG, "1")
+      
+      self.window = window
       self.gpuDevice = try SDL_CreateGPUDevice(claimFor: window)
       print("GPU Driver:", try gpuDevice.deviceName.get())
       
+      let example = examples.first!
+      try example.`init`(self)
+    }
+    
+    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      let example = examples.first!
+      try example.update(self)
+      try example.draw(self)
+    }
+    
+    func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
+    }
+    
+    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
+      gpuDevice = nil
+    }
+    
+  }
+}
+
+fileprivate protocol Example: AnyObject {
+  func `init`(_ context: SDL.Test.GPUExamples) throws(SDL_Error)
+  func update(_ context: SDL.Test.GPUExamples) throws(SDL_Error)
+  func draw(_ context: SDL.Test.GPUExamples) throws(SDL_Error)
+  func quit(_ context: SDL.Test.GPUExamples) throws(SDL_Error)
+}
+
+extension SDL.Test.GPUExamples {
+  final class BasicTriangle: Example {
+    private var depthTexture: OpaquePointer? = nil
+    private var fillPipeline: OpaquePointer? = nil
+    private var linePipeline: OpaquePointer? = nil
+    private var smallViewport: SDL_GPUViewport = .init(
+      x: 160,
+      y: 120,
+      w: 320,
+      h: 240,
+      min_depth: 0.1,
+      max_depth: 1.0
+    )
+
+    func `init`(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
+      let gpuDevice = context.gpuDevice!
+      let window = context.window!
+
       let vertShader = try Load(shader: "RawTriangle.vert", device: gpuDevice)
       let fragShader = try Load(shader: "SolidColor.frag", device: gpuDevice)
       
@@ -47,20 +91,24 @@ extension SDL.Test {
       pipeline.primitive_type  = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST
       pipeline.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL
       
-      fillPipeline = try gpuDevice(SDL_CreateGPUGraphicsPipeline, .some(&pipeline))
+      self.fillPipeline = try gpuDevice(SDL_CreateGPUGraphicsPipeline, .some(&pipeline))
       
       pipeline.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_LINE
-      linePipeline = try gpuDevice(SDL_CreateGPUGraphicsPipeline, .some(&pipeline))
+      self.linePipeline = try gpuDevice(SDL_CreateGPUGraphicsPipeline, .some(&pipeline))
     }
     
-    func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      let matrix = Array(repeating: Float.zero, count: 16)
+    func update(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
+      
+    }
+    
+    func draw(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
+      let gpuDevice = context.gpuDevice!
+      let window = context.window!
       
       let cmdBuf = try gpuDevice.acquireCommandBuffer()
-      try cmdBuf(SDL_PushGPUVertexUniformData, 0, matrix.withUnsafeBytes(\.baseAddress), UInt32(matrix.count))
       try cmdBuf.render(to: window, passes: { swapchain, size in
-        if depthTexture == nil {
-          depthTexture = try _createDepthTexture(gpuDevice: gpuDevice, size: size)
+        if self.depthTexture == nil {
+          self.depthTexture = try self._createDepthTexture(gpuDevice: gpuDevice, size: size)
         }
         
         let colorTargetInfo = SDL_GPUColorTargetInfo(
@@ -73,11 +121,11 @@ extension SDL.Test {
           cycle: true
         )
         
-        smallViewport.w = Float(size.x)
-        smallViewport.h = Float(size.y)
-        smallViewport.x = 0
-        smallViewport.y = 0
-
+        self.smallViewport.w = Float(size.x)
+        self.smallViewport.h = Float(size.y)
+        self.smallViewport.x = 0
+        self.smallViewport.y = 0
+        
         return [
           ("Draw Cube", [colorTargetInfo], depthStencilTargetInfo: depthTargetInfo)
         ]
@@ -88,16 +136,12 @@ extension SDL.Test {
       }.submit()
     }
     
-    func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
+    func quit(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
+      let gpuDevice = context.gpuDevice!
+      try gpuDevice(SDL_ReleaseGPUTexture, depthTexture)
     }
     
-    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
-      try gpuDevice?(SDL_ReleaseGPUTexture, resolveTexture)
-      try gpuDevice?(SDL_ReleaseGPUTexture, depthTexture)
-      gpuDevice = nil
-    }
-    
-    private func _createDepthTexture(gpuDevice: any GPUDevice, size: Size<UInt32>) throws(SDL_Error) -> OpaquePointer {
+    func _createDepthTexture(gpuDevice: any GPUDevice, size: Size<UInt32>) throws(SDL_Error) -> OpaquePointer {
       var createInfo = SDL_GPUTextureCreateInfo()
       createInfo.type = SDL_GPU_TEXTURETYPE_2D
       createInfo.format = SDL_GPU_TEXTUREFORMAT_D16_UNORM
@@ -111,12 +155,5 @@ extension SDL.Test {
       
       return try gpuDevice(SDL_CreateGPUTexture, .some(&createInfo))
     }
-  }
-}
-
-extension SDL.Test.GPUExamples {
-  enum Shader {
-    case vertex
-    case fragment
   }
 }

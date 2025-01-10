@@ -3,7 +3,6 @@ public protocol SDLObjectProtocol: AnyObject {
   var pointer: Pointer { get }
 }
 
-
 public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked Sendable {
   /// Used for associating a tag with an SDLObject instance, primarily for debugging and memory-allocation tracking.
   @available(*, deprecated, message: "Will be removed in a future release")
