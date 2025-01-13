@@ -61,6 +61,16 @@ extension Window {
       .map({ SDLObject($0, tag: .custom("window renderer"), destroy: SDL_DestroyRenderer) })
       .get()
   }
+  
+  @discardableResult
+  public func createGPUDevice(with flags: SDL_GPUShaderFormat..., debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
+    try self.createGPUDevice(with: flags, debugMode: debugMode, named: driver)
+  }
+  
+  @discardableResult
+  public func createGPUDevice(with flags: [SDL_GPUShaderFormat], debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
+    try SDL_CreateGPUDevice(claimFor: self, flags: flags, debugMode: debugMode, named: driver)
+  }
 
   @discardableResult
   public func set(alwaysOnTop: Bool) throws(SDL_Error) -> some Window {

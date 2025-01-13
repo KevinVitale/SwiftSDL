@@ -6,7 +6,7 @@ public protocol GPUDevice: SDLObjectProtocol, Sendable where Pointer == OpaquePo
 
 extension SDLObject<OpaquePointer>: GPUDevice { }
 
-public func SDL_CreateGPUDevice(flags: SDL_GPUShaderFormat..., debugMode: Bool = false, named driver: String) throws(SDL_Error) -> some GPUDevice {
+public func SDL_CreateGPUDevice(flags: SDL_GPUShaderFormat..., debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
   try SDL_CreateGPUDevice(flags: flags, debugMode: debugMode, named: driver)
 }
 

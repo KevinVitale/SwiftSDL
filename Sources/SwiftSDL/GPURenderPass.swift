@@ -54,3 +54,75 @@ extension SDL_GPUDepthStencilTargetInfo {
     self.cycle = cycle
   }
 }
+
+extension SDL_GPUGraphicsPipelineCreateInfo {
+  public init(
+  vertexShader: (any GPUShader)? = nil
+  , fragmentShader: (any GPUShader)? = nil
+  , vertexInputState: SDL_GPUVertexInputState? = nil
+  , primitiveType: SDL_GPUPrimitiveType
+  , rasterizerState: SDL_GPURasterizerState? = nil
+  , targetInfo: SDL_GPUGraphicsPipelineTargetInfo? = nil
+  ) {
+    self = .init()
+    self.vertex_shader = vertexShader?.pointer
+    self.fragment_shader = fragmentShader?.pointer
+    self.vertex_input_state = vertexInputState ?? .init()
+    self.primitive_type = primitiveType
+    self.rasterizer_state = rasterizerState ?? .init()
+    self.target_info = targetInfo ?? .init()
+  }
+}
+
+extension SDL_GPUGraphicsPipelineTargetInfo {
+  public init(
+    colorTargetDescriptions: inout [SDL_GPUColorTargetDescription]
+  ) {
+    self = .init()
+    self.num_color_targets = UInt32(colorTargetDescriptions.count)
+    self.color_target_descriptions = colorTargetDescriptions.withUnsafeBufferPointer(\.baseAddress)
+  }
+}
+
+extension SDL_GPURasterizerState {
+  public init(
+    fillMode: SDL_GPUFillMode
+  ) {
+    self = .init()
+    self.fill_mode = fillMode
+  }
+}
+
+extension SDL_GPUColorTargetDescription {
+  public init(
+    format: SDL_GPUTextureFormat,
+    blendState: SDL_GPUColorTargetBlendState? = nil
+  ) {
+    self = .init()
+    self.format = format
+    self.blend_state = blendState ?? .init()
+  }
+}
+
+extension SDL_GPUPrimitiveType: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
+  public static let triangleList = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST
+  public static let triangleStrip = SDL_GPU_PRIMITIVETYPE_TRIANGLESTRIP
+  public static let lineList = SDL_GPU_PRIMITIVETYPE_LINELIST
+  public static let lineStrip = SDL_GPU_PRIMITIVETYPE_LINESTRIP
+  public static let pointList = SDL_GPU_PRIMITIVETYPE_POINTLIST
+  
+  public var debugDescription: String {
+    switch self {
+      case .triangleList: return "triangle list"
+      case .triangleStrip: return "triangle strip"
+      case .lineList: return "line list"
+      case .lineStrip: return "line strip"
+      case .pointList: return "point list"
+      default: return "Unknown SDL_GPUPrimitiveType: \(self)"
+    }
+  }
+  
+  public static var allCases: [SDL_GPUPrimitiveType] {
+    [.triangleList, .triangleStrip, .lineList, .lineStrip, .pointList]
+  }
+}
