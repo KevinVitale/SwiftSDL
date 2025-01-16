@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -61,7 +61,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ALLOW_ALT_TAB_WHILE_GRABBED "SDL_ALLOW_ALT_TAB_WHILE_GRABBED"
 
@@ -81,7 +81,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ANDROID_ALLOW_RECREATE_ACTIVITY "SDL_ANDROID_ALLOW_RECREATE_ACTIVITY"
 
@@ -96,9 +96,26 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ANDROID_BLOCK_ON_PAUSE "SDL_ANDROID_BLOCK_ON_PAUSE"
+
+/**
+ * A variable to control whether low latency audio should be enabled.
+ *
+ * Some devices have poor quality output when this is enabled, but this is
+ * usually an improvement in audio latency.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": Low latency audio is not enabled.
+ * - "1": Low latency audio is enabled. (default)
+ *
+ * This hint should be set before SDL audio is initialized.
+ *
+ * \since This hint is available since SDL 3.1.8.
+ */
+#define SDL_HINT_ANDROID_LOW_LATENCY_AUDIO "SDL_ANDROID_LOW_LATENCY_AUDIO"
 
 /**
  * A variable to control whether we trap the Android back button to handle it
@@ -119,7 +136,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ANDROID_TRAP_BACK_BUTTON "SDL_ANDROID_TRAP_BACK_BUTTON"
 
@@ -135,7 +152,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_APP_ID "SDL_APP_ID"
 
@@ -153,7 +170,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_APP_NAME "SDL_APP_NAME"
 
@@ -176,7 +193,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_APPLE_TV_CONTROLLER_UI_EVENTS "SDL_APPLE_TV_CONTROLLER_UI_EVENTS"
 
@@ -191,7 +208,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_APPLE_TV_REMOTE_ALLOW_ROTATION "SDL_APPLE_TV_REMOTE_ALLOW_ROTATION"
 
@@ -199,15 +216,57 @@ extern "C" {
  * Specify the default ALSA audio device name.
  *
  * This variable is a specific audio device to open when the "default" audio
- * device is used. By default if 4 channel audio is requested, the
- * "plug:surround40" device will be opened and if 6 channel audio is requested
- * the "plug:surround51" device will be opened.
+ * device is used.
+ *
+ * This hint will be ignored when opening the default playback device if
+ * SDL_HINT_AUDIO_ALSA_DEFAULT_PLAYBACK_DEVICE is set, or when opening the
+ * default recording device if SDL_HINT_AUDIO_ALSA_DEFAULT_RECORDING_DEVICE is
+ * set.
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
+ *
+ * \sa SDL_HINT_AUDIO_ALSA_DEFAULT_PLAYBACK_DEVICE
+ * \sa SDL_HINT_AUDIO_ALSA_DEFAULT_RECORDING_DEVICE
  */
 #define SDL_HINT_AUDIO_ALSA_DEFAULT_DEVICE "SDL_AUDIO_ALSA_DEFAULT_DEVICE"
+
+/**
+ * Specify the default ALSA audio playback device name.
+ *
+ * This variable is a specific audio device to open for playback, when the
+ * "default" audio device is used.
+ *
+ * If this hint isn't set, SDL will check SDL_HINT_AUDIO_ALSA_DEFAULT_DEVICE
+ * before choosing a reasonable default.
+ *
+ * This hint should be set before an audio device is opened.
+ *
+ * \since This hint is available since SDL 3.1.7.
+ *
+ * \sa SDL_HINT_AUDIO_ALSA_DEFAULT_RECORDING_DEVICE
+ * \sa SDL_HINT_AUDIO_ALSA_DEFAULT_DEVICE
+ */
+#define SDL_HINT_AUDIO_ALSA_DEFAULT_PLAYBACK_DEVICE "SDL_AUDIO_ALSA_DEFAULT_PLAYBACK_DEVICE"
+
+/**
+ * Specify the default ALSA audio recording device name.
+ *
+ * This variable is a specific audio device to open for recording, when the
+ * "default" audio device is used.
+ *
+ * If this hint isn't set, SDL will check SDL_HINT_AUDIO_ALSA_DEFAULT_DEVICE
+ * before choosing a reasonable default.
+ *
+ * This hint should be set before an audio device is opened.
+ *
+ * \since This hint is available since SDL 3.1.7.
+ *
+ * \sa SDL_HINT_AUDIO_ALSA_DEFAULT_PLAYBACK_DEVICE
+ * \sa SDL_HINT_AUDIO_ALSA_DEFAULT_DEVICE
+ */
+#define SDL_HINT_AUDIO_ALSA_DEFAULT_RECORDING_DEVICE "SDL_AUDIO_ALSA_DEFAULT_RECORDING_DEVICE"
 
 /**
  * A variable controlling the audio category on iOS and macOS.
@@ -223,7 +282,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_CATEGORY "SDL_AUDIO_CATEGORY"
 
@@ -236,7 +295,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_CHANNELS "SDL_AUDIO_CHANNELS"
 
@@ -259,7 +318,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DEVICE_APP_ICON_NAME "SDL_AUDIO_DEVICE_APP_ICON_NAME"
 
@@ -281,7 +340,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES "SDL_AUDIO_DEVICE_SAMPLE_FRAMES"
 
@@ -308,7 +367,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DEVICE_STREAM_NAME "SDL_AUDIO_DEVICE_STREAM_NAME"
 
@@ -334,7 +393,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DEVICE_STREAM_ROLE "SDL_AUDIO_DEVICE_STREAM_ROLE"
 
@@ -345,7 +404,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DISK_INPUT_FILE "SDL_AUDIO_DISK_INPUT_FILE"
 
@@ -356,7 +415,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DISK_OUTPUT_FILE "SDL_AUDIO_DISK_OUTPUT_FILE"
 
@@ -369,7 +428,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DISK_TIMESCALE "SDL_AUDIO_DISK_TIMESCALE"
 
@@ -383,7 +442,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DRIVER "SDL_AUDIO_DRIVER"
 
@@ -396,7 +455,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_DUMMY_TIMESCALE "SDL_AUDIO_DUMMY_TIMESCALE"
 
@@ -423,7 +482,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_FORMAT "SDL_AUDIO_FORMAT"
 
@@ -436,7 +495,7 @@ extern "C" {
  *
  * This hint should be set before an audio device is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_FREQUENCY "SDL_AUDIO_FREQUENCY"
 
@@ -459,7 +518,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUDIO_INCLUDE_MONITORS "SDL_AUDIO_INCLUDE_MONITORS"
 
@@ -474,7 +533,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUTO_UPDATE_JOYSTICKS "SDL_AUTO_UPDATE_JOYSTICKS"
 
@@ -489,7 +548,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_AUTO_UPDATE_SENSORS "SDL_AUTO_UPDATE_SENSORS"
 
@@ -512,7 +571,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_BMP_SAVE_LEGACY_FORMAT "SDL_BMP_SAVE_LEGACY_FORMAT"
 
@@ -528,7 +587,7 @@ extern "C" {
  * best camera backend on your behalf. This hint needs to be set before
  * SDL_Init() is called to be useful.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_CAMERA_DRIVER "SDL_CAMERA_DRIVER"
 
@@ -561,7 +620,7 @@ extern "C" {
  *
  * The items can be prefixed by '+'/'-' to add/remove features.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_CPU_FEATURE_MASK "SDL_CPU_FEATURE_MASK"
 
@@ -575,7 +634,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_DIRECTINPUT "SDL_JOYSTICK_DIRECTINPUT"
 
@@ -604,7 +663,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_FILE_DIALOG_DRIVER "SDL_FILE_DIALOG_DRIVER"
 
@@ -622,7 +681,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_DISPLAY_USABLE_BOUNDS "SDL_DISPLAY_USABLE_BOUNDS"
 
@@ -643,7 +702,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_EMSCRIPTEN_ASYNCIFY "SDL_EMSCRIPTEN_ASYNCIFY"
 
@@ -656,7 +715,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR "SDL_EMSCRIPTEN_CANVAS_SELECTOR"
 
@@ -676,7 +735,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT "SDL_EMSCRIPTEN_KEYBOARD_ELEMENT"
 
@@ -693,7 +752,7 @@ extern "C" {
  *
  * This hint must be set before SDL_StartTextInput() is called
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ENABLE_SCREEN_KEYBOARD "SDL_ENABLE_SCREEN_KEYBOARD"
 
@@ -710,7 +769,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_EVDEV_DEVICES "SDL_EVDEV_DEVICES"
 
@@ -734,7 +793,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_EVENT_LOGGING "SDL_EVENT_LOGGING"
 
@@ -754,7 +813,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_FORCE_RAISEWINDOW "SDL_FORCE_RAISEWINDOW"
 
@@ -775,7 +834,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_GetWindowSurface()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_FRAMEBUFFER_ACCELERATION "SDL_FRAMEBUFFER_ACCELERATION"
 
@@ -790,7 +849,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GAMECONTROLLERCONFIG "SDL_GAMECONTROLLERCONFIG"
 
@@ -806,7 +865,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GAMECONTROLLERCONFIG_FILE "SDL_GAMECONTROLLERCONFIG_FILE"
 
@@ -830,7 +889,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GAMECONTROLLERTYPE "SDL_GAMECONTROLLERTYPE"
 
@@ -848,7 +907,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES "SDL_GAMECONTROLLER_IGNORE_DEVICES"
 
@@ -866,7 +925,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT "SDL_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT"
 
@@ -889,7 +948,7 @@ extern "C" {
  *
  * This hint should be set before a gamepad is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GAMECONTROLLER_SENSOR_FUSION "SDL_GAMECONTROLLER_SENSOR_FUSION"
 
@@ -901,7 +960,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_StartTextInput()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GDK_TEXTINPUT_DEFAULT_TEXT "SDL_GDK_TEXTINPUT_DEFAULT_TEXT"
 
@@ -913,7 +972,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_StartTextInput()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GDK_TEXTINPUT_DESCRIPTION "SDL_GDK_TEXTINPUT_DESCRIPTION"
 
@@ -928,7 +987,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_StartTextInput()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GDK_TEXTINPUT_MAX_LENGTH "SDL_GDK_TEXTINPUT_MAX_LENGTH"
 
@@ -944,7 +1003,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_StartTextInput()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GDK_TEXTINPUT_SCOPE "SDL_GDK_TEXTINPUT_SCOPE"
 
@@ -955,7 +1014,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_StartTextInput()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GDK_TEXTINPUT_TITLE "SDL_GDK_TEXTINPUT_TITLE"
 
@@ -973,7 +1032,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_HIDAPI_LIBUSB "SDL_HIDAPI_LIBUSB"
 
@@ -991,7 +1050,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_HIDAPI_LIBUSB_WHITELIST "SDL_HIDAPI_LIBUSB_WHITELIST"
 
@@ -1005,7 +1064,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_HIDAPI_UDEV "SDL_HIDAPI_UDEV"
 
@@ -1017,9 +1076,9 @@ extern "C" {
  * force a specific target, such as "direct3d11" if, say, your hardware
  * supports D3D12 but want to try using D3D11 instead.
  *
- * This hint should be set before SDL_GPUSelectBackend() is called.
+ * This hint should be set before any GPU functions are called.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_GPU_DRIVER "SDL_GPU_DRIVER"
 
@@ -1038,7 +1097,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_HIDAPI_ENUMERATE_ONLY_CONTROLLERS "SDL_HIDAPI_ENUMERATE_ONLY_CONTROLLERS"
 
@@ -1055,7 +1114,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_HIDAPI_IGNORE_DEVICES "SDL_HIDAPI_IGNORE_DEVICES"
 
@@ -1078,7 +1137,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_IME_IMPLEMENTED_UI "SDL_IME_IMPLEMENTED_UI"
 
@@ -1097,7 +1156,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_IOS_HIDE_HOME_INDICATOR "SDL_IOS_HIDE_HOME_INDICATOR"
 
@@ -1114,7 +1173,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS "SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"
 
@@ -1131,7 +1190,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_ARCADESTICK_DEVICES "SDL_JOYSTICK_ARCADESTICK_DEVICES"
 
@@ -1152,7 +1211,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_ARCADESTICK_DEVICES_EXCLUDED "SDL_JOYSTICK_ARCADESTICK_DEVICES_EXCLUDED"
 
@@ -1170,7 +1229,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_BLACKLIST_DEVICES "SDL_JOYSTICK_BLACKLIST_DEVICES"
 
@@ -1191,7 +1250,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_BLACKLIST_DEVICES_EXCLUDED "SDL_JOYSTICK_BLACKLIST_DEVICES_EXCLUDED"
 
@@ -1201,9 +1260,34 @@ extern "C" {
  *
  * This variable is currently only used by the Linux joystick driver.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_DEVICE "SDL_JOYSTICK_DEVICE"
+
+/**
+ * A variable controlling whether enhanced reports should be used for
+ * controllers when using the HIDAPI driver.
+ *
+ * Enhanced reports allow rumble and effects on Bluetooth PlayStation
+ * controllers and gyro on Nintendo Switch controllers, but break Windows
+ * DirectInput for other applications that don't use SDL.
+ *
+ * Once enhanced reports are enabled, they can't be disabled on PlayStation
+ * controllers without power cycling the controller.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": enhanced reports are not enabled.
+ * - "1": enhanced reports are enabled. (default)
+ * - "auto": enhanced features are advertised to the application, but SDL
+ *   doesn't change the controller report mode unless the application uses
+ *   them.
+ *
+ * This hint can be enabled anytime.
+ *
+ * \since This hint is available since SDL 3.1.8.
+ */
+#define SDL_HINT_JOYSTICK_ENHANCED_REPORTS "SDL_JOYSTICK_ENHANCED_REPORTS"
 
 /**
  * A variable containing a list of flightstick style controllers.
@@ -1218,7 +1302,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_FLIGHTSTICK_DEVICES "SDL_JOYSTICK_FLIGHTSTICK_DEVICES"
 
@@ -1239,7 +1323,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_FLIGHTSTICK_DEVICES_EXCLUDED "SDL_JOYSTICK_FLIGHTSTICK_DEVICES_EXCLUDED"
 
@@ -1256,7 +1340,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_GAMEINPUT "SDL_JOYSTICK_GAMEINPUT"
 
@@ -1274,7 +1358,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_GAMECUBE_DEVICES "SDL_JOYSTICK_GAMECUBE_DEVICES"
 
@@ -1295,7 +1379,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_GAMECUBE_DEVICES_EXCLUDED "SDL_JOYSTICK_GAMECUBE_DEVICES_EXCLUDED"
 
@@ -1310,9 +1394,9 @@ extern "C" {
  * This variable is the default for all drivers, but can be overridden by the
  * hints for specific drivers below.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI "SDL_JOYSTICK_HIDAPI"
 
@@ -1327,9 +1411,9 @@ extern "C" {
  * - "1": Left and right Joy-Con controllers will be combined into a single
  *   controller. (default)
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_COMBINE_JOY_CONS "SDL_JOYSTICK_HIDAPI_COMBINE_JOY_CONS"
 
@@ -1344,9 +1428,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_GAMECUBE "SDL_JOYSTICK_HIDAPI_GAMECUBE"
 
@@ -1367,7 +1451,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_GAMECUBE_RUMBLE_BRAKE "SDL_JOYSTICK_HIDAPI_GAMECUBE_RUMBLE_BRAKE"
 
@@ -1382,9 +1466,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_JOY_CONS "SDL_JOYSTICK_HIDAPI_JOY_CONS"
 
@@ -1403,7 +1487,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_JOYCON_HOME_LED "SDL_JOYSTICK_HIDAPI_JOYCON_HOME_LED"
 
@@ -1418,9 +1502,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_LUNA "SDL_JOYSTICK_HIDAPI_LUNA"
 
@@ -1435,9 +1519,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_NINTENDO_CLASSIC "SDL_JOYSTICK_HIDAPI_NINTENDO_CLASSIC"
 
@@ -1457,9 +1541,9 @@ extern "C" {
  * SDL_HINT_JOYSTICK_HIDAPI_PS3_SIXAXIS_DRIVER. See
  * https://github.com/ViGEm/DsHidMini for an alternative driver on Windows.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_PS3 "SDL_JOYSTICK_HIDAPI_PS3"
 
@@ -1474,9 +1558,9 @@ extern "C" {
  *
  * The default value is 0.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_PS3_SIXAXIS_DRIVER "SDL_JOYSTICK_HIDAPI_PS3_SIXAXIS_DRIVER"
 
@@ -1491,9 +1575,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_PS4 "SDL_JOYSTICK_HIDAPI_PS4"
 
@@ -1508,35 +1592,9 @@ extern "C" {
  * This hint can be set anytime, but only takes effect when extended input
  * reports are enabled.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_PS4_REPORT_INTERVAL "SDL_JOYSTICK_HIDAPI_PS4_REPORT_INTERVAL"
-
-/**
- * A variable controlling whether extended input reports should be used for
- * PS4 controllers when using the HIDAPI driver.
- *
- * The variable can be set to the following values:
- *
- * - "0": extended reports are not enabled. (default)
- * - "1": extended reports are enabled.
- *
- * Extended input reports allow rumble on Bluetooth PS4 controllers, but break
- * DirectInput handling for applications that don't use SDL.
- *
- * Once extended reports are enabled, they can not be disabled without power
- * cycling the controller.
- *
- * For compatibility with applications written for versions of SDL prior to
- * the introduction of PS5 controller support, this value will also control
- * the state of extended reports on PS5 controllers when the
- * SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE hint is not explicitly set.
- *
- * This hint can be enabled anytime.
- *
- * \since This hint is available since SDL 3.0.0.
- */
-#define SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE "SDL_JOYSTICK_HIDAPI_PS4_RUMBLE"
 
 /**
  * A variable controlling whether the HIDAPI driver for PS5 controllers should
@@ -1549,9 +1607,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_PS5 "SDL_JOYSTICK_HIDAPI_PS5"
 
@@ -1564,34 +1622,9 @@ extern "C" {
  * - "0": player LEDs are not enabled.
  * - "1": player LEDs are enabled. (default)
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED "SDL_JOYSTICK_HIDAPI_PS5_PLAYER_LED"
-
-/**
- * A variable controlling whether extended input reports should be used for
- * PS5 controllers when using the HIDAPI driver.
- *
- * The variable can be set to the following values:
- *
- * - "0": extended reports are not enabled. (default)
- * - "1": extended reports.
- *
- * Extended input reports allow rumble on Bluetooth PS5 controllers, but break
- * DirectInput handling for applications that don't use SDL.
- *
- * Once extended reports are enabled, they can not be disabled without power
- * cycling the controller.
- *
- * For compatibility with applications written for versions of SDL prior to
- * the introduction of PS5 controller support, this value defaults to the
- * value of SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE.
- *
- * This hint can be enabled anytime.
- *
- * \since This hint is available since SDL 3.0.0.
- */
-#define SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE "SDL_JOYSTICK_HIDAPI_PS5_RUMBLE"
 
 /**
  * A variable controlling whether the HIDAPI driver for NVIDIA SHIELD
@@ -1604,9 +1637,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_SHIELD "SDL_JOYSTICK_HIDAPI_SHIELD"
 
@@ -1621,7 +1654,7 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_STADIA "SDL_JOYSTICK_HIDAPI_STADIA"
 
@@ -1636,11 +1669,30 @@ extern "C" {
  *   Bluetooth access and may prompt the user for permission on iOS and
  *   Android.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_STEAM "SDL_JOYSTICK_HIDAPI_STEAM"
+
+/**
+ * A variable controlling whether the Steam button LED should be turned on
+ * when a Steam controller is opened.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": Steam button LED is turned off.
+ * - "1": Steam button LED is turned on.
+ *
+ * By default the Steam button LED state is not changed. This hint can also be
+ * set to a floating point value between 0.0 and 1.0 which controls the
+ * brightness of the Steam button LED.
+ *
+ * This hint can be set anytime.
+ *
+ * \since This hint is available since SDL 3.1.8.
+ */
+#define SDL_HINT_JOYSTICK_HIDAPI_STEAM_HOME_LED "SDL_JOYSTICK_HIDAPI_STEAM_HOME_LED"
 
 /**
  * A variable controlling whether the HIDAPI driver for the Steam Deck builtin
@@ -1653,9 +1705,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_STEAMDECK "SDL_JOYSTICK_HIDAPI_STEAMDECK"
 
@@ -1681,9 +1733,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_SWITCH "SDL_JOYSTICK_HIDAPI_SWITCH"
 
@@ -1702,7 +1754,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_SWITCH_HOME_LED "SDL_JOYSTICK_HIDAPI_SWITCH_HOME_LED"
 
@@ -1717,7 +1769,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_SWITCH_PLAYER_LED "SDL_JOYSTICK_HIDAPI_SWITCH_PLAYER_LED"
 
@@ -1733,7 +1785,7 @@ extern "C" {
  *
  * This hint should be set before opening a Joy-Con controller.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_VERTICAL_JOY_CONS "SDL_JOYSTICK_HIDAPI_VERTICAL_JOY_CONS"
 
@@ -1749,9 +1801,9 @@ extern "C" {
  * This driver doesn't work with the dolphinbar, so the default is false for
  * now.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_WII "SDL_JOYSTICK_HIDAPI_WII"
 
@@ -1766,7 +1818,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_WII_PLAYER_LED "SDL_JOYSTICK_HIDAPI_WII_PLAYER_LED"
 
@@ -1782,9 +1834,9 @@ extern "C" {
  * The default is "0" on Windows, otherwise the value of
  * SDL_HINT_JOYSTICK_HIDAPI
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_XBOX "SDL_JOYSTICK_HIDAPI_XBOX"
 
@@ -1799,9 +1851,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI_XBOX
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_XBOX_360 "SDL_JOYSTICK_HIDAPI_XBOX_360"
 
@@ -1816,7 +1868,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_XBOX_360_PLAYER_LED "SDL_JOYSTICK_HIDAPI_XBOX_360_PLAYER_LED"
 
@@ -1831,9 +1883,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI_XBOX_360
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_XBOX_360_WIRELESS "SDL_JOYSTICK_HIDAPI_XBOX_360_WIRELESS"
 
@@ -1848,9 +1900,9 @@ extern "C" {
  *
  * The default is the value of SDL_HINT_JOYSTICK_HIDAPI_XBOX.
  *
- * This hint should be set before enumerating controllers.
+ * This hint should be set before initializing joysticks and gamepads.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_XBOX_ONE "SDL_JOYSTICK_HIDAPI_XBOX_ONE"
 
@@ -1869,7 +1921,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_HIDAPI_XBOX_ONE_HOME_LED "SDL_JOYSTICK_HIDAPI_XBOX_ONE_HOME_LED"
 
@@ -1884,7 +1936,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_IOKIT "SDL_JOYSTICK_IOKIT"
 
@@ -1899,7 +1951,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_LINUX_CLASSIC "SDL_JOYSTICK_LINUX_CLASSIC"
 
@@ -1914,7 +1966,7 @@ extern "C" {
  *
  * This hint should be set before a controller is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_LINUX_DEADZONES "SDL_JOYSTICK_LINUX_DEADZONES"
 
@@ -1932,7 +1984,7 @@ extern "C" {
  *
  * This hint should be set before a controller is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_LINUX_DIGITAL_HATS "SDL_JOYSTICK_LINUX_DIGITAL_HATS"
 
@@ -1948,7 +2000,7 @@ extern "C" {
  *
  * This hint should be set before a controller is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_LINUX_HAT_DEADZONES "SDL_JOYSTICK_LINUX_HAT_DEADZONES"
 
@@ -1963,7 +2015,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_MFI "SDL_JOYSTICK_MFI"
 
@@ -1978,7 +2030,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_RAWINPUT "SDL_JOYSTICK_RAWINPUT"
 
@@ -1995,7 +2047,7 @@ extern "C" {
  *
  * This hint should be set before a gamepad is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT "SDL_JOYSTICK_RAWINPUT_CORRELATE_XINPUT"
 
@@ -2010,7 +2062,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_ROG_CHAKRAM "SDL_JOYSTICK_ROG_CHAKRAM"
 
@@ -2020,12 +2072,12 @@ extern "C" {
  *
  * The variable can be set to the following values:
  *
- * - "0": A separate thread is not used. (default)
- * - "1": A separate thread is used for handling raw input messages.
+ * - "0": A separate thread is not used.
+ * - "1": A separate thread is used for handling raw input messages. (default)
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_THREAD "SDL_JOYSTICK_THREAD"
 
@@ -2042,7 +2094,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_THROTTLE_DEVICES "SDL_JOYSTICK_THROTTLE_DEVICES"
 
@@ -2063,7 +2115,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_THROTTLE_DEVICES_EXCLUDED "SDL_JOYSTICK_THROTTLE_DEVICES_EXCLUDED"
 
@@ -2078,7 +2130,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_WGI "SDL_JOYSTICK_WGI"
 
@@ -2095,7 +2147,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_WHEEL_DEVICES "SDL_JOYSTICK_WHEEL_DEVICES"
 
@@ -2116,7 +2168,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_WHEEL_DEVICES_EXCLUDED "SDL_JOYSTICK_WHEEL_DEVICES_EXCLUDED"
 
@@ -2134,7 +2186,7 @@ extern "C" {
  *
  * This hint should be set before a controller is opened.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_JOYSTICK_ZERO_CENTERED_DEVICES "SDL_JOYSTICK_ZERO_CENTERED_DEVICES"
 
@@ -2168,7 +2220,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_KEYCODE_OPTIONS "SDL_KEYCODE_OPTIONS"
 
@@ -2182,7 +2234,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_KMSDRM_DEVICE_INDEX "SDL_KMSDRM_DEVICE_INDEX"
 
@@ -2210,7 +2262,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_KMSDRM_REQUIRE_DRM_MASTER "SDL_KMSDRM_REQUIRE_DRM_MASTER"
 
@@ -2236,7 +2288,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_LOGGING "SDL_LOGGING"
 
@@ -2252,7 +2304,7 @@ extern "C" {
  *
  * This hint needs to be set before SDL_Init().
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MAC_BACKGROUND_APP "SDL_MAC_BACKGROUND_APP"
 
@@ -2268,7 +2320,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK "SDL_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK"
 
@@ -2291,7 +2343,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MAC_OPENGL_ASYNC_DISPATCH "SDL_MAC_OPENGL_ASYNC_DISPATCH"
 
@@ -2306,25 +2358,33 @@ extern "C" {
  *
  * This hint needs to be set before SDL_Init().
  *
- * \since This hint is available since SDL 3.1.4.
+ * \since This hint is available since SDL 3.2.0.
  */
 #define SDL_HINT_MAC_SCROLL_MOMENTUM "SDL_MAC_SCROLL_MOMENTUM"
 
 /**
  * Request SDL_AppIterate() be called at a specific rate.
  *
- * This number is in Hz, so "60" means try to iterate 60 times per second.
+ * If this is set to a number, it represents Hz, so "60" means try to iterate
+ * 60 times per second. "0" means to iterate as fast as possible. Negative
+ * values are illegal, but reserved, in case they are useful in a future
+ * revision of SDL.
+ *
+ * There are other strings that have special meaning. If set to "waitevent",
+ * SDL_AppIterate will not be called until new event(s) have arrived (and been
+ * processed by SDL_AppEvent). This can be useful for apps that are completely
+ * idle except in response to input.
  *
  * On some platforms, or if you are using SDL_main instead of SDL_AppIterate,
  * this hint is ignored. When the hint can be used, it is allowed to be
  * changed at any time.
  *
- * This defaults to 60, and specifying NULL for the hint's value will restore
+ * This defaults to 0, and specifying NULL for the hint's value will restore
  * the default.
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MAIN_CALLBACK_RATE "SDL_MAIN_CALLBACK_RATE"
 
@@ -2343,7 +2403,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_AUTO_CAPTURE "SDL_MOUSE_AUTO_CAPTURE"
 
@@ -2352,7 +2412,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_DOUBLE_CLICK_RADIUS "SDL_MOUSE_DOUBLE_CLICK_RADIUS"
 
@@ -2361,9 +2421,21 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_DOUBLE_CLICK_TIME "SDL_MOUSE_DOUBLE_CLICK_TIME"
+
+/**
+ * A variable setting which system cursor to use as the default cursor.
+ *
+ * This should be an integer corresponding to the SDL_SystemCursor enum. The
+ * default value is zero (SDL_SYSTEM_CURSOR_DEFAULT).
+ *
+ * This hint needs to be set before SDL_Init().
+ *
+ * \since This hint is available since SDL 3.1.3.
+ */
+#define SDL_HINT_MOUSE_DEFAULT_SYSTEM_CURSOR "SDL_MOUSE_DEFAULT_SYSTEM_CURSOR"
 
 /**
  * A variable controlling whether warping a hidden mouse cursor will activate
@@ -2393,7 +2465,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_EMULATE_WARP_WITH_RELATIVE "SDL_MOUSE_EMULATE_WARP_WITH_RELATIVE"
 
@@ -2407,7 +2479,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH "SDL_MOUSE_FOCUS_CLICKTHROUGH"
 
@@ -2417,7 +2489,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_NORMAL_SPEED_SCALE "SDL_MOUSE_NORMAL_SPEED_SCALE"
 
@@ -2438,24 +2510,9 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_RELATIVE_MODE_CENTER "SDL_MOUSE_RELATIVE_MODE_CENTER"
-
-/**
- * A variable controlling whether relative mouse mode is implemented using
- * mouse warping.
- *
- * The variable can be set to the following values:
- *
- * - "0": Relative mouse mode uses raw input. (default)
- * - "1": Relative mouse mode uses mouse warping.
- *
- * This hint can be set anytime relative mode is not currently enabled.
- *
- * \since This hint is available since SDL 3.0.0.
- */
-#define SDL_HINT_MOUSE_RELATIVE_MODE_WARP "SDL_MOUSE_RELATIVE_MODE_WARP"
 
 /**
  * A variable setting the scale for mouse motion, in floating point, when the
@@ -2463,7 +2520,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE "SDL_MOUSE_RELATIVE_SPEED_SCALE"
 
@@ -2477,12 +2534,12 @@ extern "C" {
  * - "1": Relative mouse motion will be scaled using the system mouse
  *   acceleration curve.
  *
- * If SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE is set, that will override the
+ * If SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE is set, that will be applied after
  * system speed scale.
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE "SDL_MOUSE_RELATIVE_SYSTEM_SCALE"
 
@@ -2501,7 +2558,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_RELATIVE_WARP_MOTION "SDL_MOUSE_RELATIVE_WARP_MOTION"
 
@@ -2509,9 +2566,10 @@ extern "C" {
  * A variable controlling whether the hardware cursor stays visible when
  * relative mode is active.
  *
- * This variable can be set to the following values: "0" - The cursor will be
- * hidden while relative mode is active (default) "1" - The cursor will remain
- * visible while relative mode is active
+ * This variable can be set to the following values:
+ *
+ * - "0": The cursor will be hidden while relative mode is active (default)
+ * - "1": The cursor will remain visible while relative mode is active
  *
  * Note that for systems without raw hardware inputs, relative mode is
  * implemented using warping, so the hardware cursor will visibly warp between
@@ -2519,26 +2577,9 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_RELATIVE_CURSOR_VISIBLE "SDL_MOUSE_RELATIVE_CURSOR_VISIBLE"
-
-/**
- * Controls how often SDL issues cursor confinement commands to the operating
- * system while relative mode is active, in case the desired confinement state
- * became out-of-sync due to interference from other running programs.
- *
- * The variable can be integers representing milliseconds between each
- * refresh. A value of zero means SDL will not automatically refresh the
- * confinement. The default value varies depending on the operating system,
- * this variable might not have any effects on inapplicable platforms such as
- * those without a cursor.
- *
- * This hint can be set anytime.
- *
- * \since This hint is available since SDL 3.0.0.
- */
-#define SDL_HINT_MOUSE_RELATIVE_CLIP_INTERVAL "SDL_MOUSE_RELATIVE_CLIP_INTERVAL"
 
 /**
  * A variable controlling whether mouse events should generate synthetic touch
@@ -2553,7 +2594,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MOUSE_TOUCH_EVENTS "SDL_MOUSE_TOUCH_EVENTS"
 
@@ -2571,7 +2612,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_MUTE_CONSOLE_KEYBOARD "SDL_MUTE_CONSOLE_KEYBOARD"
 
@@ -2586,7 +2627,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_NO_SIGNAL_HANDLERS "SDL_NO_SIGNAL_HANDLERS"
 
@@ -2594,11 +2635,24 @@ extern "C" {
  * Specify the OpenGL library to load.
  *
  * This hint should be set before creating an OpenGL window or creating an
- * OpenGL context.
+ * OpenGL context. If this hint isn't set, SDL will choose a reasonable
+ * default.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_OPENGL_LIBRARY "SDL_OPENGL_LIBRARY"
+
+/**
+ * Specify the EGL library to load.
+ *
+ * This hint should be set before creating an OpenGL window or creating an
+ * OpenGL context. This hint is only considered if SDL is using EGL to manage
+ * OpenGL contexts. If this hint isn't set, SDL will choose a reasonable
+ * default.
+ *
+ * \since This hint is available since SDL 3.2.0.
+ */
+#define SDL_HINT_EGL_LIBRARY "SDL_EGL_LIBRARY"
 
 /**
  * A variable controlling what driver to use for OpenGL ES contexts.
@@ -2630,7 +2684,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_OPENGL_ES_DRIVER "SDL_OPENGL_ES_DRIVER"
 
@@ -2641,6 +2695,8 @@ extern "C" {
  * library in the current folder. But, if you wish to use a system API you can
  * specify that by using this hint. This should be the full or relative path
  * to a .dll on Windows or .so on Linux.
+ *
+ * \since This hint is available since SDL 3.2.0.
  */
 #define SDL_HINT_OPENVR_LIBRARY              "SDL_OPENVR_LIBRARY"
 
@@ -2659,7 +2715,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ORIENTATIONS "SDL_ORIENTATIONS"
 
@@ -2679,7 +2735,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_POLL_SENTINEL "SDL_POLL_SENTINEL"
 
@@ -2697,7 +2753,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_PREFERRED_LOCALES "SDL_PREFERRED_LOCALES"
 
@@ -2714,9 +2770,13 @@ extern "C" {
  * - "1": SDL will send a quit event when the last window is requesting to
  *   close. (default)
  *
+ * If there is at least one active system tray icon, SDL_EVENT_QUIT will
+ * instead be sent when both the last window will be closed and the last tray
+ * icon will be destroyed.
+ *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE "SDL_QUIT_ON_LAST_WINDOW_CLOSE"
 
@@ -2731,7 +2791,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_DIRECT3D_THREADSAFE "SDL_RENDER_DIRECT3D_THREADSAFE"
 
@@ -2747,7 +2807,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_DIRECT3D11_DEBUG "SDL_RENDER_DIRECT3D11_DEBUG"
 
@@ -2761,7 +2821,7 @@ extern "C" {
  *
  * By default, SDL does not use Vulkan Validation Layers.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_VULKAN_DEBUG "SDL_RENDER_VULKAN_DEBUG"
 
@@ -2775,7 +2835,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_GPU_DEBUG "SDL_RENDER_GPU_DEBUG"
 
@@ -2790,7 +2850,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_GPU_LOW_POWER "SDL_RENDER_GPU_LOW_POWER"
 
@@ -2811,6 +2871,7 @@ extern "C" {
  * - "opengles"
  * - "metal"
  * - "vulkan"
+ * - "gpu"
  * - "software"
  *
  * The default varies by platform, but it's the first one in the list that is
@@ -2818,7 +2879,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_DRIVER "SDL_RENDER_DRIVER"
 
@@ -2836,7 +2897,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_LINE_METHOD "SDL_RENDER_LINE_METHOD"
 
@@ -2851,7 +2912,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_METAL_PREFER_LOW_POWER_DEVICE "SDL_RENDER_METAL_PREFER_LOW_POWER_DEVICE"
 
@@ -2868,7 +2929,7 @@ extern "C" {
  *
  * This hint should be set before creating a renderer.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RENDER_VSYNC "SDL_RENDER_VSYNC"
 
@@ -2885,7 +2946,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RETURN_KEY_HIDES_IME "SDL_RETURN_KEY_HIDES_IME"
 
@@ -2902,7 +2963,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  *
  * \sa SDL_HINT_ROG_GAMEPAD_MICE_EXCLUDED
  */
@@ -2924,7 +2985,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ROG_GAMEPAD_MICE_EXCLUDED "SDL_ROG_GAMEPAD_MICE_EXCLUDED"
 
@@ -2936,7 +2997,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_RPI_VIDEO_LAYER "SDL_RPI_VIDEO_LAYER"
 
@@ -2958,7 +3019,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_DisableScreenSaver()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_SCREENSAVER_INHIBIT_ACTIVITY_NAME "SDL_SCREENSAVER_INHIBIT_ACTIVITY_NAME"
 
@@ -2977,7 +3038,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_SHUTDOWN_DBUS_ON_QUIT "SDL_SHUTDOWN_DBUS_ON_QUIT"
 
@@ -2991,7 +3052,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_STORAGE_TITLE_DRIVER "SDL_STORAGE_TITLE_DRIVER"
 
@@ -3005,7 +3066,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_STORAGE_USER_DRIVER "SDL_STORAGE_USER_DRIVER"
 
@@ -3034,7 +3095,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_SetCurrentThreadPriority()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_THREAD_FORCE_REALTIME_TIME_CRITICAL "SDL_THREAD_FORCE_REALTIME_TIME_CRITICAL"
 
@@ -3057,7 +3118,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_SetCurrentThreadPriority()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_THREAD_PRIORITY_POLICY "SDL_THREAD_PRIORITY_POLICY"
 
@@ -3077,7 +3138,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_TIMER_RESOLUTION "SDL_TIMER_RESOLUTION"
 
@@ -3092,7 +3153,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_TOUCH_MOUSE_EVENTS "SDL_TOUCH_MOUSE_EVENTS"
 
@@ -3113,7 +3174,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_TRACKPAD_IS_TOUCH_ONLY "SDL_TRACKPAD_IS_TOUCH_ONLY"
 
@@ -3128,7 +3189,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_TV_REMOTE_AS_JOYSTICK "SDL_TV_REMOTE_AS_JOYSTICK"
 
@@ -3142,7 +3203,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_ALLOW_SCREENSAVER "SDL_VIDEO_ALLOW_SCREENSAVER"
 
@@ -3167,7 +3228,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.1.5.
+ * \since This hint is available since SDL 3.2.0.
  */
 #define SDL_HINT_VIDEO_DISPLAY_PRIORITY "SDL_VIDEO_DISPLAY_PRIORITY"
 
@@ -3190,7 +3251,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_DOUBLE_BUFFER "SDL_VIDEO_DOUBLE_BUFFER"
 
@@ -3204,7 +3265,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_DRIVER "SDL_VIDEO_DRIVER"
 
@@ -3217,7 +3278,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_DUMMY_SAVE_FRAMES "SDL_VIDEO_DUMMY_SAVE_FRAMES"
 
@@ -3231,7 +3292,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_EGL_ALLOW_GETDISPLAY_FALLBACK "SDL_VIDEO_EGL_ALLOW_GETDISPLAY_FALLBACK"
 
@@ -3247,7 +3308,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_FORCE_EGL "SDL_VIDEO_FORCE_EGL"
 
@@ -3265,9 +3326,30 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES "SDL_VIDEO_MAC_FULLSCREEN_SPACES"
+
+/**
+ * A variable that specifies the menu visibility when a window is fullscreen
+ * in Spaces on macOS.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": The menu will be hidden when the window is in a fullscreen space,
+ *   and not accessible by moving the mouse to the top of the screen.
+ * - "1": The menu will be accessible when the window is in a fullscreen
+ *   space.
+ * - "auto": The menu will be hidden if fullscreen mode was toggled on
+ *   programmatically via `SDL_SetWindowFullscreen()`, and accessible if
+ *   fullscreen was entered via the "fullscreen" button on the window title
+ *   bar. (default)
+ *
+ * This hint can be set anytime.
+ *
+ * \since This hint is available since SDL 3.1.9.
+ */
+#define SDL_HINT_VIDEO_MAC_FULLSCREEN_MENU_VISIBILITY "SDL_VIDEO_MAC_FULLSCREEN_MENU_VISIBILITY"
 
 /**
  * A variable controlling whether fullscreen windows are minimized when they
@@ -3281,7 +3363,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS "SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS"
 
@@ -3298,7 +3380,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_OFFSCREEN_SAVE_FRAMES "SDL_VIDEO_OFFSCREEN_SAVE_FRAMES"
 
@@ -3324,7 +3406,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS "SDL_VIDEO_SYNC_WINDOW_OPERATIONS"
 
@@ -3342,7 +3424,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_WAYLAND_ALLOW_LIBDECOR "SDL_VIDEO_WAYLAND_ALLOW_LIBDECOR"
 
@@ -3362,7 +3444,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_WAYLAND_MODE_EMULATION "SDL_VIDEO_WAYLAND_MODE_EMULATION"
 
@@ -3384,7 +3466,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_WAYLAND_MODE_SCALING "SDL_VIDEO_WAYLAND_MODE_SCALING"
 
@@ -3404,7 +3486,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR "SDL_VIDEO_WAYLAND_PREFER_LIBDECOR"
 
@@ -3423,6 +3505,8 @@ extern "C" {
  *
  * - Rounding errors can result with odd window sizes and/or desktop scales,
  *   which can cause the window contents to appear slightly blurry.
+ * - Positioning the window may be imprecise due to unit conversions and
+ *   rounding.
  * - The window may be unusably small on scaled desktops.
  * - The window may jump in size when moving between displays of different
  *   scale factors.
@@ -3441,7 +3525,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_WAYLAND_SCALE_TO_DISPLAY "SDL_VIDEO_WAYLAND_SCALE_TO_DISPLAY"
 
@@ -3463,7 +3547,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_WIN_D3DCOMPILER "SDL_VIDEO_WIN_D3DCOMPILER"
 
@@ -3478,7 +3562,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR "SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR"
 
@@ -3497,7 +3581,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_NET_WM_PING "SDL_VIDEO_X11_NET_WM_PING"
 
@@ -3511,7 +3595,7 @@ extern "C" {
  *
  * This hint should be set before initializing the video subsystem.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_NODIRECTCOLOR "SDL_VIDEO_X11_NODIRECTCOLOR"
 
@@ -3522,7 +3606,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_SCALING_FACTOR "SDL_VIDEO_X11_SCALING_FACTOR"
 
@@ -3531,7 +3615,7 @@ extern "C" {
  *
  * This hint should be set before initializing the video subsystem.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_VISUALID "SDL_VIDEO_X11_VISUALID"
 
@@ -3540,7 +3624,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_WINDOW_VISUALID "SDL_VIDEO_X11_WINDOW_VISUALID"
 
@@ -3554,7 +3638,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VIDEO_X11_XRANDR "SDL_VIDEO_X11_XRANDR"
 
@@ -3569,7 +3653,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_ENABLE_BACK_TOUCH "SDL_VITA_ENABLE_BACK_TOUCH"
 
@@ -3584,7 +3668,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_ENABLE_FRONT_TOUCH "SDL_VITA_ENABLE_FRONT_TOUCH"
 
@@ -3595,7 +3679,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_MODULE_PATH "SDL_VITA_MODULE_PATH"
 
@@ -3608,7 +3692,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_PVR_INIT "SDL_VITA_PVR_INIT"
 
@@ -3623,7 +3707,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_RESOLUTION "SDL_VITA_RESOLUTION"
 
@@ -3638,7 +3722,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_PVR_OPENGL "SDL_VITA_PVR_OPENGL"
 
@@ -3654,7 +3738,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VITA_TOUCH_MOUSE_DEVICE "SDL_VITA_TOUCH_MOUSE_DEVICE"
 
@@ -3665,7 +3749,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_Vulkan_CreateSurface()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VULKAN_DISPLAY "SDL_VULKAN_DISPLAY"
 
@@ -3675,7 +3759,7 @@ extern "C" {
  * This hint should be set before creating a Vulkan window or calling
  * SDL_Vulkan_LoadLibrary().
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_VULKAN_LIBRARY "SDL_VULKAN_LIBRARY"
 
@@ -3707,7 +3791,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_LoadWAV() or SDL_LoadWAV_IO()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WAVE_FACT_CHUNK "SDL_WAVE_FACT_CHUNK"
 
@@ -3719,7 +3803,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_LoadWAV() or SDL_LoadWAV_IO()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WAVE_CHUNK_LIMIT "SDL_WAVE_CHUNK_LIMIT"
 
@@ -3747,7 +3831,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_LoadWAV() or SDL_LoadWAV_IO()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WAVE_RIFF_CHUNK_SIZE "SDL_WAVE_RIFF_CHUNK_SIZE"
 
@@ -3767,7 +3851,7 @@ extern "C" {
  *
  * This hint should be set before calling SDL_LoadWAV() or SDL_LoadWAV_IO()
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WAVE_TRUNCATION "SDL_WAVE_TRUNCATION"
 
@@ -3784,7 +3868,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOW_ACTIVATE_WHEN_RAISED "SDL_WINDOW_ACTIVATE_WHEN_RAISED"
 
@@ -3801,7 +3885,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOW_ACTIVATE_WHEN_SHOWN "SDL_WINDOW_ACTIVATE_WHEN_SHOWN"
 
@@ -3819,7 +3903,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOW_ALLOW_TOPMOST "SDL_WINDOW_ALLOW_TOPMOST"
 
@@ -3835,7 +3919,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN "SDL_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN"
 
@@ -3851,7 +3935,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_CLOSE_ON_ALT_F4 "SDL_WINDOWS_CLOSE_ON_ALT_F4"
 
@@ -3880,7 +3964,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_ENABLE_MENU_MNEMONICS "SDL_WINDOWS_ENABLE_MENU_MNEMONICS"
 
@@ -3895,7 +3979,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_ENABLE_MESSAGELOOP "SDL_WINDOWS_ENABLE_MESSAGELOOP"
 
@@ -3911,7 +3995,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_GAMEINPUT   "SDL_WINDOWS_GAMEINPUT"
 
@@ -3925,7 +4009,7 @@ extern "C" {
  *
  * This hint can be set anytime.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_RAW_KEYBOARD "SDL_WINDOWS_RAW_KEYBOARD"
 
@@ -3946,7 +4030,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_FORCE_SEMAPHORE_KERNEL "SDL_WINDOWS_FORCE_SEMAPHORE_KERNEL"
 
@@ -3956,9 +4040,18 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_INTRESOURCE_ICON       "SDL_WINDOWS_INTRESOURCE_ICON"
+
+/**
+ * A variable to specify custom icon resource id from RC file on Windows
+ * platform.
+ *
+ * This hint should be set before SDL is initialized.
+ *
+ * \since This hint is available since SDL 3.1.3.
+ */
 #define SDL_HINT_WINDOWS_INTRESOURCE_ICON_SMALL "SDL_WINDOWS_INTRESOURCE_ICON_SMALL"
 
 /**
@@ -3983,7 +4076,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_USE_D3D9EX "SDL_WINDOWS_USE_D3D9EX"
 
@@ -4000,7 +4093,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_WINDOWS_ERASE_BACKGROUND_MODE "SDL_WINDOWS_ERASE_BACKGROUND_MODE"
 
@@ -4021,7 +4114,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_X11_FORCE_OVERRIDE_REDIRECT "SDL_X11_FORCE_OVERRIDE_REDIRECT"
 
@@ -4038,7 +4131,7 @@ extern "C" {
  *
  * This hint should be set before creating a window.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_X11_WINDOW_TYPE "SDL_X11_WINDOW_TYPE"
 
@@ -4049,7 +4142,7 @@ extern "C" {
  *
  * This hint should be set before initializing the video subsystem.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_X11_XCB_LIBRARY "SDL_X11_XCB_LIBRARY"
 
@@ -4064,7 +4157,7 @@ extern "C" {
  *
  * This hint should be set before SDL is initialized.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_XINPUT_ENABLED "SDL_XINPUT_ENABLED"
 
@@ -4088,15 +4181,45 @@ extern "C" {
  * This hint should be set before an assertion failure is triggered and can be
  * changed at any time.
  *
- * \since This hint is available since SDL 3.0.0.
+ * \since This hint is available since SDL 3.1.3.
  */
 #define SDL_HINT_ASSERT "SDL_ASSERT"
+
+/**
+ * A variable controlling whether pen events should generate synthetic mouse
+ * events.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": Pen events will not generate mouse events.
+ * - "1": Pen events will generate mouse events. (default)
+ *
+ * This hint can be set anytime.
+ *
+ * \since This hint is available since SDL 3.2.0.
+ */
+#define SDL_HINT_PEN_MOUSE_EVENTS "SDL_PEN_MOUSE_EVENTS"
+
+/**
+ * A variable controlling whether pen events should generate synthetic touch
+ * events.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": Pen events will not generate touch events.
+ * - "1": Pen events will generate touch events. (default)
+ *
+ * This hint can be set anytime.
+ *
+ * \since This hint is available since SDL 3.2.0.
+ */
+#define SDL_HINT_PEN_TOUCH_EVENTS "SDL_PEN_TOUCH_EVENTS"
 
 
 /**
  * An enumeration of hint priorities.
  *
- * \since This enum is available since SDL 3.0.0.
+ * \since This enum is available since SDL 3.1.3.
  */
 typedef enum SDL_HintPriority
 {
@@ -4120,7 +4243,7 @@ typedef enum SDL_HintPriority
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_GetHint
  * \sa SDL_ResetHint
@@ -4142,7 +4265,7 @@ extern SDL_DECLSPEC bool SDLCALL SDL_SetHintWithPriority(const char *name, const
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_GetHint
  * \sa SDL_ResetHint
@@ -4163,7 +4286,7 @@ extern SDL_DECLSPEC bool SDLCALL SDL_SetHint(const char *name, const char *value
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_SetHint
  * \sa SDL_ResetHints
@@ -4179,7 +4302,7 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ResetHint(const char *name);
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_ResetHint
  */
@@ -4198,7 +4321,7 @@ extern SDL_DECLSPEC void SDLCALL SDL_ResetHints(void);
  *               callback instead is always thread-safe, as SDL holds a lock
  *               on the thread subsystem during the callback.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_SetHint
  * \sa SDL_SetHintWithPriority
@@ -4215,7 +4338,7 @@ extern SDL_DECLSPEC const char *SDLCALL SDL_GetHint(const char *name);
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_GetHint
  * \sa SDL_SetHint
@@ -4237,7 +4360,7 @@ extern SDL_DECLSPEC bool SDLCALL SDL_GetHintBoolean(const char *name, bool defau
  *               hint value. SDL holds a lock on the hint subsystem when
  *               calling this callback.
  *
- * \since This datatype is available since SDL 3.0.0.
+ * \since This datatype is available since SDL 3.1.3.
  *
  * \sa SDL_AddHintCallback
  */
@@ -4258,7 +4381,7 @@ typedef void(SDLCALL *SDL_HintCallback)(void *userdata, const char *name, const 
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_RemoveHintCallback
  */
@@ -4274,7 +4397,7 @@ extern SDL_DECLSPEC bool SDLCALL SDL_AddHintCallback(const char *name, SDL_HintC
  *
  * \threadsafety It is safe to call this function from any thread.
  *
- * \since This function is available since SDL 3.0.0.
+ * \since This function is available since SDL 3.1.3.
  *
  * \sa SDL_AddHintCallback
  */

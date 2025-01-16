@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -307,6 +307,8 @@
 #define SDL_HINT_DIRECTINPUT_ENABLED SDL_HINT_JOYSTICK_DIRECTINPUT
 #define SDL_HINT_GDK_TEXTINPUT_DEFAULT SDL_HINT_GDK_TEXTINPUT_DEFAULT_TEXT
 #define SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE SDL_HINT_JOYSTICK_HIDAPI_GAMECUBE_RUMBLE_BRAKE
+#define SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE SDL_HINT_JOYSTICK_ENHANCED_REPORTS
+#define SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE SDL_HINT_JOYSTICK_ENHANCED_REPORTS
 #define SDL_HINT_LINUX_DIGITAL_HATS SDL_HINT_JOYSTICK_LINUX_DIGITAL_HATS
 #define SDL_HINT_LINUX_HAT_DEADZONES SDL_HINT_JOYSTICK_LINUX_HAT_DEADZONES
 #define SDL_HINT_LINUX_JOYSTICK_CLASSIC SDL_HINT_JOYSTICK_LINUX_CLASSIC
@@ -659,6 +661,10 @@
 
 /* ##SDL_video.h */
 #define SDL_GL_DeleteContext SDL_GL_DestroyContext
+#define SDL_GLattr SDL_GLAttr
+#define SDL_GLcontextFlag SDL_GLContextFlag
+#define SDL_GLcontextReleaseFlag SDL_GLContextReleaseFlag
+#define SDL_GLprofile SDL_GLProfile
 #define SDL_GetClosestDisplayMode SDL_GetClosestFullscreenDisplayMode
 #define SDL_GetDisplayOrientation SDL_GetCurrentDisplayOrientation
 #define SDL_GetPointDisplayIndex SDL_GetDisplayForPoint
@@ -945,6 +951,8 @@
 #define SDL_HINT_DIRECTINPUT_ENABLED SDL_HINT_DIRECTINPUT_ENABLED_renamed_SDL_HINT_JOYSTICK_DIRECTINPUT
 #define SDL_HINT_GDK_TEXTINPUT_DEFAULT SDL_HINT_GDK_TEXTINPUT_DEFAULT_renamed_SDL_HINT_GDK_TEXTINPUT_DEFAULT_TEXT
 #define SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE_renamed_SDL_HINT_JOYSTICK_HIDAPI_GAMECUBE_RUMBLE_BRAKE
+#define SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE_renamed_SDL_HINT_JOYSTICK_ENHANCED_REPORTS
+#define SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE_renamed_SDL_HINT_JOYSTICK_ENHANCED_REPORTS
 #define SDL_HINT_LINUX_DIGITAL_HATS SDL_HINT_LINUX_DIGITAL_HATS_renamed_SDL_HINT_JOYSTICK_LINUX_DIGITAL_HATS
 #define SDL_HINT_LINUX_HAT_DEADZONES SDL_HINT_LINUX_HAT_DEADZONES_renamed_SDL_HINT_JOYSTICK_LINUX_HAT_DEADZONES
 #define SDL_HINT_LINUX_JOYSTICK_CLASSIC SDL_HINT_LINUX_JOYSTICK_CLASSIC_renamed_SDL_HINT_JOYSTICK_LINUX_CLASSIC
@@ -1297,6 +1305,10 @@
 
 /* ##SDL_video.h */
 #define SDL_GL_DeleteContext SDL_GL_DeleteContext_renamed_SDL_GL_DestroyContext
+#define SDL_GLattr SDL_GLattr_renamed_SDL_GLAttr
+#define SDL_GLcontextFlag SDL_GLcontextFlag_renamed_SDL_GLContextFlag
+#define SDL_GLcontextReleaseFlag SDL_GLcontextReleaseFlag_renamed_SDL_GLContextReleaseFlag
+#define SDL_GLprofile SDL_GLprofile_renamed_SDL_GLProfile
 #define SDL_GetClosestDisplayMode SDL_GetClosestDisplayMode_renamed_SDL_GetClosestFullscreenDisplayMode
 #define SDL_GetDisplayOrientation SDL_GetDisplayOrientation_renamed_SDL_GetCurrentDisplayOrientation
 #define SDL_GetPointDisplayIndex SDL_GetPointDisplayIndex_renamed_SDL_GetDisplayForPoint
