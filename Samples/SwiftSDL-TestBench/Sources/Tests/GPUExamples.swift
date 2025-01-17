@@ -19,8 +19,8 @@ extension SDL.Test {
     fileprivate var gpuDevice: (any GPUDevice)! = nil
     
     private var examples: [Example] = [
-      ClearScreen(),
       BasicTriangle(),
+      ClearScreen(),
       BasicVertexBuffer()
     ]
     
@@ -28,7 +28,7 @@ extension SDL.Test {
       SDL_SetHint(SDL_HINT_RENDER_GPU_DEBUG, "1")
       
       self.window = window
-      self.gpuDevice = try window.createGPUDevice(with: [.msl])
+      self.gpuDevice = try window.createGPUDevice()
       print("GPU Driver:", try gpuDevice.deviceName.get())
       
       let example = examples.first!
