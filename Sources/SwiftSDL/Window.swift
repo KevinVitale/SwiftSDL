@@ -63,12 +63,7 @@ extension Window {
   }
   
   @discardableResult
-  public func createGPUDevice(with flags: SDL_GPUShaderFormat..., debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
-    try self.createGPUDevice(with: flags, debugMode: debugMode, named: driver)
-  }
-  
-  @discardableResult
-  public func createGPUDevice(with flags: [SDL_GPUShaderFormat], debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
+  public func createGPUDevice(with flags: [SDL_GPUShaderFormat] = Array(SDL_GPUShaderFormat.allCases[1...]), debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
     try SDL_CreateGPUDevice(claimFor: self, flags: flags, debugMode: debugMode, named: driver)
   }
 

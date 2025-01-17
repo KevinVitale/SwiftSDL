@@ -19,14 +19,16 @@ extension SDL.Test {
     fileprivate var gpuDevice: (any GPUDevice)! = nil
     
     private var examples: [Example] = [
-      BasicTriangle(),
       ClearScreen(),
+      BasicTriangle(),
       BasicVertexBuffer()
     ]
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      SDL_SetHint(SDL_HINT_RENDER_GPU_DEBUG, "1")
+      
       self.window = window
-      self.gpuDevice = try window.createGPUDevice()
+      self.gpuDevice = try window.createGPUDevice(with: [.msl])
       print("GPU Driver:", try gpuDevice.deviceName.get())
       
       let example = examples.first!
