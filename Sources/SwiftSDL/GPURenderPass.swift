@@ -63,6 +63,7 @@ extension SDL_GPUGraphicsPipelineCreateInfo {
   , primitiveType: SDL_GPUPrimitiveType
   , rasterizerState: SDL_GPURasterizerState? = nil
   , targetInfo: SDL_GPUGraphicsPipelineTargetInfo? = nil
+  , depthStencilState: SDL_GPUDepthStencilState? = nil
   ) {
     self = .init()
     self.vertex_shader = vertexShader?.pointer
@@ -71,16 +72,38 @@ extension SDL_GPUGraphicsPipelineCreateInfo {
     self.primitive_type = primitiveType
     self.rasterizer_state = rasterizerState ?? .init()
     self.target_info = targetInfo ?? .init()
+    self.depth_stencil_state = depthStencilState ?? .init()
   }
 }
 
 extension SDL_GPUGraphicsPipelineTargetInfo {
   public init(
     colorTargetDescriptions: inout [SDL_GPUColorTargetDescription]
+    , depthStencilFormat: SDL_GPUTextureFormat? = nil
   ) {
     self = .init()
+    if let depthStencilFormat = depthStencilFormat {
+      self.has_depth_stencil_target = true
+      self.depth_stencil_format = depthStencilFormat
+    }
     self.num_color_targets = UInt32(colorTargetDescriptions.count)
     self.color_target_descriptions = colorTargetDescriptions.withUnsafeBufferPointer(\.baseAddress)
+  }
+}
+
+extension SDL_GPUDepthStencilState {
+  public init(
+    enableDepthTest: Bool = false
+    , enableDepthWrite: Bool = false
+    , enableStencilTest: Bool = false
+    , compareOp: SDL_GPUCompareOp = SDL_GPU_COMPAREOP_LESS
+    , writeMask: UInt8
+  ) {
+    self = .init()
+    self.enable_depth_test = enableDepthTest
+    self.enable_depth_write = enableDepthWrite
+    self.enable_stencil_test = enableStencilTest
+    self.compare_op = compareOp
   }
 }
 

@@ -20,6 +20,7 @@ extension SDL.Test {
     
     private var examples: [Example] = [
       BasicTriangle(),
+      DepthSampler(),
       ClearScreen(),
       BasicVertexBuffer()
     ]
@@ -164,5 +165,40 @@ extension SDL.Test.GPUExamples {
     
     func quit(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
     }
+  }
+}
+
+extension SDL.Test.GPUExamples {
+  final class DepthSampler: Example {
+    func `init`(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
+      let gpuDevice = context.gpuDevice!
+      
+      let _ = try Load(shader: "PositionColorTransform.vert", device: gpuDevice, uniformBufferCount: 1)
+      let _ = try Load(shader: "SolidColorDepth.frag", device: gpuDevice, uniformBufferCount: 1)
+      let _ = try Load(shader: "TexturedQuad.vert", device: gpuDevice)
+      let _ = try Load(shader: "DepthOutline.frag", device: gpuDevice, samplerCount: 2, uniformBufferCount: 1)
+      
+      var colorTargets: [SDL_GPUColorTargetDescription] = [
+        SDL_GPUColorTargetDescription(format: SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM)
+      ]
+      
+      var _ = SDL_GPUGraphicsPipelineCreateInfo(
+        primitiveType: .triangleList
+        , rasterizerState: .init(fillMode: SDL_GPU_FILLMODE_FILL)
+        , targetInfo: .init(
+          colorTargetDescriptions: &colorTargets,
+          depthStencilFormat: SDL_GPU_TEXTUREFORMAT_D16_UNORM
+        )
+        , depthStencilState: .init(
+          enableDepthTest: true
+          , enableDepthWrite: true
+          , enableStencilTest: true
+          , writeMask: 0xFF
+        )
+      )
+    }
+    func update(_ context: SDL.Test.GPUExamples) throws(SDL_Error) { }
+    func draw(_ context: SDL.Test.GPUExamples) throws(SDL_Error) { }
+    func quit(_ context: SDL.Test.GPUExamples) throws(SDL_Error) { }
   }
 }

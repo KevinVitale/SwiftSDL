@@ -87,11 +87,21 @@ func Load(bitmap: String) throws(SDL_Error) -> some Surface {
 
 func Load(
   shader file: String,
-  device gpuDevice: any GPUDevice) throws(SDL_Error) -> some GPUShader
-{
+  device gpuDevice: any GPUDevice,
+  samplerCount: UInt32 = 0,
+  uniformBufferCount: UInt32 = 0,
+  storageBufferCount: UInt32 = 0,
+  storageTextureCount: UInt32 = 0,
+  propertyID: SDL_PropertiesID = 0
+) throws(SDL_Error) -> some GPUShader {
   try SDL_Load(
     shader: file,
     device: gpuDevice,
+    samplerCount: samplerCount,
+    uniformBufferCount: uniformBufferCount,
+    storageBufferCount: storageBufferCount,
+    storageTextureCount: storageTextureCount,
+    propertyID: propertyID,
     searchingBundles: Bundle.resourceBundles(matching: {
       $0.lastPathComponent.contains("SwiftSDL-TestBench")
     })
