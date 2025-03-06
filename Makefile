@@ -1,5 +1,5 @@
 SDL_REPO_URL="https://github.com/libsdl-org/SDL.git"
-SDL_REF=release-3.2.0
+SDL_REF=release-3.2.8
 SDL_DIR=Dependencies/SDL3
 SDL_BUILD_DIR=${SDL_DIR}/build/Release
 
@@ -12,7 +12,7 @@ clone-sdl:
 .PHONY: build-sdl-macOS
 build-sdl-macOS:
 	-mkdir -p ${SDL_BUILD_DIR}
-	cmake -B${SDL_BUILD_DIR}/macOS -S${SDL_DIR} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DSDL_STATIC=ON -DSDL_FRAMEWORK=ON 
+	cmake -B${SDL_BUILD_DIR}/macOS -S${SDL_DIR} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 -DSDL_STATIC=ON -DSDL_FRAMEWORK=ON
 	cmake --build ${SDL_BUILD_DIR}/macOS
 
 .PHONY: build-sdl-iphoneos
@@ -66,4 +66,3 @@ build-sdl-xcframework: build-sdl-frameworks
 # Adopted from: https://github.com/ctreffs/swift-sdl/blob/main/Makefile
 # CMAKE commands: https://github.com/libsdl-org/SDL/blob/main/docs/README-cmake.md#frameworks
 # Apple docs: https://developer.apple.com/documentation/xcode/creating-a-multi-platform-binary-framework-bundle#Avoid-issues-when-using-alternate-build-systems
-
