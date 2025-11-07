@@ -1,5 +1,5 @@
 SDL_REPO_URL="https://github.com/libsdl-org/SDL.git"
-SDL_REF=release-3.2.16
+SDL_REF=release-3.2.26
 SDL_DIR=Dependencies/SDL3
 SDL_BUILD_DIR=${SDL_DIR}/build/Release
 
