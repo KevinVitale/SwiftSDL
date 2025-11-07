@@ -12,7 +12,7 @@ public protocol Game: AnyObject, ParsableCommand {
   /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_IDENTIFIER_STRING_.
   static var identifier: String { get }
   
-  /// The default window properties  for creating the main window.
+  /// The default window properties for creating the main window.
   static var windowProperties: [WindowProperty] { get }
   
   /** Runtime options that customize a game's behavior and presentation.

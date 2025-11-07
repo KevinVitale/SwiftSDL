@@ -2,6 +2,7 @@
 
 @main struct SDL: ParsableCommand {
   static let configuration = CommandConfiguration(
+    version: SDL_Version.current.debugDescription,
     groupedSubcommands: [
       .init(name: "games", subcommands: [Games.self]),
       .init(name: "test", subcommands: [Test.self])
