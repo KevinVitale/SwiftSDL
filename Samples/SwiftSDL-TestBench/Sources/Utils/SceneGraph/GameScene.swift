@@ -41,7 +41,9 @@ open class GameScene<Graphics>: SceneNode, SceneProtocol {
   open func shutdown() throws(SDL_Error) {
     self.removeAllChildren()
   }
-  
+}
+ 
+extension GameScene {
   public final func draw(_ graphics: Graphics) throws(SDL_Error) {
     switch graphics {
       case let renderer as (any Renderer)?:

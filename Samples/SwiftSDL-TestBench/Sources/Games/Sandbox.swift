@@ -12,10 +12,10 @@ extension SDL.Games {
 
     @OptionGroup var options: Options
     
-    private var scene: Scene!
+    private var scene: SurfaceScene!
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      scene = Scene(size: try window.size(as: Float.self), bgColor: .gray)
+      scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
     }
     
     func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
@@ -42,7 +42,7 @@ extension SDL.Games {
 }
 
 extension SDL.Games.Sandbox {
-  class Scene: GameScene<any Surface> {
+  class SurfaceScene: GameScene<any Surface> {
     var square: RectangleNode<Graphics>? {
       guard let square = children.first as? RectangleNode<Graphics> else {
         let square = RectangleNode<Graphics>(size: [100, 100], color: .green)
