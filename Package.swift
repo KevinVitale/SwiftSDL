@@ -17,7 +17,7 @@ let package = Package(
   dependencies: [
     // .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
-    .package(url: "https://github.com/apple/swift-collections.git", .upToNextMinor(from: "1.1.4")),
+    .package(url: "https://github.com/apple/swift-collections.git", .upToNextMinor(from: "1.3.0")),
   ],
   targets: [
     .binaryTarget(
