@@ -88,29 +88,6 @@ public struct SDL_AppMetadataFlags: RawRepresentable, Equatable, Sendable {
   public static let type = Self(rawValue: SDL_PROP_APP_METADATA_TYPE_STRING)
 }
 
-extension SDL_AppResult: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
-  public static let `continue` = SDL_APP_CONTINUE
-  public static let success = SDL_APP_SUCCESS
-  public static let failure = SDL_APP_FAILURE
-  
-  public static var allCases: [Self] {
-    [
-      .continue,
-      .success,
-      .failure
-    ]
-  }
-  
-  public var debugDescription: String {
-    switch self {
-      case .continue: return "continue"
-      case .failure: return "failure"
-      case .success: return "success"
-      default: return "Unknown SDL_AppResult: \(self)"
-    }
-  }
-}
-
 struct AnyWindow {
   init(_ base: some Window) { self.base = base }
   let base: Any

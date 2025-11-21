@@ -34,7 +34,7 @@ public enum WindowProperty {
   case wind32PixelFormat(UnsafeMutableRawPointer!)
   case x11Window(UnsafeMutableRawPointer!)
   
-  var value: (__SDL_WindowCreateFlags, (any PropertyValue)) {
+  var value: (__SDL_WindowCreateFlags, (any SDL_PropertyTypeValue)) {
     switch self {
       case .alwaysOnTop(let value): return (.alwaysOnTop, value)
       case .borderless(let value): return (.borderless, value)

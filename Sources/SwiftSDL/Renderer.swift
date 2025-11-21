@@ -4,28 +4,22 @@ public protocol Renderer: SDLObjectProtocol, Sendable where Pointer == OpaquePoi
 extension SDLObject<OpaquePointer>: Renderer { }
 
 // MARK: - Create Renderer
-public func SDL_CreateRenderer<P: PropertyValue>(with properties: (String, value: P)..., window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
+public func SDL_CreateRenderer<P: SDL_PropertyTypeValue>(with properties: (String, value: P)..., window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
   try SDL_CreateRenderer(with: properties, window: window)
 }
 
-public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, value: P)], window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
-  let rendererProperties = SDL_CreateProperties()
-  defer { rendererProperties.destroy() }
+public func SDL_CreateRenderer<P: SDL_PropertyTypeValue>(with properties: [(String, value: P)], window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
+  let rendererProperties = try SDL_PropertiesID()
   
   for property in properties {
-    guard rendererProperties.set(property.0, value: property.value) else {
-      throw .error
-    }
+    rendererProperties[property.0] = property.value
   }
   
   if var windowPointer = window?.pointer {
-    rendererProperties.set(
-      SDL_PROP_RENDERER_CREATE_WINDOW_POINTER,
-      value: withUnsafeMutableBytes(of: &windowPointer, \.baseAddress)
-    )
+    rendererProperties[SDL_PROP_RENDERER_CREATE_WINDOW_POINTER] = withUnsafeMutableBytes(of: &windowPointer, \.baseAddress)
   }
 
-  guard let pointer = SDL_CreateRendererWithProperties(rendererProperties) else {
+  guard let pointer = SDL_CreateRendererWithProperties(rendererProperties.id) else {
     throw .error
   }
   
@@ -42,14 +36,16 @@ extension Renderer {
   
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
     self.resultOf(SDL_GetRendererProperties)
+      .flatMap { propertyID in
+        Result { try SDL_PropertiesID(id: propertyID, properties: nil) }
+          .mapError { $0 as! SDL_Error }
+      }
   }
   
   @discardableResult
-  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+  public func set<P: SDL_PropertyTypeValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
     let properties = try self.properties.get()
-    guard properties.set(property, value: value) else {
-      throw .error
-    }
+    properties[property] = value
     return properties
   }
 
@@ -398,35 +394,5 @@ extension Renderer {
     return try self
       .set(color: renderColor)
       .set(scale: renderScale)
-  }
-}
-
-// MARK: - Logical Presentation
-extension SDL_RendererLogicalPresentation: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
-  public static let disabled = SDL_LOGICAL_PRESENTATION_DISABLED
-  public static let stretch = SDL_LOGICAL_PRESENTATION_STRETCH
-  public static let letterbox = SDL_LOGICAL_PRESENTATION_LETTERBOX
-  public static let overscan = SDL_LOGICAL_PRESENTATION_OVERSCAN
-  public static let integerScale = SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-  
-  public var debugDescription: String {
-    switch self {
-      case SDL_LOGICAL_PRESENTATION_DISABLED: return "disabled"
-      case SDL_LOGICAL_PRESENTATION_STRETCH: return "stretch"
-      case SDL_LOGICAL_PRESENTATION_LETTERBOX: return "letterbox"
-      case SDL_LOGICAL_PRESENTATION_OVERSCAN: return "overscan"
-      case SDL_LOGICAL_PRESENTATION_INTEGER_SCALE: return "integer scale"
-      default: return "Unknown SDL_RendererLogicalPresentation: \(self.rawValue)"
-    }
-  }
-  
-  public static var allCases: [SDL_RendererLogicalPresentation] {
-    [
-      SDL_LOGICAL_PRESENTATION_DISABLED,
-      SDL_LOGICAL_PRESENTATION_STRETCH,
-      SDL_LOGICAL_PRESENTATION_LETTERBOX,
-      SDL_LOGICAL_PRESENTATION_OVERSCAN,
-      SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-    ]
   }
 }

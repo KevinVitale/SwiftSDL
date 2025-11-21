@@ -38,7 +38,7 @@ let package = Package(
       dependencies: [ .target(name: "SDL3") ],
       path: "Dependencies/CSDL",
       cSettings: [
-        .headerSearchPath("Sources/SDL3.xcframework/macos-arm64_x86_64/Headers", .when(platforms: [.macOS])),
+        // .headerSearchPath("Sources/SDL3.xcframework/macos-arm64_x86_64/Headers", .when(platforms: [.macOS])),
         .headerSearchPath("Sources/SDL3.xcframework/ios-arm64/Headers", .when(platforms: [.iOS])),
         .headerSearchPath("Sources/SDL3.xcframework/tvos-arm64/Headers", .when(platforms: [.tvOS])),
       ]
@@ -47,8 +47,8 @@ let package = Package(
     .target(
       name: "SwiftSDL",
       dependencies: [
-        .target(name: "CSDL", condition: .when(platforms: [.macOS, .iOS, .tvOS])),
-        .target(name: "CSDL3", condition: .when(platforms: [.linux, .windows])),
+        .target(name: "CSDL", condition: .when(platforms: [.iOS, .tvOS])),
+        .target(name: "CSDL3", condition: .when(platforms: [.macOS, .linux, .windows])),
         .product(name: "ArgumentParser", package: "swift-argument-parser")
       ]
     ),

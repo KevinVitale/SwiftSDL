@@ -177,8 +177,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
         || texture?.h != surface.h {
       
       let colorSpace = try surface(SDL_GetSurfaceColorspace)
-      let textureProperties = SDL_CreateProperties()
-      defer { textureProperties.destroy() }
+      let textureProperties = try SDL_PropertiesID()
       
       texture = try SDL_CreateTexture(
         with:

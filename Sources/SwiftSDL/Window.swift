@@ -3,7 +3,7 @@ public protocol Window: SDLObjectProtocol where Pointer == OpaquePointer { }
 extension SDLObject<OpaquePointer>: Window { }
 
 extension Window {
-  public var id: Result<SDL_WindowID, SDL_Error> {
+  public var id: Result<UInt32, SDL_Error> {
     self.resultOf(SDL_GetWindowID)
   }
   
@@ -17,14 +17,16 @@ extension Window {
   
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
     self.resultOf(SDL_GetWindowProperties)
+      .flatMap { propertyID in
+        Result { try SDL_PropertiesID(id: propertyID, properties: nil) }
+          .mapError { $0 as! SDL_Error }
+      }
   }
   
   @discardableResult
-  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+  public func set<P: SDL_PropertyTypeValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
     let properties = try self.properties.get()
-    guard properties.set(property, value: value) else {
-      throw .error
-    }
+    properties[property] = value
     return properties
   }
 
@@ -50,12 +52,12 @@ extension Window {
   }
   
   @discardableResult
-  public func createRenderer<P: PropertyValue>(with properties: (String, value: P)...) throws(SDL_Error) -> any Renderer {
+  public func createRenderer<P: SDL_PropertyTypeValue>(with properties: (String, value: P)...) throws(SDL_Error) -> any Renderer {
     try self.createRenderer(with: properties)
   }
   
   @discardableResult
-  public func createRenderer<P: PropertyValue>(with properties: [(String, value: P)] = []) throws(SDL_Error) -> any Renderer {
+  public func createRenderer<P: SDL_PropertyTypeValue>(with properties: [(String, value: P)] = []) throws(SDL_Error) -> any Renderer {
     try self
       .resultOf(SDL_CreateRenderer, nil)
       .map({ SDLObject($0, tag: .custom("window renderer"), destroy: SDL_DestroyRenderer) })
@@ -201,16 +203,13 @@ public func SDL_CreateWindow(with properties: WindowProperty...) throws(SDL_Erro
 }
 
 public func SDL_CreateWindow(with properties: [WindowProperty]) throws(SDL_Error) -> some Window {
-  let windowProperties = SDL_CreateProperties()
-  defer { windowProperties.destroy() }
+  let windowProperties = try SDL_PropertiesID()
   
   for property in properties {
-    guard windowProperties.set(property.value.0.rawValue, value: property.value.1) else {
-      throw .error
-    }
+    windowProperties[property.value.0.rawValue] = property.value.1
   }
   
-  guard let pointer = SDL_CreateWindowWithProperties(windowProperties) else {
+  guard let pointer = __SDL_CreateWindowWithProperties(windowProperties.id) else {
     throw .error
   }
   
@@ -218,7 +217,7 @@ public func SDL_CreateWindow(with properties: [WindowProperty]) throws(SDL_Error
 }
 
 public func SDL_CreateWindow(_ title: String, size: Size<Int32>, flags: SDL_WindowFlags) throws(SDL_Error) -> some Window {
-  guard let pointer = SDL_CreateWindow(title, size.x, size.y, flags.rawValue) else {
+  guard let pointer = __SDL_CreateWindow(title, size.x, size.y, flags.rawValue) else {
     throw .error
   }
   return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)

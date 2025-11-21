@@ -10,7 +10,7 @@ public func SDL_Load(
   uniformBufferCount: UInt32 = 0,
   storageBufferCount: UInt32 = 0,
   storageTextureCount: UInt32 = 0,
-  propertyID: SDL_PropertiesID = 0,
+  propertyID: SDL_PropertiesID = try! .init(),
   searchingBundles bundles: [Bundle] = Bundle.resourceBundles(),
   inDirectory directory: String? = nil) throws(SDL_Error) -> some GPUShader
 {
@@ -69,7 +69,7 @@ public func SDL_Load(
     , num_storage_textures: storageTextureCount
     , num_storage_buffers: storageBufferCount
     , num_uniform_buffers: uniformBufferCount
-    , props: propertyID
+    , props: propertyID.id
   )
   
   let pointer = try gpuDevice(SDL_CreateGPUShader, .some(&shaderInfo))

@@ -93,7 +93,7 @@ func Load(
   uniformBufferCount: UInt32 = 0,
   storageBufferCount: UInt32 = 0,
   storageTextureCount: UInt32 = 0,
-  propertyID: SDL_PropertiesID = 0
+  propertyID: SDL_PropertiesID = try! .init()
 ) throws(SDL_Error) -> some GPUShader {
   try SDL_Load(
     shader: file,

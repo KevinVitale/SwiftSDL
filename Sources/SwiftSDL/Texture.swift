@@ -3,21 +3,18 @@ public protocol Texture: SDLObjectProtocol, Sendable where Pointer == UnsafeMuta
 
 extension SDLObject<UnsafeMutablePointer<SDL_Texture>>: Texture { }
 
-public func SDL_CreateTexture<P: PropertyValue>(with properties: (String, value: P)..., renderer: any Renderer) throws(SDL_Error) -> some Texture {
+public func SDL_CreateTexture<P: SDL_PropertyTypeValue>(with properties: (String, value: P)..., renderer: any Renderer) throws(SDL_Error) -> some Texture {
   try SDL_CreateTexture(with: properties, renderer: renderer)
 }
 
-public func SDL_CreateTexture<P: PropertyValue>(with properties: [(String, value: P)], renderer: any Renderer) throws(SDL_Error) -> some Texture {
-  let textureProperties = SDL_CreateProperties()
-  defer { textureProperties.destroy() }
+public func SDL_CreateTexture<P: SDL_PropertyTypeValue>(with properties: [(String, value: P)], renderer: any Renderer) throws(SDL_Error) -> some Texture {
+  let textureProperties = try SDL_PropertiesID()
   
   for property in properties {
-    guard textureProperties.set(property.0, value: property.value) else {
-      throw .error
-    }
+    textureProperties[property.0] = property.value
   }
   
-  guard let pointer = SDL_CreateTextureWithProperties(renderer.pointer, textureProperties) else {
+  guard let pointer = SDL_CreateTextureWithProperties(renderer.pointer, textureProperties.id) else {
     throw .error
   }
   

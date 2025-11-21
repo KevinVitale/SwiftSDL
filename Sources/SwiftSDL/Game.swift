@@ -191,7 +191,7 @@ extension Game {
           return .failure
         }
         do {
-          guard event.type != SDL_EVENT_QUIT.rawValue else {
+          guard event.type != SDL_EventType.quit.rawValue else {
             return .success
           }
           
@@ -268,11 +268,7 @@ extension Game {
   /// - returns: Either global properties, or a _SDL_Error_ failure.
   /// - seealso: _SDL_GetGlobalProperties_
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
-    let global = SDL_GetGlobalProperties()
-    guard global != .zero else {
-      return .failure(.error)
-    }
-    return .success(global)
+    fatalError()
   }
   
   /// Set a property in the global properties group.
@@ -282,12 +278,8 @@ extension Game {
   /// - returns: The _SDL_PropertiesID_ for the group being modified.
   /// - seealso: _SDL_SetStringProperty_; _SDL_SetFloatProperty_; _SDL_SetBooleanProperty_; _SDL_SetNumberProperty_; _SDL_SetPointerProperty_.
   @discardableResult
-  public func set<P: PropertyValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
-    let properties = try self.properties.get()
-    guard properties.set(property, value: value) else {
-      throw .error
-    }
-    return properties
+  public func set<P: SDL_PropertyTypeValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
+    fatalError()
   }
 
   public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
@@ -418,37 +410,7 @@ extension SDL_FPoint: @retroactive ExpressibleByArgument {
   }
 }
 
-extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument {
-  public init?(argument: String) {
-    switch argument.lowercased() {
-      case "stretch": self = .stretch
-      case "letterbox": self = .letterbox
-      case "overscan": self = .overscan
-      case "integer-scale": self = .integerScale
-      default: self = .disabled
-    }
-  }
-  
-  public var defaultValueDescription: String {
-    switch self {
-      case .stretch: return "stretch"
-      case .letterbox: return "letterbox"
-      case .overscan: return "overscan"
-      case .integerScale: return "integer-scale"
-      default: return "disabled"
-    }
-  }
-  
-  public static var allValueStrings: [String] {
-    [
-      "disabled",
-      "stretch",
-      "letterbox",
-      "overscan",
-      "integer-scale"
-    ]
-  }
-}
+extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument { }
 
 extension Window {
   internal func sync(options: GameOptions) throws(SDL_Error) {
