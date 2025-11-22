@@ -6,7 +6,7 @@ func SDL_AcquireGPUCommandBuffer(with gpuDevice: any GPUDevice) throws(SDL_Error
   guard let pointer = SDL_AcquireGPUCommandBuffer(gpuDevice.pointer) else {
     throw .error
   }
-  return SDL_Object<OpaquePointer>(pointer, tag: .custom("command buffer"))
+  return SDL_Object<OpaquePointer>(pointer, tag: "command buffer")
 }
 
 extension CommandBuffer {

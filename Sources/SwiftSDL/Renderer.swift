@@ -23,7 +23,7 @@ public func SDL_CreateRenderer<P: SDL_PropertyTypeValue>(with properties: [(Stri
     throw .error
   }
   
-  return SDL_Object(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
+  return SDL_Object(pointer, tag: "renderer", destroy: SDL_DestroyRenderer)
 }
 
 // MARK: - Computed Properties

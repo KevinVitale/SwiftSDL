@@ -25,7 +25,7 @@ extension Window {
   public func createRenderer<P: SDL_PropertyTypeValue>(with properties: [(String, value: P)] = []) throws(SDL_Error) -> any Renderer {
     try self
       .resultOf(SDL_CreateRenderer, nil)
-      .map({ SDL_Object($0, tag: .custom("window renderer"), destroy: SDL_DestroyRenderer) })
+      .map({ SDL_Object($0, tag: "window renderer", destroy: SDL_DestroyRenderer) })
       .get()
   }
   

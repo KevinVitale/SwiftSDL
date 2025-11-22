@@ -73,7 +73,7 @@ public func SDL_Load(
   )
   
   let pointer = try gpuDevice(SDL_CreateGPUShader, .some(&shaderInfo))
-  return SDL_Object(pointer, tag: .custom("\(file + fileExt)"), destroy: { [weak gpuDevice] in
+  return SDL_Object(pointer, tag: "\(file + fileExt)", destroy: { [weak gpuDevice] in
     (try? gpuDevice?(SDL_ReleaseGPUShader, $0))
   })
 }

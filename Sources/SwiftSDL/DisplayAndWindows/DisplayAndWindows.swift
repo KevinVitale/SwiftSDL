@@ -22,13 +22,13 @@ extension Window {
   public var surface: Result<any Surface, SDL_Error> {
     self
       .resultOf(SDL_GetWindowSurface)
-      .map({ SDL_Object($0, tag: .custom("(unowned) window surface")) })
+      .map({ SDL_Object($0, tag: "(unowned) window surface") })
   }
   
   public var renderer: Result<any Renderer, SDL_Error> {
     self
       .resultOf(SDL_GetRenderer)
-      .map({ SDL_Object($0, tag: .custom("(unowned) window renderer")) })
+      .map({ SDL_Object($0, tag: "(unowned) window renderer") })
   }
 }
 

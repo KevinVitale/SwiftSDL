@@ -3,17 +3,11 @@ public protocol SDL_ObjectProtocol: AnyObject {
   var pointer: Pointer { get }
 }
 
+extension String {
+  fileprivate static let __SDL_ObjectUserDataTagKey = "SDL_Object.userData.key.tag"
+}
+
 public final class SDL_Object<Pointer: Hashable>: SDL_ObjectProtocol, @unchecked Sendable {
-  /// Used for associating a tag with an SDLObject instance, primarily for debugging and memory-allocation tracking.
-  @available(*, deprecated, message: "Will be removed in a future release")
-  public enum Tag {
-    /// A user-defined string for debugging purposes.
-    case custom(String)
-    
-    /// A default, no-tag state.
-    case empty
-  }
-  
   /// The underlying resource reference managed by this object.
   public let pointer: Pointer
   
@@ -21,19 +15,35 @@ public final class SDL_Object<Pointer: Hashable>: SDL_ObjectProtocol, @unchecked
   private let destroy: (Pointer) -> Void
   
   /// A debugging or tracking tag for the instance.
-  private let tag: Tag
+  private var tag: String {
+    (userData[.__SDL_ObjectUserDataTagKey] as? String) ?? ""
+  }
   
+  private let userData: SDL_PropertiesID = try! .init()
   
   /// Creates an instance of an SDL object from an underlying pointer reference.
   /// - Parameters:
   ///   - pointer: The resource pointer being managed.
   ///   - tag: A debugging or memory-allocation tag (default: .empty).
   ///   - destroy: A closure invoked during deinitialization to clean up the resource (default: a no-op closure).
-  public required init(_ pointer: Pointer, tag: Tag = .empty, destroy: @escaping (Pointer) -> Void = { _ in }) {
-    debugPrint("\(type(of: Pointer.self)): \(#function), \(tag)")
+  public required init(_ pointer: Pointer, userData: [(String, (any SDL_PropertyTypeValue))]? = nil, destroy: @escaping (Pointer) -> Void = { _ in }) {
     self.destroy = destroy
     self.pointer = pointer
-    self.tag = tag
+    
+    for (property, value) in userData ?? [] {
+      self.userData[property] = value
+    }
+    
+    debugPrint("\(type(of: Pointer.self)): \(#function), \(tag)")
+  }
+  
+  public convenience init(_ pointer: Pointer, tag: String, destroy: @escaping (Pointer) -> Void = { _ in }) {
+    self.init(pointer, userData: [(.__SDL_ObjectUserDataTagKey, tag)], destroy: destroy)
+  }
+  
+  public subscript(property: String) -> (any SDL_PropertyTypeValue)? {
+    get { self.userData[property] }
+    set { self.userData[property] = newValue }
   }
 
   /// Ensures the destroy callback is called with the managed pointer when the SDLObject instance is deallocated.

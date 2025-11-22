@@ -28,7 +28,7 @@ public func SDL_CreateGPUDevice(claimFor window: (any Window)? = nil, flags: [SD
   
   let gpuDevice: SDL_Object<OpaquePointer> = .init(
     pointer
-    , tag: .custom("gpu device (\(driver ?? deviceDriver))")
+    , tag: "gpu device (\(driver ?? deviceDriver))"
     , destroy: SDL_DestroyGPUDevice
   )
   

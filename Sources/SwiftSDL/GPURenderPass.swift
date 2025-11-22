@@ -16,7 +16,7 @@ public func SDL_BeginGPURenderPass(
   ) else {
     throw .error
   }
-  return SDL_Object(pointer, tag: .custom("render pass"))
+  return SDL_Object(pointer, tag: "render pass")
 }
 
 extension SDL_GPUColorTargetInfo {

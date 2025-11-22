@@ -84,7 +84,7 @@ public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SD
     throw .error
   }
   
-  return SDL_Object(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
+  return SDL_Object(pointer, tag: "surface", destroy: SDL_DestroySurface)
 }
 
 @discardableResult
@@ -108,7 +108,7 @@ public func SDL_Load(
     throw .error
   }
   
-  return SDL_Object(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
+  return SDL_Object(pointer, tag: "surface", destroy: SDL_DestroySurface)
 }
 
 extension SDL_PixelFormat {

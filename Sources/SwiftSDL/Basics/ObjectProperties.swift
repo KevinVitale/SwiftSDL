@@ -161,10 +161,19 @@ extension Optional<UnsafeMutableRawPointer>: SDL_PropertyTypeValue {
 extension SDL_Object: SDL_PropertyTypeValue { }
 
 extension SDL_PropertyTypeValue where Self: AnyObject, ValueType == UnsafeMutableRawPointer {
+  /**
+   A weak pointer reference to this object.
+   
+   - returns: An unsafe, unretained pointer to this object.
+   */
   public var wrappedValue: ValueType {
     Unmanaged.passUnretained(self).toOpaque()
   }
   
+  /**
+   Stores a retained reference into `properties`.
+   Releases the retained value automatically when the value is removed from `properties.`
+   */
   public func set(_ property: String, on properties: SDL_PropertiesID) throws(SDL_Error) {
     let pointer = Unmanaged.passRetained(self).toOpaque()
     SDL_SetPointerPropertyWithCleanup(
