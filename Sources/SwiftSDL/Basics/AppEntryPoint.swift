@@ -1,5 +1,6 @@
+public typealias Game = GameLoop
 
-public protocol Game: AnyObject, ParsableCommand {
+public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   /// The name of the application (“My Game 2: Bad Guy’s Revenge!”).
   /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_NAME_STRING_.
   static var name: String { get }
@@ -13,7 +14,7 @@ public protocol Game: AnyObject, ParsableCommand {
   static var identifier: String { get }
   
   /// The default window properties for creating the main window.
-  static var windowProperties: [WindowProperty] { get }
+  static var windowProperties: [SDL_WindowProperty] { get }
   
   /** Runtime options that customize a game's behavior and presentation.
    
@@ -21,7 +22,7 @@ public protocol Game: AnyObject, ParsableCommand {
    
    Those options which correspond to flags used when creating the `window` are ignored if
    they were already defined in `windowProperties` at compile time.
-
+   
    - seealso: _GameOptions_
    */
   var options: GameOptions { get }
@@ -31,7 +32,7 @@ public protocol Game: AnyObject, ParsableCommand {
    
    - note: A default implementation is provided which automatically initializes SDL's _video_ subsystem,
    and creates the `window` based on `windowProperties`.
-
+   
    The default implementation automatically:
    1. Initializes SDL's video subsystem.
    2. Creates a window using the properties specified in `windowProperties`.
@@ -39,13 +40,13 @@ public protocol Game: AnyObject, ParsableCommand {
    If this method throws an error:
    1. `onShutdown(window_:)` will be invoked to handle cleanup and unwind any partially initialized state.
    2. Following that, `onQuit(_:)` will be called, terminating the application with an appropriate exit code.
-
+   
    - returns: Main window, created by calling `SDL_CreateWindow(with:)`.
    
    - warning: If you override this function, you must manually create the window
    and initialize any required SDL subsystems yourself. Overriding introduces significant responsibility and complexity; use caution.
    */
-  func onInit() throws(SDL_Error) -> any Window
+  func onInit() throws(SDL_Error) -> (any Window)
   
   /**
    Called **immediately after** the application's `window` is created and ready. After this function
@@ -71,7 +72,7 @@ public protocol Game: AnyObject, ParsableCommand {
    
    ```
    func onUpdate(window: any Window) throws(SDL_Error) {
-     try renderer
+   try renderer
        .clear(color: .gray)
        .set(blendMode: blendMode)
        .pass(to: _drawGeometry(_:))
@@ -113,7 +114,7 @@ public protocol Game: AnyObject, ParsableCommand {
    
    - parameter result: An optional `SDL_Error` that indicates whether an error occurred
    prior to the process quitting.
-
+   
    - warning: Implementing this method **overrides** the default implementation.
    The default implementation will automatically call `SDL_Quit` to shut down SDL's subsystems.
    
@@ -125,52 +126,74 @@ public protocol Game: AnyObject, ParsableCommand {
   func will(remove gameController: GameController)
   
   /// Time since the last frame (in seconds).
+  @available(*, deprecated)
   var deltaTime: Double { get }
 }
 
-nonisolated(unsafe)
-internal var GameControllers: [GameController] = []
 
-extension Game {
+fileprivate let __gameLoopString = "SDL.kit.global.gameLoop"
+fileprivate let __windowString = "SDL.kit.global.window"
+
+fileprivate func __gameLoop() throws(SDL_Error) -> (any GameLoop) {
+  let gamePtr = try SDL_PropertiesID.global()[__gameLoopString] as! UnsafeMutableRawPointer
+  let gameLoop = (Unmanaged<AnyObject>.fromOpaque(gamePtr).takeUnretainedValue()) as! (any GameLoop)
+  return gameLoop
+}
+
+fileprivate func __window() throws(SDL_Error) -> (any Window) {
+  let winPtr = try SDL_PropertiesID.global()[__windowString] as! UnsafeMutableRawPointer
+  let window = (Unmanaged<AnyObject>.fromOpaque(winPtr).takeUnretainedValue()) as! (any Window)
+  return window
+}
+
+extension GameLoop {
   public static var name: String { "\(Self.self)" }
   public static var version: String { "" }
   public static var identifier: String { "" }
-  public static var windowProperties: [WindowProperty] {
+  public static var windowProperties: [SDL_WindowProperty] {
     [
       .windowTitle("\(Self.name)"),
       .width(1024), .height(640),
-      .hidden(true),
     ]
   }
-  
-  public var gameControllers: [GameController] {
-    GameControllers
-  }
-  
-  public var deltaTime: Double {
-    App.frameInterval.delta
-  }
-  
-  public func run() throws {
-    App.game = self
+}
+
+extension GameLoop {
+  public func onInit() throws(SDL_Error) -> (any Window) {
+    try SDL_Init(.video)
     
-    guard SDL_SetAppMetadata(
-      Self.name,
-      Self.version,
-      Self.identifier)
-    else {
-      throw SDL_Error.error
-    }
+    var windowProperties = Self.windowProperties
+    windowProperties.append(.transparent(options.windowTransparent))
+    
+    return try SDL_Object(with: windowProperties)
+  }
+
+  public func onQuit(_ result: SDL_Error?) {
+    SDL_Quit()
+  }
+}
+
+extension GameLoop {
+  public func run() throws {
+    try SDL_AppMetadata.set(to: Self.self)
+    try SDL_PropertiesID.global()[__gameLoopString] = self
     
     SDL_RunApp(CommandLine.argc, CommandLine.unsafeArgv, { argc, argv in
       SDL_EnterAppMainCallbacks(argc, argv, { state, argc, argv in
         /* onInit */
         do {
-          App.window = try App.game.onInit()
-          try App.game.onReady(window: App.window)
-          try App.window.sync(options: App.game.options)
-          try App.window(SDL_ShowWindow)
+          // Get 'this' and create a 'window' for it.
+          // Then save the 'window' to 'globalProperties'.
+          let gameLoop = try __gameLoop()
+          let window = try gameLoop.onInit() as! SDL_Object<OpaquePointer>
+          try SDL_PropertiesID.global()[__windowString] = window
+
+          // Inform the caller that its ready to perform additional setup.
+          try gameLoop.onReady(window: window)
           
+          // Sync runtime and compile-time game options.
+          try window.sync(options: gameLoop.options)
+
           return .continue
         } catch {
           App.failure = .onInit(error as? SDL_Error)
@@ -179,7 +202,10 @@ extension Game {
       }, /* onIterate */ { state in
         do {
           App.iterate()
-          try App.game.onUpdate(window: App.window)
+          
+          let gameLoop = try __gameLoop()
+          let window = try __window()
+          try gameLoop.onUpdate(window: window)
 
           return .continue
         } catch {
@@ -190,7 +216,12 @@ extension Game {
         guard let event = event?.pointee else {
           return .failure
         }
+        
         do {
+          
+          let gameLoop = try __gameLoop()
+          let window = try __window()
+
           guard event.type != SDL_EventType.quit.rawValue else {
             return .success
           }
@@ -212,19 +243,19 @@ extension Game {
                   .forEach {
                     switch($0) {
                       case .insert(_, var gameController, _):
-                        try App.game.did(connect: &gameController)
+                        try gameLoop.did(connect: &gameController)
                         
                       case .remove(_, var gameController, _):
-                        App.game.will(remove: gameController)
+                        gameLoop.will(remove: gameController)
                         gameController.close()
                     }
                   }
-
+                
               default: ()
             }
           }
           
-          try App.game.onEvent(window: App.window, event)
+          try gameLoop.onEvent(window: window, event)
           return .continue
         } catch {
           App.failure = .onEvent(error as? SDL_Error)
@@ -236,33 +267,38 @@ extension Game {
           default: print(App.failure)
         }
         
-        defer { App.window = nil }
-        try? App.game.onShutdown(window: App.window)
+        let gameLoop = try? __gameLoop()
+        let window = try? __window()
+        
+        try? gameLoop?.onShutdown(window: window)
         
         for var gameController in GameControllers {
           gameController.close()
         }
         GameControllers = []
         
-        App.game.onQuit(App.failure.error)
+        gameLoop?.onQuit(App.failure.error)
       })
       
       return 0
     }, nil)
   }
+}
+
+nonisolated(unsafe)
+internal var GameControllers: [GameController] = []
+
+extension Game {
   
-  public func onInit() throws(SDL_Error) -> any Window {
-    try SDL_Init(.video)
-    
-    var windowProperties = Self.windowProperties
-    windowProperties.append(.transparent(options.windowTransparent))
-    
-    return try SDL_CreateWindow(with: windowProperties)
+  public var gameControllers: [GameController] {
+    GameControllers
   }
   
-  public func onQuit(_ result: SDL_Error?) {
-    SDL_Quit()
+  public var deltaTime: Double {
+    App.frameInterval.delta
   }
+  
+  
   
   /// Get the global SDL properties.
   /// - returns: Either global properties, or a _SDL_Error_ failure.
@@ -281,179 +317,136 @@ extension Game {
   public func set<P: SDL_PropertyTypeValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
     fatalError()
   }
-
+  
   public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
   public func will(remove gameController: GameController) { /* no-op */ }
 }
 
-public struct GameOptions: ParsableArguments {
-  public init() { }
-  
-  @Flag(help: "Hide the system's cursor")
-  public var hideCursor: Bool = false
-  
-  @Flag(help: "Stretch the content to fill the window")
-  public var autoScaleContent: Bool = false
-  
-  @Option(help: "Forces the rendered content to be a certain logical size (WxH)")
-  public var renderLogicalSize: SDL_Size? = nil
-  
-  @Option(help: "Forces the rendered content to be a certain logical order; overrides '--auto-scale-content'")
-  public var renderLogicalPresentation: SDL_RendererLogicalPresentation = .disabled
-  
-  @Option(help: "Set vertical synchronization rate")
-  public var renderVsync: VSyncRate = .disabled
-  
-  @Flag(help: "Window is always kept on top")
-  public var windowAlwaysOnTop: Bool = false
-  
-  @Flag(help: "Window is set to fullscreen")
-  public var windowFullscreen: Bool = false
-
-  @Flag(help: "Window is uses a transparent buffer")
-  public var windowTransparent: Bool = false
-
-  @Flag(help: "Create a maximized window; requires '--window-resizable'")
-  public var windowMaximized: Bool = false
-  
-  @Flag(help: "Create a minimized window")
-  public var windowMinimized: Bool = false
-  
-  @Option(help: "Specify the maximum window's size (WxH)")
-  public var windowMaxSize: SDL_Size?
-  
-  @Option(help: "Specify the minimum window's size (WxH)")
-  public var windowMinSize: SDL_Size?
-  
-  @Flag(help: "Force the window to have mouse focus")
-  public var windowMouseFocus: Bool = false
-  
-  @Flag(help: "Create a borderless window")
-  public var windowNoFrame: Bool = false
-  
-  @Flag(help: "Enable window resizability")
-  public var windowResizable: Bool = false
-  
-  @Option(help: "Specify the window's position (XxY)")
-  public var windowPosition: SDL_Point?
-  
-  @Option(help: "Specify the window's size (WxH)")
-  public var windowSize: SDL_Size?
-  
-  @Option(help: "Specify the window's title")
-  public var windowTitle: String?
-}
-
-extension GameOptions {
-  public enum VSyncRate: RawRepresentable, ExpressibleByArgument, Decodable {
-    public init?(argument: String) {
-      switch argument.lowercased() {
-        case "adaptive": self = .adaptive
-        case let value where Int(value) != nil:
-          let value = Int32(value)!
-          self = value != 0 ? .enabled(value) : .disabled
-        default: self = .disabled
-      }
-    }
+public struct SDL_AppMetadata: Sendable {
+  public enum CodingKeys: String, CodingKey {
+    case name
+    case version
+    case identifier
+    case creator
+    case copyright
+    case url
+    case type
     
-    public init?(rawValue: Int32) {
-      switch rawValue {
-        case -1: self = .adaptive
-        case 0: self = .disabled
-        default: self = .enabled(rawValue)
-      }
-    }
-    
-    case adaptive
-    case disabled
-    case enabled(Int32)
-    
-    public var rawValue: RawValue {
+    public var stringValue: String {
       switch self {
-        case .adaptive: return -1
-        case .enabled(let value): return value
-        case .disabled: return 0
+        case .name: return SDL_PROP_APP_METADATA_NAME_STRING
+        case .version: return SDL_PROP_APP_METADATA_VERSION_STRING
+        case .identifier: return SDL_PROP_APP_METADATA_IDENTIFIER_STRING
+        case .creator: return SDL_PROP_APP_METADATA_CREATOR_STRING
+        case .copyright: return SDL_PROP_APP_METADATA_COPYRIGHT_STRING
+        case .url: return SDL_PROP_APP_METADATA_URL_STRING
+        case .type: return SDL_PROP_APP_METADATA_TYPE_STRING
       }
     }
-    
-    public var defaultValueDescription: String {
-      switch self {
-        case .adaptive: return "adaptive"
-        case .enabled: return "enabled"
-        case .disabled: return "disabled"
-      }
+  }
+  
+  private init() { }
+  
+  fileprivate static func set<T: GameLoop>(to gameLoop: T.Type) throws(SDL_Error) {
+    guard SDL_SetAppMetadata(
+      T.name,
+      T.version,
+      T.identifier)
+    else {
+      throw SDL_Error.error
     }
-    
-    public static var allValueStrings: [String] {
-      [
-        "adaptive",
-        "disabled",
-        "interger value"
-      ]
+  }
+  
+  public static subscript(property: CodingKeys) -> String {
+    get {
+      String(cString: SDL_GetAppMetadataProperty(property.stringValue))
+    }
+    set {
+      if !SDL_SetAppMetadataProperty(property.stringValue, newValue) {
+        debugPrint(SDL_Error.error)
+      }
     }
   }
 }
 
-extension SDL_Point: @retroactive ExpressibleByArgument {
-  public init?(argument: String) {
-    let width = Int32(argument.split(separator: "x").first ?? "0") ?? .zero
-    let height = Int32(argument.split(separator: "x").last ?? "0") ?? .zero
-    self.init(x: width, y: height)
+public enum SDL_InitFlags: UInt32, CaseIterable, ExpressibleByIntegerLiteral, OptionSet {
+  public init(integerLiteral value: UInt32) {
+    self.init(rawValue: value)
   }
-}
-
-extension SDL_FPoint: @retroactive ExpressibleByArgument {
-  public init?(argument: String) {
-    let width = Float(argument.split(separator: "x").first ?? "0") ?? .zero
-    let height = Float(argument.split(separator: "x").last ?? "0") ?? .zero
-    self.init(x: width, y: height)
-  }
-}
-
-extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument { }
-
-extension Window {
-  internal func sync(options: GameOptions) throws(SDL_Error) {
-    // Must have 'resizable' before 'maximized'
-    if !has(.resizable)  { try set(resizable: options.windowResizable) }
-    
-    if let windowMinSize  = options.windowMinSize { try set(minSize: windowMinSize) }
-    if let windowMaxSize  = options.windowMaxSize { try set(maxSize: windowMaxSize) }
-    if let windowPosition = options.windowPosition { try set(position: windowPosition) }
-    if let windowSize     = options.windowSize { try set(size: windowSize) }
-    if let windowTitle    = options.windowTitle { try set(title: windowTitle) }
-    
-    /// These `has` checks ensure that flags which have already been set by the `Game` instance are overwritten.
-    if !has(.always_on_top) { try set(alwaysOnTop: options.windowAlwaysOnTop) }
-    if !has(.minimized) && options.windowMinimized { try self(SDL_MinimizeWindow) }
-    if !has(.maximized) && options.windowMaximized { try self(SDL_MaximizeWindow) }
-    if !has(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }
-    if !has(.borderless) { try set(showBorder: !options.windowNoFrame) }
-    if !has(.fullscreen) { try self(SDL_SetWindowFullscreen, options.windowFullscreen) }
-
-    _ = options.hideCursor ? SDL_HideCursor() : SDL_ShowCursor()
-    
-    if let renderer = try? renderer.get() {
-      if try renderer.vsync.get() == 0, options.renderVsync != .disabled {
-        print("Attempting to set vsync to \"\(options.renderVsync)\"")
-        try renderer.set(vsync: options.renderVsync.rawValue)
-      }
-      
-      let existingLogicalSize = SDL_Size(try renderer.logicalSize.get())
-      let existingLogicalPres = try renderer.logicalPresentation.get()
-      
-      var logicalSize         = options.renderLogicalSize ?? existingLogicalSize
-      let logicalPresentation = options.autoScaleContent ? .stretch : (existingLogicalPres != .disabled ? existingLogicalPres : options.renderLogicalPresentation)
-
-      // Mirrors 'logicalSize' to `window.size` when empty...
-      if logicalSize.x == 0, logicalSize.y == 0 {
-        logicalSize = try self.size(as: SDL_Size.self)
-      }
-      
-      print("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y); presentation: \(logicalPresentation)")
-      try renderer.set(logicalSize: [logicalSize.x, logicalSize.y], presentation: logicalPresentation)
+  
+  public init(rawValue: Uint32) {
+    switch rawValue {
+      case SDL_INIT_AUDIO:    self = .audio
+      case SDL_INIT_VIDEO:    self = .video
+      case SDL_INIT_JOYSTICK: self = .joystick
+      case SDL_INIT_HAPTIC:   self = .haptic
+      case SDL_INIT_GAMEPAD:  self = .gamepad
+      case SDL_INIT_EVENTS:   self = .events
+      case SDL_INIT_SENSOR:   self = .sensor
+      case SDL_INIT_CAMERA:   self = .camera
+      default: self = .invalid
     }
-    
-    try self(SDL_SyncWindow)
+  }
+  
+  case audio
+  case video
+  case joystick
+  case haptic
+  case gamepad
+  case events
+  case sensor
+  case camera
+  case invalid
+  
+  public var debugDescription: String {
+    switch self {
+      case .audio:    return "audio"
+      case .video:    return "video"
+      case .joystick: return "joystick"
+      case .haptic:   return "haptic"
+      case .gamepad:  return "gamepad"
+      case .events:   return "events"
+      case .sensor:   return "sensor"
+      case .camera:   return "camera"
+      case .invalid:  return "invalid"
+    }
+  }
+  
+  public var rawValue: UInt32 {
+    switch self {
+      case .audio: return SDL_INIT_AUDIO
+      case .video: return SDL_INIT_VIDEO
+      case .joystick: return SDL_INIT_JOYSTICK
+      case .haptic: return SDL_INIT_HAPTIC
+      case .gamepad: return SDL_INIT_GAMEPAD
+      case .events: return SDL_INIT_EVENTS
+      case .sensor: return SDL_INIT_SENSOR
+      case .camera: return SDL_INIT_CAMERA
+      case .invalid: return 0
+    }
+  }
+  
+  public static var allCases: [Self] {
+    [
+      .audio,
+      .video,
+      .joystick,
+      .haptic,
+      .gamepad,
+      .events,
+      .sensor,
+      .camera
+    ]
   }
 }
+
+public func SDL_Init(_ flags: SDL_InitFlags...) throws(SDL_Error) {
+  try SDL_Init(flags)
+}
+
+public func SDL_Init(_ flags: [SDL_InitFlags]) throws(SDL_Error) {
+  guard SDL_Init(flags.reduce(0) { $0 | $1.rawValue }) else {
+    throw .error
+  }
+}
+

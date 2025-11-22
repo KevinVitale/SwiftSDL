@@ -18,7 +18,7 @@ extension SDL.Test {
     
     static let name: String = "SDL Test: Sprite"
     
-    static var windowProperties: [WindowProperty] {
+    static var windowProperties: [SDL_WindowProperty] {
       [
         .windowTitle(Self.name),
         .width(640), .height(480)

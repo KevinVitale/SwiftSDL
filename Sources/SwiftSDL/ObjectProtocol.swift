@@ -3,6 +3,8 @@ public protocol SDLObjectProtocol: AnyObject {
   var pointer: Pointer { get }
 }
 
+public typealias SDL_ObjectProtocol = SDLObjectProtocol
+
 public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked Sendable {
   /// Used for associating a tag with an SDLObject instance, primarily for debugging and memory-allocation tracking.
   @available(*, deprecated, message: "Will be removed in a future release")
@@ -30,7 +32,7 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked S
   ///   - tag: A debugging or memory-allocation tag (default: .empty).
   ///   - destroy: A closure invoked during deinitialization to clean up the resource (default: a no-op closure).
   public required init(_ pointer: Pointer, tag: Tag = .empty, destroy: @escaping (Pointer) -> Void = { _ in }) {
-    // print("\(type(of: Pointer.self)): \(#function), \(tag)")
+    print("\(type(of: Pointer.self)): \(#function), \(tag)")
     self.destroy = destroy
     self.pointer = pointer
     self.tag = tag
@@ -38,14 +40,12 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked S
 
   /// Ensures the destroy callback is called with the managed pointer when the SDLObject instance is deallocated.
   deinit {
-    /*
-    #if DEBUG
-    print("\(type(of: Pointer.self)): \(#function), \(tag)")
-    #endif
-     */
+    debugPrint("(\(type(of: self))::\(#function)) — Destroying object: \(type(of: pointer)) \(tag)")
     self.destroy(pointer)
   }
 }
+
+public typealias SDL_Object = SDLObject
 
 extension SDLObjectProtocol {
   @discardableResult

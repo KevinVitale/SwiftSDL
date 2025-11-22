@@ -1,3 +1,7 @@
+#if canImport(CSDL3)
+import CSDL3
+#endif
+
 extension SDL.Test {
   final class MouseGrid: Game {
     enum CodingKeys: CodingKey {

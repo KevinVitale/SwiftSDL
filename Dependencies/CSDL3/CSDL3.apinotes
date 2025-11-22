@@ -36,6 +36,10 @@ Functions:
   SwiftPrivate: true
 - Name: SDL_CreateWindowWithProperties
   SwiftPrivate: true
+- Name: SDL_GetWindows
+  SwiftPrivate: true
+- Name: SDL_SetWindowTitle
+  SwiftPrivate: true
 - Name: SDL_RectToFRect
   SwiftPrivate: true
 Enumerators:

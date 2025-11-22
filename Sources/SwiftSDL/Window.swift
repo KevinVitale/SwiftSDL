@@ -1,45 +1,10 @@
-public protocol Window: SDLObjectProtocol where Pointer == OpaquePointer { }
-
-extension SDLObject<OpaquePointer>: Window { }
-
 extension Window {
-  public var id: Result<UInt32, SDL_Error> {
-    self.resultOf(SDL_GetWindowID)
-  }
-  
-  private var flags: UInt64 {
-    try! self(SDL_GetWindowFlags)
-  }
-  
-  public func has(_ flag: SDL_WindowFlags) -> Bool {
-    flags & flag.rawValue != 0
-  }
-  
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
     self.resultOf(SDL_GetWindowProperties)
       .flatMap { propertyID in
-        Result { try SDL_PropertiesID(id: propertyID, properties: nil) }
+        Result { try SDL_PropertiesID(id: propertyID) }
           .mapError { $0 as! SDL_Error }
       }
-  }
-  
-  @discardableResult
-  public func set<P: SDL_PropertyTypeValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
-    let properties = try self.properties.get()
-    properties[property] = value
-    return properties
-  }
-
-  public var surface: Result<any Surface, SDL_Error> {
-    self
-      .resultOf(SDL_GetWindowSurface)
-      .map({ SDLObject($0, tag: .custom("surface")) })
-  }
-  
-  public var renderer: Result<any Renderer, SDL_Error> {
-    self
-      .resultOf(SDL_GetRenderer)
-      .map({ SDLObject($0, tag: .custom("renderer")) })
   }
   
   public var displayMode: Result<Any, SDL_Error> {
@@ -99,18 +64,17 @@ extension Window {
     try self(SDL_SetWindowPosition, position.x, position.y)
   }
 
-  public var title: Result<String, SDL_Error> {
-    self
-      .resultOf(SDL_GetWindowTitle)
-      .map(String.init(cString:))
-  }
-
   @discardableResult
+  /** Sets the window's title.
+   
+   - parameters:
+   - title: The window's new title
+   
+   - warning: `callAsFunction` does not work as expected;
+   Use this method instead to invoke the C-function explicitly.
+   */
   public func set(title: String) throws(SDL_Error) -> some Window {
-    // - FIXME: SDL_SetWindowTitle
-    // 'callAsFunction' not working as expected?
-    // Forced to invoke the C-function explicitly.
-    guard SDL_SetWindowTitle(pointer, title.cString(using: .utf8)) else {
+    guard __SDL_SetWindowTitle(pointer, title.cString(using: .utf8)) else {
       throw .error
     }
     return self
@@ -198,34 +162,9 @@ extension Window {
   }
 }
 
-public func SDL_CreateWindow(with properties: WindowProperty...) throws(SDL_Error) -> some Window {
-  try SDL_CreateWindow(with: properties)
-}
-
-public func SDL_CreateWindow(with properties: [WindowProperty]) throws(SDL_Error) -> some Window {
-  let windowProperties = try SDL_PropertiesID()
-  
-  for property in properties {
-    windowProperties[property.value.0.rawValue] = property.value.1
-  }
-  
-  guard let pointer = __SDL_CreateWindowWithProperties(windowProperties.id) else {
-    throw .error
-  }
-  
-  return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
-}
-
-public func SDL_CreateWindow(_ title: String, size: Size<Int32>, flags: SDL_WindowFlags) throws(SDL_Error) -> some Window {
-  guard let pointer = __SDL_CreateWindow(title, size.x, size.y, flags.rawValue) else {
-    throw .error
-  }
-  return SDLObject(pointer, tag: .custom("app window"), destroy: SDL_DestroyWindow)
-}
-
 @discardableResult
 public func SDL_GetWindows() throws(SDL_Error) -> [any Window] {
-  try SDL_BufferPointer(SDL_GetWindows)
+  try SDL_BufferPointer(__SDL_GetWindows)
     .compactMap(\.self)
     .map({ SDLObject($0) as! (any Window) })
 }

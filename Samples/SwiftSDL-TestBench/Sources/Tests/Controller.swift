@@ -83,7 +83,7 @@ extension SDL.Test {
       }
     }
     
-    private func createWindow() throws(SDL_Error) -> some Window {
+    private func createWindow() throws(SDL_Error) -> any Window {
       print("Calculate the size of the window....")
       let display = try primaryDisplay.get()
       let contentScale = (try display.contentScale.get())
@@ -92,12 +92,11 @@ extension SDL.Test {
         .to(Sint64.self)
       
       print("Creating window (\(screenSize.x) x \(screenSize.y))....")
-      let window = try SDL_CreateWindow(
-        with: .windowTitle(Self.name),
-        .width(screenSize.x), .height(screenSize.y)
-      )
-      
-      return window
+      return try SDL_Object(with: [
+        .windowTitle(Self.name)
+        , .width(screenSize.x)
+        , .height(screenSize.y)
+      ])
     }
     
     private func createScene(size: Size<Float>, bgColor: SDL_Color, textures: [ImageFiles: any Texture]) throws(SDL_Error) -> GamepadScene {
