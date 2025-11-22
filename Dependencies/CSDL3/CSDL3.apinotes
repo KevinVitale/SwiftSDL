@@ -8,8 +8,8 @@ Typedefs:
   Availability: nonswift
 - Name: SDL_InitFlags
   Availability: nonswift
-- Name: SDL_WindowID
-  Availability: nonswift
+# - Name: SDL_WindowID
+#   Availability: nonswift
 - Name: SDL_WindowFlags
   Availability: nonswift
 Tags:

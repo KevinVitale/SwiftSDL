@@ -505,7 +505,7 @@ extension Collection where Element == SDL.Games.FlappyBird.Pipe {
       pipe.position.x + pipeSize.x > 0
     }
     
-    if pipes.count <= 5 {
+    if pipes.count <= 5, pipes.count > 0 {
       // TODO: Consolidate this logic (copy-pasted from 'GameState.createPipes')
       let pipeSpacing = 3 * pipeSize.x
       let newPipes = (pipes.endIndex...5).map { idx in

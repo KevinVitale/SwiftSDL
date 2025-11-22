@@ -1,6 +1,6 @@
-public protocol GPUShader: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
+public protocol GPUShader: SDL_ObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
-extension SDLObject<OpaquePointer>: GPUShader { }
+extension SDL_Object<OpaquePointer>: GPUShader { }
 
 @discardableResult
 public func SDL_Load(
@@ -73,7 +73,7 @@ public func SDL_Load(
   )
   
   let pointer = try gpuDevice(SDL_CreateGPUShader, .some(&shaderInfo))
-  return SDLObject(pointer, tag: .custom("\(file + fileExt)"), destroy: { [weak gpuDevice] in
+  return SDL_Object(pointer, tag: .custom("\(file + fileExt)"), destroy: { [weak gpuDevice] in
     (try? gpuDevice?(SDL_ReleaseGPUShader, $0))
   })
 }

@@ -1,7 +1,7 @@
 @dynamicMemberLookup
-public protocol Texture: SDLObjectProtocol, Sendable where Pointer == UnsafeMutablePointer<SDL_Texture> { }
+public protocol Texture: SDL_ObjectProtocol, Sendable where Pointer == UnsafeMutablePointer<SDL_Texture> { }
 
-extension SDLObject<UnsafeMutablePointer<SDL_Texture>>: Texture { }
+extension SDL_Object<UnsafeMutablePointer<SDL_Texture>>: Texture { }
 
 public func SDL_CreateTexture<P: SDL_PropertyTypeValue>(with properties: (String, value: P)..., renderer: any Renderer) throws(SDL_Error) -> some Texture {
   try SDL_CreateTexture(with: properties, renderer: renderer)
@@ -18,7 +18,7 @@ public func SDL_CreateTexture<P: SDL_PropertyTypeValue>(with properties: [(Strin
     throw .error
   }
   
-  return SDLObject(pointer, tag: .custom("texture"), destroy: SDL_DestroyTexture)
+  return SDL_Object(pointer, tag: .custom("texture"), destroy: SDL_DestroyTexture)
 }
 
 extension Texture {
@@ -91,7 +91,7 @@ extension Texture {
   public var renderer: Result<any Renderer, SDL_Error> {
     self
       .resultOf(SDL_GetRendererFromTexture)
-      .map({ SDLObject($0, tag: .custom("texture.renderer")) })
+      .map({ SDL_Object($0, tag: .custom("texture.renderer")) })
   }
 }
 
@@ -221,7 +221,7 @@ extension Renderer {
     }
     
     
-    return SDLObject(pointer, tag: .custom(tag ?? "texture (from surface)"), destroy: SDL_DestroyTexture)
+    return SDL_Object(pointer, tag: .custom(tag ?? "texture (from surface)"), destroy: SDL_DestroyTexture)
   }
   
   public func texture(from bitmap: inout [UInt8], transparent: Bool = false, tag: String? = nil) throws(SDL_Error) -> any Texture {
@@ -233,7 +233,7 @@ extension Renderer {
       throw .error
     }
     
-    let surface: any Surface = SDLObject(pointer, tag: .custom(tag ?? "surface (bitmap)"), destroy: SDL_DestroySurface)
+    let surface: any Surface = SDL_Object(pointer, tag: .custom(tag ?? "surface (bitmap)"), destroy: SDL_DestroySurface)
     return try self.texture(from: surface, transparent: transparent, tag: tag)
   }
 }

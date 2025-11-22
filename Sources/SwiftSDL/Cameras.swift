@@ -200,7 +200,7 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     }
     SDL_ReleaseCameraFrame(pointer, frame.0?.pointer)
     
-    let surface: any Surface = SDLObject(nextFrame, tag: .custom("next frame") /* destroy: 'SDLReleaseCameraFrame' already handles it */)
+    let surface: any Surface = SDL_Object(nextFrame, tag: .custom("next frame") /* destroy: 'SDLReleaseCameraFrame' already handles it */)
     self = .open(pointer: pointer, frame: (surface, timestamped), spec: self.spec)
     return (surface, timestamped)
   }

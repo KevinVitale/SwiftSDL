@@ -130,20 +130,72 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   var deltaTime: Double { get }
 }
 
+private final class GameLoopFailure: SDL_PropertyTypeValue, Sendable {
+  enum CallbackState: String {
+    case onInit
+    case onIterate
+    case onEvent
+    case none
+  }
+  let error: SDL_Error
+  let state: CallbackState
+  
+  init(error: SDL_Error, state: CallbackState) {
+    self.error = error
+    self.state = state
+  }
+}
 
-fileprivate let __gameLoopString = "SDL.kit.global.gameLoop"
-fileprivate let __windowString = "SDL.kit.global.window"
+fileprivate let __gameLoopInstanceString = "SDL.kit.global.gameLoop.instance"
+fileprivate let __gameLoopFailureString = "SDL.kit.global.gameLoop.failure"
+fileprivate let __gameWindowString = "SDL.kit.global.gameLoop.window"
 
-fileprivate func __gameLoop() throws(SDL_Error) -> (any GameLoop) {
-  let gamePtr = try SDL_PropertiesID.global()[__gameLoopString] as! UnsafeMutableRawPointer
+fileprivate func __SetGlobalProperty(_ property: String, to value: (any SDL_PropertyTypeValue)) throws(SDL_Error) {
+  try SDL_PropertiesID.global()[property] = value
+}
+
+fileprivate func __GetGameLoop() throws(SDL_Error) -> (any GameLoop) {
+  let gamePtr = try SDL_PropertiesID.global()[__gameLoopInstanceString] as! UnsafeMutableRawPointer
   let gameLoop = (Unmanaged<AnyObject>.fromOpaque(gamePtr).takeUnretainedValue()) as! (any GameLoop)
   return gameLoop
 }
 
-fileprivate func __window() throws(SDL_Error) -> (any Window) {
-  let winPtr = try SDL_PropertiesID.global()[__windowString] as! UnsafeMutableRawPointer
+fileprivate func __GetGameLoopFailure() throws(SDL_Error) -> GameLoopFailure? {
+  guard let failurePtr = try SDL_PropertiesID.global()[__gameLoopFailureString] as? UnsafeMutableRawPointer
+  else { return nil }
+  
+  let gameLoopFailure = (Unmanaged<GameLoopFailure>.fromOpaque(failurePtr).takeUnretainedValue())
+  return gameLoopFailure
+}
+
+fileprivate func __GetGameWindow() throws(SDL_Error) -> (any Window) {
+  let winPtr = try SDL_PropertiesID.global()[__gameWindowString] as! UnsafeMutableRawPointer
   let window = (Unmanaged<AnyObject>.fromOpaque(winPtr).takeUnretainedValue()) as! (any Window)
   return window
+}
+
+final class __GameLoopInterval {
+  private(set) var tick: Double
+  private(set) var delta: Double
+  
+  private init(tick: Double = .nan, delta: Double = .nan) {
+    self.tick = tick
+    self.delta = delta
+  }
+  
+  nonisolated(unsafe) static fileprivate let shared = __GameLoopInterval()
+  
+  // https://gist.github.com/xeekworx/4ed45c039ea1676ddef1c2d9f921973d
+  func iterate(at now: Double = Double(SDL_GetPerformanceCounter()) / Double(SDL_GetPerformanceFrequency())) {
+    var previous = tick
+    
+    if previous.isNaN {
+      previous = now
+    }
+    
+    delta = now - previous
+    tick = now
+  }
 }
 
 extension GameLoop {
@@ -176,40 +228,43 @@ extension GameLoop {
 extension GameLoop {
   public func run() throws {
     try SDL_AppMetadata.set(to: Self.self)
-    try SDL_PropertiesID.global()[__gameLoopString] = self
-    
+    try __SetGlobalProperty(__gameLoopInstanceString, to: self)
+
     SDL_RunApp(CommandLine.argc, CommandLine.unsafeArgv, { argc, argv in
       SDL_EnterAppMainCallbacks(argc, argv, { state, argc, argv in
         /* onInit */
         do {
-          // Get 'this' and create a 'window' for it.
-          // Then save the 'window' to 'globalProperties'.
-          let gameLoop = try __gameLoop()
-          let window = try gameLoop.onInit() as! SDL_Object<OpaquePointer>
-          try SDL_PropertiesID.global()[__windowString] = window
+          // Get 'this' instance and create a 'window' for it.
+          // Store the 'window' to 'globalProperties' (persists for the life-time of the app).
+          // The 'window' will automatically be cleaned up ('desroyed') during SDL_Quit().
+          let gameLoop = try __GetGameLoop()
+          let gameWindow = try gameLoop.onInit()
+          try __SetGlobalProperty(__gameWindowString, to: gameWindow)
 
           // Inform the caller that its ready to perform additional setup.
-          try gameLoop.onReady(window: window)
+          try gameLoop.onReady(window: gameWindow)
           
           // Sync runtime and compile-time game options.
-          try window.sync(options: gameLoop.options)
+          try gameWindow.sync(options: gameLoop.options)
 
           return .continue
         } catch {
-          App.failure = .onInit(error as? SDL_Error)
+          let gameLoopFailure = GameLoopFailure(error: error as! SDL_Error, state: .onInit)
+          (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
       }, /* onIterate */ { state in
         do {
-          App.iterate()
+          let gameLoop = try __GetGameLoop()
+          let gameWindow = try __GetGameWindow()
           
-          let gameLoop = try __gameLoop()
-          let window = try __window()
-          try gameLoop.onUpdate(window: window)
+          __GameLoopInterval.shared.iterate()
+          try gameLoop.onUpdate(window: gameWindow)
 
           return .continue
         } catch {
-          App.failure = .onIterate(error as? SDL_Error)
+          let gameLoopFailure = GameLoopFailure(error: error as! SDL_Error, state: .onIterate)
+          (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
       }, /* onEvent */ { state, event in
@@ -219,8 +274,8 @@ extension GameLoop {
         
         do {
           
-          let gameLoop = try __gameLoop()
-          let window = try __window()
+          let gameLoop = try __GetGameLoop()
+          let gameWindow = try __GetGameWindow()
 
           guard event.type != SDL_EventType.quit.rawValue else {
             return .success
@@ -255,29 +310,31 @@ extension GameLoop {
             }
           }
           
-          try gameLoop.onEvent(window: window, event)
+          try gameLoop.onEvent(window: gameWindow, event)
           return .continue
         } catch {
-          App.failure = .onEvent(error as? SDL_Error)
+          let gameLoopFailure = GameLoopFailure(error: error as! SDL_Error, state: .onEvent)
+          (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
       }, /* onQuit */ { state, result in
-        switch App.failure {
-          case .noFailure: break
-          default: print(App.failure)
+        let failure = try? __GetGameLoopFailure()
+        switch failure {
+          case .none: break
+          case .some(let failure): debugPrint(failure)
         }
         
-        let gameLoop = try? __gameLoop()
-        let window = try? __window()
+        let gameLoop = try? __GetGameLoop()
+        let gameWindow = try? __GetGameWindow()
         
-        try? gameLoop?.onShutdown(window: window)
+        try? gameLoop?.onShutdown(window: gameWindow)
         
         for var gameController in GameControllers {
           gameController.close()
         }
         GameControllers = []
         
-        gameLoop?.onQuit(App.failure.error)
+        gameLoop?.onQuit(failure?.error)
       })
       
       return 0
@@ -295,10 +352,8 @@ extension Game {
   }
   
   public var deltaTime: Double {
-    App.frameInterval.delta
+    __GameLoopInterval.shared.delta
   }
-  
-  
   
   /// Get the global SDL properties.
   /// - returns: Either global properties, or a _SDL_Error_ failure.

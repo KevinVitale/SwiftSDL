@@ -1,6 +1,6 @@
-public protocol RenderPass: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
+public protocol RenderPass: SDL_ObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
-extension SDLObject<OpaquePointer>: RenderPass { }
+extension SDL_Object<OpaquePointer>: RenderPass { }
 
 public func SDL_BeginGPURenderPass(
   commandBuffer: any CommandBuffer
@@ -16,7 +16,7 @@ public func SDL_BeginGPURenderPass(
   ) else {
     throw .error
   }
-  return SDLObject(pointer, tag: .custom("render pass"))
+  return SDL_Object(pointer, tag: .custom("render pass"))
 }
 
 extension SDL_GPUColorTargetInfo {

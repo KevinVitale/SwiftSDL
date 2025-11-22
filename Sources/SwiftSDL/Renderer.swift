@@ -1,7 +1,7 @@
 // MARK: - Protocol
-public protocol Renderer: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
+public protocol Renderer: SDL_ObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
-extension SDLObject<OpaquePointer>: Renderer { }
+extension SDL_Object<OpaquePointer>: Renderer { }
 
 // MARK: - Create Renderer
 public func SDL_CreateRenderer<P: SDL_PropertyTypeValue>(with properties: (String, value: P)..., window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
@@ -23,7 +23,7 @@ public func SDL_CreateRenderer<P: SDL_PropertyTypeValue>(with properties: [(Stri
     throw .error
   }
   
-  return SDLObject(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
+  return SDL_Object(pointer, tag: .custom("renderer"), destroy: SDL_DestroyRenderer)
 }
 
 // MARK: - Computed Properties

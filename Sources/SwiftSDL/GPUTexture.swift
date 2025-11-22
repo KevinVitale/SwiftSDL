@@ -1,3 +1,3 @@
-public protocol GPUTexture: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
+public protocol GPUTexture: SDL_ObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
-extension SDLObject<OpaquePointer>: GPUTexture { }
+extension SDL_Object<OpaquePointer>: GPUTexture { }

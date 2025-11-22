@@ -158,7 +158,7 @@ extension Optional<UnsafeMutableRawPointer>: SDL_PropertyTypeValue {
   }
 }
 
-extension SDLObject: SDL_PropertyTypeValue { }
+extension SDL_Object: SDL_PropertyTypeValue { }
 
 extension SDL_PropertyTypeValue where Self: AnyObject, ValueType == UnsafeMutableRawPointer {
   public var wrappedValue: ValueType {

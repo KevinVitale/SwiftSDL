@@ -2,9 +2,9 @@
 /// https://wiki.libsdl.org/SDL3/CategoryGPU
 
 // MARK: - Protocol
-public protocol GPUDevice: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
+public protocol GPUDevice: SDL_ObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
-extension SDLObject<OpaquePointer>: GPUDevice { }
+extension SDL_Object<OpaquePointer>: GPUDevice { }
 
 public func SDL_CreateGPUDevice(flags: SDL_GPUShaderFormat..., debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
   try SDL_CreateGPUDevice(flags: flags, debugMode: debugMode, named: driver)
@@ -26,7 +26,7 @@ public func SDL_CreateGPUDevice(claimFor window: (any Window)? = nil, flags: [SD
     deviceDriver = String(cString: namePtr)
   }
   
-  let gpuDevice: SDLObject<OpaquePointer> = SDLObject(
+  let gpuDevice: SDL_Object<OpaquePointer> = .init(
     pointer
     , tag: .custom("gpu device (\(driver ?? deviceDriver))")
     , destroy: SDL_DestroyGPUDevice

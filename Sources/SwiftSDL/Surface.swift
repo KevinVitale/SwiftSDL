@@ -1,9 +1,9 @@
 // MARK: - Protocol
 @dynamicMemberLookup
-public protocol Surface: SDLObjectProtocol where Pointer == UnsafeMutablePointer<SDL_Surface> { }
+public protocol Surface: SDL_ObjectProtocol where Pointer == UnsafeMutablePointer<SDL_Surface> { }
 
 // MARK: - Extensions
-extension SDLObject<UnsafeMutablePointer<SDL_Surface>>: Surface { }
+extension SDL_Object<UnsafeMutablePointer<SDL_Surface>>: Surface { }
 
 // MARK: - Subscript
 extension Surface {
@@ -84,7 +84,7 @@ public func SDL_Load(bitmap file: String, relativePath: String? = nil) throws(SD
     throw .error
   }
   
-  return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
+  return SDL_Object(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
 }
 
 @discardableResult
@@ -108,7 +108,7 @@ public func SDL_Load(
     throw .error
   }
   
-  return SDLObject(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
+  return SDL_Object(pointer, tag: .custom("surface"), destroy: SDL_DestroySurface)
 }
 
 extension SDL_PixelFormat {

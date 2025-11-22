@@ -1,4 +1,4 @@
-public protocol Window: SDL_ObjectProtocol where Pointer == OpaquePointer { }
+public protocol Window: SDL_ObjectProtocol, SDL_PropertyTypeValue where Pointer == OpaquePointer { }
 
 extension SDL_Object<OpaquePointer>: Window {
   public convenience init(with properties: [SDL_WindowProperty]) throws(SDL_Error) {
@@ -22,13 +22,13 @@ extension Window {
   public var surface: Result<any Surface, SDL_Error> {
     self
       .resultOf(SDL_GetWindowSurface)
-      .map({ SDLObject($0, tag: .custom("(unowned) window surface")) })
+      .map({ SDL_Object($0, tag: .custom("(unowned) window surface")) })
   }
   
   public var renderer: Result<any Renderer, SDL_Error> {
     self
       .resultOf(SDL_GetRenderer)
-      .map({ SDLObject($0, tag: .custom("(unowned) window renderer")) })
+      .map({ SDL_Object($0, tag: .custom("(unowned) window renderer")) })
   }
 }
 

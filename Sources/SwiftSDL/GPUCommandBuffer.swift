@@ -1,12 +1,12 @@
-public protocol CommandBuffer: SDLObjectProtocol, Sendable where Pointer == OpaquePointer { }
+public protocol CommandBuffer: SDL_ObjectProtocol, Sendable where Pointer == OpaquePointer { }
 
-extension SDLObject<OpaquePointer>: CommandBuffer { }
+extension SDL_Object<OpaquePointer>: CommandBuffer { }
 
 func SDL_AcquireGPUCommandBuffer(with gpuDevice: any GPUDevice) throws(SDL_Error) -> some CommandBuffer {
   guard let pointer = SDL_AcquireGPUCommandBuffer(gpuDevice.pointer) else {
     throw .error
   }
-  return SDLObject<OpaquePointer>(pointer, tag: .custom("command buffer"))
+  return SDL_Object<OpaquePointer>(pointer, tag: .custom("command buffer"))
 }
 
 extension CommandBuffer {

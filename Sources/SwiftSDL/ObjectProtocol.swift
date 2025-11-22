@@ -1,11 +1,9 @@
-public protocol SDLObjectProtocol: AnyObject {
+public protocol SDL_ObjectProtocol: AnyObject {
   associatedtype Pointer: Hashable
   var pointer: Pointer { get }
 }
 
-public typealias SDL_ObjectProtocol = SDLObjectProtocol
-
-public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked Sendable {
+public final class SDL_Object<Pointer: Hashable>: SDL_ObjectProtocol, @unchecked Sendable {
   /// Used for associating a tag with an SDLObject instance, primarily for debugging and memory-allocation tracking.
   @available(*, deprecated, message: "Will be removed in a future release")
   public enum Tag {
@@ -32,7 +30,7 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked S
   ///   - tag: A debugging or memory-allocation tag (default: .empty).
   ///   - destroy: A closure invoked during deinitialization to clean up the resource (default: a no-op closure).
   public required init(_ pointer: Pointer, tag: Tag = .empty, destroy: @escaping (Pointer) -> Void = { _ in }) {
-    print("\(type(of: Pointer.self)): \(#function), \(tag)")
+    debugPrint("\(type(of: Pointer.self)): \(#function), \(tag)")
     self.destroy = destroy
     self.pointer = pointer
     self.tag = tag
@@ -45,9 +43,7 @@ public final class SDLObject<Pointer: Hashable>: SDLObjectProtocol, @unchecked S
   }
 }
 
-public typealias SDL_Object = SDLObject
-
-extension SDLObjectProtocol {
+extension SDL_ObjectProtocol {
   @discardableResult
   @inlinable
   public func callAsFunction<Value, each Argument>(_ block: (Pointer, repeat each Argument) -> Value?, _ argument: repeat each Argument) throws(SDL_Error) -> Value {
