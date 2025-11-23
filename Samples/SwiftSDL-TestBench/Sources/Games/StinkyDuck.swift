@@ -1,6 +1,6 @@
 
 extension SDL.Games {
-  final class StinkyDuck: Game {
+  final class StinkyDuck: GameLoop {
     private enum CodingKeys: CodingKey {
       case options
       case gridSize

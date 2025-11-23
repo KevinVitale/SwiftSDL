@@ -1,5 +1,3 @@
-public typealias Game = GameLoop
-
 public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   /// The name of the application (“My Game 2: Bad Guy’s Revenge!”).
   /// - seealso: _SDL_SetAppMetadata_; _SDL_PROP_APP_METADATA_NAME_STRING_.

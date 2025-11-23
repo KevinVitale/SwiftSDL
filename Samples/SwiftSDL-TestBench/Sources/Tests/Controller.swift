@@ -1,5 +1,5 @@
 extension SDL.Test {
-  final class Controller: Game {
+  final class Controller: GameLoop {
     private enum CodingKeys: String, CodingKey {
       case options, useVirtual
     }

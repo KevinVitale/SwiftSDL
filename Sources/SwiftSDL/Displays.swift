@@ -1,4 +1,4 @@
-extension Game {
+extension GameLoop {
   public var displays: Result<[SDL_DisplayID], SDL_Error> {
     Result {
       try SDL_BufferPointer(SDL_GetDisplays)

@@ -1,5 +1,5 @@
 extension SDL.Games {
-  final class FlappyBird: Game {
+  final class FlappyBird: GameLoop {
     enum CodingKeys: CodingKey {
       case options
     }

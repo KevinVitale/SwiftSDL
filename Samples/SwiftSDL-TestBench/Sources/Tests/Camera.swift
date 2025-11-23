@@ -1,5 +1,5 @@
 extension SDL.Test {
-  final class Camera: Game {
+  final class Camera: GameLoop {
     private enum CodingKeys: String, CodingKey {
       case options
       case useAcceleration

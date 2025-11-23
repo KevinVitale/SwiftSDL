@@ -1,5 +1,5 @@
 extension SDL.Test {
-  final class Sprite: Game {
+  final class Sprite: GameLoop {
     enum CodingKeys: String, CodingKey {
       case options
       case blendMode

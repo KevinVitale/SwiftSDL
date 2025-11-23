@@ -3,7 +3,7 @@ import CSDL3
 #endif
 
 extension SDL.Test {
-  final class MouseGrid: Game {
+  final class MouseGrid: GameLoop {
     enum CodingKeys: CodingKey {
       case options
       case gridSize

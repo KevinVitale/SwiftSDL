@@ -1,5 +1,5 @@
 extension SDL.Test {
-  final class Geometry: Game {
+  final class Geometry: GameLoop {
     enum CodingKeys: String, CodingKey {
       case options
       case blendMode

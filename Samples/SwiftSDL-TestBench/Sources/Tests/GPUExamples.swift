@@ -1,5 +1,5 @@
 extension SDL.Test {
-  final class GPUExamples: Game {
+  final class GPUExamples: GameLoop {
     enum CodingKeys: CodingKey {
       case options
       case msaa
