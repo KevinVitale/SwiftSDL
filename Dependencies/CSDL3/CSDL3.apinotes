@@ -1,18 +1,25 @@
 Name: CSDL3
 Typedefs:
+- Name: SDL_AudioStream
+  Availability: nonswift
 - Name: SDL_CleanupPropertyCallback
   Availability: nonswift
+- Name: SDL_EnumeratePropertiesCallback
+  SwiftPrivate: true
 - Name: SDL_PropertiesID
   Availability: nonswift
 - Name: SDL_BlendMode
   Availability: nonswift
 - Name: SDL_InitFlags
   Availability: nonswift
-# - Name: SDL_WindowID
-#   Availability: nonswift
+- Name: SDL_Window
+  Availability: nonswift
 - Name: SDL_WindowFlags
   Availability: nonswift
 Tags:
+# SDL_AudioFormat
+- Name: SDL_AudioFormat
+  EnumKind: NSEnum
 # SDL_AppResult
 - Name: SDL_AppResult
   EnumKind: NSEnum
@@ -31,6 +38,13 @@ Tags:
 - Name: SDL_RendererLogicalPresentation
   EnumKind: NSEnum
 Functions:
+# SDL_PropertiesID
+- Name: SDL_GetGlobalProperties
+  SwiftPrivate: true
+- Name: SDL_GetWindowProperties
+  SwiftPrivate: true
+- Name: SDL_GetPropertyType
+  SwiftPrivate: true
 # SDL_CreateWindow
 - Name: SDL_CreateWindow
   SwiftPrivate: true
@@ -40,9 +54,39 @@ Functions:
   SwiftPrivate: true
 - Name: SDL_SetWindowTitle
   SwiftPrivate: true
+- Name: SDL_GetWindowTitle
+  SwiftPrivate: true
+- Name: SDL_GetWindowID
+  SwiftPrivate: true
+# SDL_Rect
 - Name: SDL_RectToFRect
   SwiftPrivate: true
 Enumerators:
+# SDL_AudioFormat
+- Name: SDL_AUDIO_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_AUDIO_U8
+  SwiftName: u8
+- Name: SDL_AUDIO_S8
+  SwiftName: s8
+- Name: SDL_AUDIO_S16LE
+  SwiftName: s16LE
+- Name: SDL_AUDIO_S16BE
+  SwiftName: s16BE
+- Name: SDL_AUDIO_S32LE
+  SwiftName: s32LE
+- Name: SDL_AUDIO_S32BE
+  SwiftName: s32BE
+- Name: SDL_AUDIO_F32LE
+  SwiftName: s32LE
+- Name: SDL_AUDIO_F32BE
+  SwiftName: s32BE
+- Name: SDL_AUDIO_S16
+  SwiftName: s16
+- Name: SDL_AUDIO_S32
+  SwiftName: s32
+- Name: SDL_AUDIO_F32
+  SwiftName: f32
 # SDL_PropertyType
 - Name: SDL_PROPERTY_TYPE_INVALID
   SwiftName: invalid

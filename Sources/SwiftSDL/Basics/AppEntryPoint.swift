@@ -94,33 +94,23 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error)
   
   /**
-   Called **immediately before** the application quits.
-   
    Use this method to clean up resources such as game assets or memory allocations
    that were previously created or retained.
    
    - parameter window: the main `window`, or `nil` if it couldn't be created.
+   - parameter failure: indicates the error occurred if `window` is `nil` for some reason.
+   prior to the process quitting.
 
    - note: This function is **always called** whether or not the game initialized successfully.
-   The `window` property may be `nil` if the application was unable to create it due to an initialization failure.
+   The `window` property may be `nil` if the application was unable to create it (due to an some failure).
+   When this happens, check `error` for what may have happened.
    */
-  func onShutdown(window: (any Window)?) throws(SDL_Error)
+  func onShutdown(window: (any Window)?, failure: GameLoopFailure)
   
   /**
-   This method is called once during the application shutdown process as a last chance to clean up.
-   
-   Use  `onShutdown(window:)` rather than overriding `onQuit(_:)`. Otherwise,
-   you're responsible for shutting down SDL's subsytem.
-   
-   - parameter result: An optional `SDL_Error` that indicates whether an error occurred
-   prior to the process quitting.
-   
-   - warning: Implementing this method **overrides** the default implementation.
-   The default implementation will automatically call `SDL_Quit` to shut down SDL's subsystems.
-   
-   - seealso: _SDL_AppQuit_
+   Called **immediately before** the application quits (and calls `SDL_Quit)`.
    */
-  func onQuit(_ result: SDL_Error?)
+  func willQuit()
   
   func did(connect gameController: inout GameController) throws(SDL_Error)
   func will(remove gameController: GameController)
@@ -130,19 +120,44 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   var deltaTime: Double { get }
 }
 
-private final class GameLoopFailure: SDL_PropertyTypeValue, Sendable {
-  enum CallbackState: String {
+/**
+ The only special error type that indicates the phase of the game loop
+ in which any runtime errors occur. Sent to `onShutdown(_:_:)`.
+ */
+public enum GameLoopFailure: Error, Sendable {
+  case onInit(SDL_Error)
+  case onIterate(SDL_Error)
+  case onEvent(SDL_Error)
+  case none
+  
+  public var error: SDL_Error? {
+    switch self {
+      case .onInit(let error): return error
+      case .onIterate(let error): return error
+      case .onEvent(let error): return error
+      case .none: return nil
+    }
+  }
+}
+
+private final class __GameLoopFailure: SDL_PropertyTypeValue, Sendable {
+  fileprivate enum CallbackState: String {
     case onInit
     case onIterate
     case onEvent
     case none
   }
+  
   let error: SDL_Error
   let state: CallbackState
   
   init(error: SDL_Error, state: CallbackState) {
     self.error = error
     self.state = state
+  }
+  
+  var gameLoopFailure: GameLoopFailure {
+    .none
   }
 }
 
@@ -160,11 +175,11 @@ fileprivate func __GetGameLoop() throws(SDL_Error) -> (any GameLoop) {
   return gameLoop
 }
 
-fileprivate func __GetGameLoopFailure() throws(SDL_Error) -> GameLoopFailure? {
+fileprivate func __GetGameLoopFailure() throws(SDL_Error) -> __GameLoopFailure? {
   guard let failurePtr = try SDL_PropertiesID.global()[__gameLoopFailureString] as? UnsafeMutableRawPointer
   else { return nil }
   
-  let gameLoopFailure = (Unmanaged<GameLoopFailure>.fromOpaque(failurePtr).takeUnretainedValue())
+  let gameLoopFailure = (Unmanaged<__GameLoopFailure>.fromOpaque(failurePtr).takeUnretainedValue())
   return gameLoopFailure
 }
 
@@ -219,10 +234,8 @@ extension GameLoop {
     
     return try SDL_Object(with: windowProperties)
   }
-
-  public func onQuit(_ result: SDL_Error?) {
-    SDL_Quit()
-  }
+  
+  public func willQuit() { }
 }
 
 extension GameLoop {
@@ -249,7 +262,7 @@ extension GameLoop {
 
           return .continue
         } catch {
-          let gameLoopFailure = GameLoopFailure(error: error as! SDL_Error, state: .onInit)
+          let gameLoopFailure = __GameLoopFailure(error: error as! SDL_Error, state: .onInit)
           (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
@@ -263,7 +276,7 @@ extension GameLoop {
 
           return .continue
         } catch {
-          let gameLoopFailure = GameLoopFailure(error: error as! SDL_Error, state: .onIterate)
+          let gameLoopFailure = __GameLoopFailure(error: error as! SDL_Error, state: .onIterate)
           (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
@@ -313,30 +326,31 @@ extension GameLoop {
           try gameLoop.onEvent(window: gameWindow, event)
           return .continue
         } catch {
-          let gameLoopFailure = GameLoopFailure(error: error as! SDL_Error, state: .onEvent)
+          let gameLoopFailure = __GameLoopFailure(error: error as! SDL_Error, state: .onEvent)
           (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
-      }, /* onQuit */ { state, result in
-        let failure = try? __GetGameLoopFailure()
-        switch failure {
-          case .none: break
-          case .some(let failure): debugPrint(failure)
-        }
-        
+      }, /* onQuit */ { state, _ in
         let gameLoop = try? __GetGameLoop()
         let gameWindow = try? __GetGameWindow()
+        let failure = try? __GetGameLoopFailure()
         
-        try? gameLoop?.onShutdown(window: gameWindow)
+        switch failure {
+          case .none: break
+          case .some(let failure): debugPrint(failure.error)
+        }
+        
+        gameLoop?.onShutdown(window: gameWindow, failure: (failure?.gameLoopFailure ?? .none))
         
         for var gameController in GameControllers {
           gameController.close()
         }
         GameControllers = []
         
-        gameLoop?.onQuit(failure?.error)
+        gameLoop?.willQuit()
       })
       
+      SDL_Quit()
       return 0
     }, nil)
   }
@@ -345,32 +359,13 @@ extension GameLoop {
 nonisolated(unsafe)
 internal var GameControllers: [GameController] = []
 
-extension Game {
-  
+extension GameLoop {
   public var gameControllers: [GameController] {
     GameControllers
   }
   
   public var deltaTime: Double {
     __GameLoopInterval.shared.delta
-  }
-  
-  /// Get the global SDL properties.
-  /// - returns: Either global properties, or a _SDL_Error_ failure.
-  /// - seealso: _SDL_GetGlobalProperties_
-  public var properties: Result<SDL_PropertiesID, SDL_Error> {
-    fatalError()
-  }
-  
-  /// Set a property in the global properties group.
-  /// - parameters:
-  ///   - property: The property to modify.
-  ///   - value: The new value of the property.
-  /// - returns: The _SDL_PropertiesID_ for the group being modified.
-  /// - seealso: _SDL_SetStringProperty_; _SDL_SetFloatProperty_; _SDL_SetBooleanProperty_; _SDL_SetNumberProperty_; _SDL_SetPointerProperty_.
-  @discardableResult
-  public func set<P: SDL_PropertyTypeValue>(property: String, value: P) throws(SDL_Error) -> SDL_PropertiesID {
-    fatalError()
   }
   
   public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }

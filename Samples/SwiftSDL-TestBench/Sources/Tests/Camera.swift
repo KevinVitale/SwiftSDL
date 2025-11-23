@@ -71,7 +71,7 @@ extension SDL.Test {
       }
     }
     
-    func onShutdown(window: (any Window)?) throws(SDL_Error) {
+    func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {
       texture = nil
       camera?.close()
     }

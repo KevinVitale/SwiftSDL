@@ -121,9 +121,11 @@ extension Window {
     if isNot(.always_on_top) { try set(alwaysOnTop: options.windowAlwaysOnTop) }
     if isNot(.minimized) && options.windowMinimized { try self(SDL_MinimizeWindow) }
     if isNot(.maximized) && options.windowMaximized {
+      /*
       if isNot(.resizable) {
         try self(SDL_SetWindowResizable, true)
       }
+       */
       try self(SDL_MaximizeWindow)
     }
     if isNot(.mouse_focus) { try set(mouseFocus: options.windowMouseFocus) }

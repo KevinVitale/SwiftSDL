@@ -91,7 +91,7 @@ extension SDL.Test {
       }
     }
     
-    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
+    func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {
       icon = nil
       renderer = nil
     }

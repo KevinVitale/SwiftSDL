@@ -6,8 +6,8 @@ The next phase in the library's development is to incorporate [API NOTES](https:
 
  - [x] Move **macOS** build to use `CSDL3` (aka, system module)
  - [x] Add initial `.apinotes`; fix any build errors; successfully compile & run existing test executables
- - [ ] Rewrite `Game` protocol to be `GameLoop` (remove `App` enum, etc.; use more `SDL_PropertiesID`)
- - [ ]
+ - [x] Rewrite `Game` protocol to be `GameLoop` (remove `App` enum, etc.; use more `SDL_PropertiesID`)
+ - [ ] Fix iOS & tvOS builds (aka, solve for `.xcframework` + `.apinotes`)
 
 ## Known Issues
 

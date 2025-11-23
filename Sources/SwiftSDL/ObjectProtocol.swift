@@ -1,6 +1,7 @@
 public protocol SDL_ObjectProtocol: AnyObject {
   associatedtype Pointer: Hashable
   var pointer: Pointer { get }
+  var userData: SDL_PropertiesID? { get }
 }
 
 extension String {
@@ -16,41 +17,63 @@ public final class SDL_Object<Pointer: Hashable>: SDL_ObjectProtocol, @unchecked
   
   /// A debugging or tracking tag for the instance.
   private var tag: String {
-    (userData[.__SDL_ObjectUserDataTagKey] as? String) ?? ""
+    (userData?[.__SDL_ObjectUserDataTagKey] as? String) ?? ""
   }
   
-  private let userData: SDL_PropertiesID = try! .init()
+  /// Custom, user-defined properties. Created during _initialization_ (otherwise `nil`), and modifiable using String-based `subscript` setters.
+  ///
+  /// - warning: A `userData` reference is unique to, and owned by, the `SDL_Object` instance which created it during _initialization_.
+  /// Meaning, any `SDL_Object` which share the same `pointer` value do not share the same `userData` object.
+  public private(set) var userData: SDL_PropertiesID?
   
   /// Creates an instance of an SDL object from an underlying pointer reference.
+  ///
   /// - Parameters:
   ///   - pointer: The resource pointer being managed.
+  ///   - userData: Custom, user-defined runtime properties. An empty array can be passed in to force-create a set of properties.
   ///   - tag: A debugging or memory-allocation tag (default: .empty).
   ///   - destroy: A closure invoked during deinitialization to clean up the resource (default: a no-op closure).
+  ///
   public required init(_ pointer: Pointer, userData: [(String, (any SDL_PropertyTypeValue))]? = nil, destroy: @escaping (Pointer) -> Void = { _ in }) {
     self.destroy = destroy
     self.pointer = pointer
     
-    for (property, value) in userData ?? [] {
-      self.userData[property] = value
+    if let userData = userData {
+      self.userData = try? .init(properties: userData)
+    }
+    else {
+      self.userData = nil
     }
     
-    debugPrint("\(type(of: Pointer.self)): \(#function), \(tag)")
+    /*
+    if Pointer.self is OpaquePointer.Type {
+      debugPrint("\(type(of: self)): \(#function), \(tag)")
+    }
+     */
   }
   
   public convenience init(_ pointer: Pointer, tag: String, destroy: @escaping (Pointer) -> Void = { _ in }) {
     self.init(pointer, userData: [(.__SDL_ObjectUserDataTagKey, tag)], destroy: destroy)
   }
   
+  /// Get / set a custom, user-defined property.
   public subscript(property: String) -> (any SDL_PropertyTypeValue)? {
-    get { self.userData[property] }
-    set { self.userData[property] = newValue }
+    get { self.userData?[property] }
+    set { self.userData?[property] = newValue }
   }
 
   /// Ensures the destroy callback is called with the managed pointer when the SDLObject instance is deallocated.
   deinit {
-    debugPrint("(\(type(of: self))::\(#function)) — Destroying object: \(type(of: pointer)) \(tag)")
+    /*
+    if Pointer.self is OpaquePointer.Type {
+      debugPrint("(\(type(of: self))::\(#function)) — Destroying object: (typeOf: \(type(of: pointer))) (properties: \(tag))")
+    }
+     */
     self.destroy(pointer)
   }
+}
+
+extension Result where Success: SDL_ObjectProtocol, Failure == SDL_Error {
 }
 
 extension SDL_ObjectProtocol {

@@ -1,5 +1,5 @@
 extension SDL.Games {
-  final class Sandbox: Game {
+  final class Sandbox: GameLoop {
     enum CodingKeys: CodingKey {
       case options
     }
@@ -19,15 +19,16 @@ extension SDL.Games {
     }
     
     func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      guard let scene = scene else { return }
       try window.draw(scene: scene, updateAt: Uint64(deltaTime))
     }
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
-      try scene.handle(event)
+      try scene?.handle(event)
     }
     
-    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
-      try scene.shutdown()
+    func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {
+      try? scene?.shutdown()
     }
     
     func did(connect gameController: inout GameController) throws(SDL_Error) {

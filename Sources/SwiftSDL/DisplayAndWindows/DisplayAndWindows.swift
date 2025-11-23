@@ -1,21 +1,37 @@
-public protocol Window: SDL_ObjectProtocol, SDL_PropertyTypeValue where Pointer == OpaquePointer { }
+public protocol Window: SDL_ObjectProtocol, SDL_PropertyTypeValue where Pointer == OpaquePointer {
+  init(with properties: [SDL_WindowProperty]) throws(SDL_Error)
+}
 
-extension SDL_Object<OpaquePointer>: Window {
-  public convenience init(with properties: [SDL_WindowProperty]) throws(SDL_Error) {
+extension SDL_Object<OpaquePointer>: Window { }
+
+extension Window where Self == SDL_Object<OpaquePointer> {
+  public init(with properties: [SDL_WindowProperty]) throws(SDL_Error) {
     try self.init(with: try SDL_PropertiesID(properties: properties))
   }
   
-  public convenience init(with properties: SDL_PropertiesID) throws(SDL_Error) {
+  private init(with properties: SDL_PropertiesID) throws(SDL_Error) {
     guard let windowPtr = __SDL_CreateWindowWithProperties(properties.id) else {
       throw .error
     }
-    self.init(windowPtr, destroy: SDL_DestroyWindow)
+    
+    self.init(windowPtr, tag: "window", destroy: SDL_DestroyWindow)
   }
 }
 
 extension Window {
-  // public var id: Result<UInt32, SDL_Error> { self.resultOf(SDL_GetWindowID) }
-  // public var title: Result<String, SDL_Error> { self .resultOf(SDL_GetWindowTitle).map(String.init(cString:)) }
+  public var id: Result<SDL_WindowID, SDL_Error> { resultOf(__SDL_GetWindowID) }
+  public var title: Result<String, SDL_Error> { self .resultOf(__SDL_GetWindowTitle).map(String.init(cString:)) }
+  
+  /**
+   Get the properties associated with a window.
+   */
+  public var properties: Result<SDL_PropertiesID, SDL_Error> {
+    self.resultOf(__SDL_GetWindowProperties)
+      .flatMap { propertyID in
+        Result { try SDL_PropertiesID(id: propertyID) }
+          .mapError { $0 as! SDL_Error }
+      }
+  }
 }
 
 extension Window {

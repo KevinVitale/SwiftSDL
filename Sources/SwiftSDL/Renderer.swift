@@ -37,7 +37,7 @@ extension Renderer {
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
     self.resultOf(SDL_GetRendererProperties)
       .flatMap { propertyID in
-        Result { try SDL_PropertiesID(id: propertyID, properties: nil) }
+        Result { try SDL_PropertiesID(id: propertyID) }
           .mapError { $0 as! SDL_Error }
       }
   }

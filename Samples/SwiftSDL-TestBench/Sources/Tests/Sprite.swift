@@ -153,7 +153,7 @@ extension SDL.Test {
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
     }
     
-    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
+    func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {
       self.sprite = nil
       self.renderer = nil
     }

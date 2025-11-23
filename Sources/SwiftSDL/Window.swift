@@ -1,12 +1,4 @@
 extension Window {
-  public var properties: Result<SDL_PropertiesID, SDL_Error> {
-    self.resultOf(SDL_GetWindowProperties)
-      .flatMap { propertyID in
-        Result { try SDL_PropertiesID(id: propertyID) }
-          .mapError { $0 as! SDL_Error }
-      }
-  }
-  
   public var displayMode: Result<Any, SDL_Error> {
     fatalError()
   }

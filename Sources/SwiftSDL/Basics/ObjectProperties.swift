@@ -1,4 +1,7 @@
 public final class SDL_PropertiesID: Identifiable, Sendable {
+  /// This is necessary to prevent a deadlock during `deinit`
+  private static nonisolated(unsafe) var __global: ID?
+  
   public let id: Uint32
   
   public init(id: ID? = nil, properties: [(String, (any SDL_PropertyTypeValue))]? = nil) throws(SDL_Error) {
@@ -19,7 +22,11 @@ public final class SDL_PropertiesID: Identifiable, Sendable {
   }
   
   deinit {
-    guard id != SDL_GetGlobalProperties() else { return }
+    /// Storing a static `__global` and comparing it prevents a deadlock.
+    /// E.g., if this was a call to `SDL_GetGlobalProperties()` and
+    /// the global properties was storing _any_ `SDL_Object`,
+    /// a deadlock would occur.
+    guard id != Self.__global else { return }
     unlock()
     SDL_DestroyProperties(id)
   }
@@ -29,7 +36,7 @@ public final class SDL_PropertiesID: Identifiable, Sendable {
   }
   
   private func propertyType(of property: String) -> SDL_PropertyType {
-    SDL_GetPropertyType(id, property)
+    __SDL_GetPropertyType(id, property)
   }
   
   public func lock() throws(SDL_Error) {
@@ -62,7 +69,12 @@ public final class SDL_PropertiesID: Identifiable, Sendable {
   }
   
   public static func global() throws(SDL_Error) -> Self {
-    try Self(id: SDL_GetGlobalProperties())
+    /// Storing the _global properties ID_ in a static prevents deadlocking
+    /// in certain edge-cases.
+    if __global == nil {
+      __global = __SDL_GetGlobalProperties()
+    }
+    return try Self(id: __global)
   }
 }
 
@@ -186,7 +198,12 @@ extension SDL_PropertyTypeValue where Self: AnyObject, ValueType == UnsafeMutabl
       nil
     )
   }
-  
+}
+
+extension Result where Success == SDL_PropertiesID, Failure == SDL_Error {
+  public subscript(property: String) -> Result<(any SDL_PropertyTypeValue)?, Failure> {
+    map { $0[property] }
+  }
 }
 
 extension SDL_PropertyType: @retroactive CustomDebugStringConvertible {
@@ -199,5 +216,73 @@ extension SDL_PropertyType: @retroactive CustomDebugStringConvertible {
       case .string: return "string"
       default: return "invalid"
     }
+  }
+}
+
+extension SDL_PropertiesID: CustomDebugStringConvertible {
+  private struct EnumerateUserData {
+    fileprivate var count: Int = 0
+    fileprivate var pointer: UnsafeMutablePointer<(String, any SDL_PropertyTypeValue)>? = nil
+    
+    fileprivate var properties: [String : any SDL_PropertyTypeValue] {
+      guard let pointer = pointer else { return [:] }
+      let propertiesAsArray = Array<(String, any SDL_PropertyTypeValue)>(UnsafeBufferPointer(start: pointer, count: count))
+      return Dictionary<String, any SDL_PropertyTypeValue>.init(propertiesAsArray) {
+        $1
+      }
+    }
+  }
+  
+  fileprivate func dictionaryRepresentation() throws(SDL_Error) -> [String : any SDL_PropertyTypeValue] {
+    let callback: __SDL_EnumeratePropertiesCallback = { userdata, propertyID, name in
+      let state = userdata?.bindMemory(to: EnumerateUserData.self, capacity: 1).pointee
+      
+      if let name = name, var state = state {
+        state.count += 1
+        if state.pointer == nil {
+          state.pointer = .allocate(capacity: state.count)
+        }
+        else {
+          let pointer = state.pointer
+          state.pointer = .allocate(capacity: state.count)
+          state.pointer?.moveInitialize(from: pointer!, count: state.count)
+        }
+        
+        let name = String(cString: name)
+        let propertyType = __SDL_GetPropertyType(propertyID, name)
+        switch propertyType {
+          case .boolean:
+            let bool = SDL_GetBooleanProperty(propertyID, name, false)
+            (state.pointer! + state.count - 1).initialize(to: (name, bool))
+          case .float:
+            let float = SDL_GetFloatProperty(propertyID, name, 0)
+            (state.pointer! + state.count - 1).initialize(to: (name, float))
+          case .number:
+            let number = SDL_GetNumberProperty(propertyID, name, 0)
+            (state.pointer! + state.count - 1).initialize(to: (name, number))
+          case .pointer:
+            let pointer = SDL_GetPointerProperty(propertyID, name, nil)
+            (state.pointer! + state.count - 1).initialize(to: (name, pointer))
+          case .string:
+            if let cString = SDL_GetStringProperty(propertyID, name, "") {
+              (state.pointer! + state.count - 1).initialize(to: (name, String(cString: cString)))
+            }
+          default: ()
+        }
+        
+        userdata?.moveInitializeMemory(as: EnumerateUserData.self, from: &state, count: 1)
+      }
+    }
+    
+    var userdata = EnumerateUserData()
+    guard SDL_EnumerateProperties(id, callback, &userdata) else {
+      throw .error
+    }
+    
+    return userdata.properties
+  }
+  
+  public var debugDescription: String {
+    (try? dictionaryRepresentation().debugDescription) ?? ""
   }
 }

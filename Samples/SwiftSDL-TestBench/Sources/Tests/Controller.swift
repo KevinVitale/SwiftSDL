@@ -53,8 +53,8 @@ extension SDL.Test {
       try scene.handle(event)
     }
     
-    func onShutdown(window: (any Window)?) throws(SDL_Error) {
-      try scene?.shutdown()
+    func onShutdown(window: (any Window)?, failure: GameLoopFailure) {
+      try? scene?.shutdown()
       renderer = nil
     }
     

@@ -57,7 +57,7 @@ extension SDL.Games {
       }
     }
     
-    func onShutdown(window: (any SwiftSDL.Window)?) throws(SwiftSDL.SDL_Error) {
+    func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {
       self.gameState = .uninitialized
     }
     
