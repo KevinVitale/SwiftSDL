@@ -37,6 +37,18 @@ Tags:
   EnumKind: NSEnum
 - Name: SDL_RendererLogicalPresentation
   EnumKind: NSEnum
+# SDL_SystemTheme
+- Name: SDL_SystemTheme
+  EnumKind: NSEnum
+# SDL_DisplayOrientation
+- Name: SDL_DisplayOrientation
+  EnumKind: NSEnum
+# SDL_FlashOperation
+- Name: SDL_FlashOperation
+  EnumKind: NSEnum
+# SDL_GLAttr
+- Name: SDL_GLAttr
+  EnumKind: NSEnum
 Functions:
 # SDL_PropertiesID
 - Name: SDL_GetGlobalProperties
@@ -175,6 +187,88 @@ Enumerators:
   SwiftName: overscan
 - Name: SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
   SwiftName: integerScale
+# SDL_SystemTheme
+- Name: SDL_SYSTEM_THEME_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_SYSTEM_THEME_LIGHT
+  SwiftName: light
+- Name: SDL_SYSTEM_THEME_DARK
+  SwiftName: dark
+# SDL_DisplayOrientation
+- Name: SDL_ORIENTATION_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_ORIENTATION_LANDSCAPE
+  SwiftName: landscape
+- Name: SDL_ORIENTATION_LANDSCAPE_FLIPPED
+  SwiftName: landscapeFlipped
+- Name: SDL_ORIENTATION_PORTRAIT
+  SwiftName: portrait
+- Name: SDL_ORIENTATION_PORTRAIT_FLIPPED
+  SwiftName: flipped
+# SDL_FlashOperation
+- Name: SDL_FLASH_CANCEL
+  SwiftName: cancel
+- Name: SDL_FLASH_BRIEFLY
+  SwiftName: briefly
+- Name: SDL_FLASH_UNTIL_FOCUSED
+  SwiftName: untilFocused
+# SDL_GLAttr
+- Name: SDL_GL_RED_SIZE
+  SwiftName: redSize
+- Name: SDL_GL_GREEN_SIZE
+  SwiftName: greenSize
+- Name: SDL_GL_BLUE_SIZE
+  SwiftName: blueSize
+- Name: SDL_GL_ALPHA_SIZE
+  SwiftName: alphaSize
+- Name: SDL_GL_BUFFER_SIZE
+  SwiftName: bufferSize
+- Name: SDL_GL_DOUBLEBUFFER
+  SwiftName: doubleBuffer
+- Name: SDL_GL_DEPTH_SIZE
+  SwiftName: depthSize
+- Name: SDL_GL_STENCIL_SIZE
+  SwiftName: stencilSize
+- Name: SDL_GL_ACCUM_RED_SIZE
+  SwiftName: accumRedSize
+- Name: SDL_GL_ACCUM_GREEN_SIZE
+  SwiftName: accumGreenSize
+- Name: SDL_GL_ACCUM_BLUE_SIZE
+  SwiftName: accumBlueSize
+- Name: SDL_GL_ACCUM_ALPHA_SIZE
+  SwiftName: accumAlphaSize
+- Name: SDL_GL_STEREO
+  SwiftName: stereo
+- Name: SDL_GL_MULTISAMPLEBUFFERS
+  SwiftName: multiSampleBuffers
+- Name: SDL_GL_MULTISAMPLESAMPLES
+  SwiftName: multiSampleSamples
+- Name: SDL_GL_ACCELERATED_VISUAL
+  SwiftName: acceleratedVisual
+- Name: SDL_GL_RETAINED_BACKING
+  SwiftName: retainedBacking
+- Name: SDL_GL_CONTEXT_MAJOR_VERSION
+  SwiftName: majorVersion
+- Name: SDL_GL_CONTEXT_MINOR_VERSION
+  SwiftName: minorVersion
+- Name: SDL_GL_CONTEXT_FLAGS
+  SwiftName: flags
+- Name: SDL_GL_CONTEXT_PROFILE_MASK
+  SwiftName: profileMask
+- Name: SDL_GL_SHARE_WITH_CURRENT_CONTEXT
+  SwiftName: shareWithCurrentContext
+- Name: SDL_GL_FRAMEBUFFER_SRGB_CAPABLE
+  SwiftName: framebufferSRGBCapable
+- Name: SDL_GL_CONTEXT_RELEASE_BEHAVIOR
+  SwiftName: releaseBehavior
+- Name: SDL_GL_CONTEXT_RESET_NOTIFICATION
+  SwiftName: resetNotification
+- Name: SDL_GL_CONTEXT_NO_ERROR
+  SwiftName: noError
+- Name: SDL_GL_FLOATBUFFERS
+  SwiftName: floatBuffers
+- Name: SDL_GL_EGL_PLATFORM
+  SwiftName: eglPlatform
 # SDL_EventType
 - Name: SDL_EVENT_FIRST
   SwiftName: firstEvent
