@@ -44,12 +44,6 @@ public final class SDL_Object<Pointer: Hashable>: SDL_ObjectProtocol, @unchecked
     else {
       self.userData = nil
     }
-    
-    /*
-    if Pointer.self is OpaquePointer.Type {
-      debugPrint("\(type(of: self)): \(#function), \(tag)")
-    }
-     */
   }
   
   public convenience init(_ pointer: Pointer, tag: String, destroy: @escaping (Pointer) -> Void = { _ in }) {
@@ -63,18 +57,10 @@ public final class SDL_Object<Pointer: Hashable>: SDL_ObjectProtocol, @unchecked
   }
 
   /// Ensures the destroy callback is called with the managed pointer when the SDLObject instance is deallocated.
-  deinit {
-    /*
-    if Pointer.self is OpaquePointer.Type {
-      debugPrint("(\(type(of: self))::\(#function)) — Destroying object: (typeOf: \(type(of: pointer))) (properties: \(tag))")
-    }
-     */
-    self.destroy(pointer)
-  }
+  deinit { self.destroy(pointer) }
 }
 
-extension Result where Success: SDL_ObjectProtocol, Failure == SDL_Error {
-}
+extension Result where Success: SDL_ObjectProtocol, Failure == SDL_Error { }
 
 extension SDL_ObjectProtocol {
   @discardableResult

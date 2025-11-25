@@ -49,6 +49,7 @@ public final class SDL_PropertiesID: Identifiable, Sendable {
     SDL_UnlockProperties(id)
   }
   
+  /// - note: Setting `nil` removes the property from the receiver.
   public subscript(property: String) -> (any SDL_PropertyTypeValue)? {
     get {
       switch propertyType(of: property) {
@@ -61,9 +62,7 @@ public final class SDL_PropertiesID: Identifiable, Sendable {
       }
     }
     set {
-      guard let newValue = newValue, !has(property: property) else {
-        return _ = SDL_ClearProperty(id, property)
-      }
+      guard let newValue = newValue else { return _ = SDL_ClearProperty(id, property) }
       try? newValue.set(property, on: self)
     }
   }

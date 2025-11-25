@@ -68,4 +68,3 @@ public enum SDL_BlendMode: RawRepresentable, CustomDebugStringConvertible, Senda
     }
   }
 }
-

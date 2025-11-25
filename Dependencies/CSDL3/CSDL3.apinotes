@@ -95,7 +95,43 @@ Tags:
 # SDL_Colorspace
 - Name: SDL_Colorspace
   EnumKind: NSEnum
+# SDL_HitTestResult
+- Name: SDL_HitTestResult
+  EnumKind: NSEnum
+# SDL_FlipMode
+- Name: SDL_FlipMode
+  EnumKind: NSEnum
+# SDL_LogPriority
+- Name: SDL_LogPriority
+  EnumKind: NSEnum
+# SDL_LogCategory
+- Name: SDL_LogCategory
+  EnumKind: NSEnum
 Functions:
+# SDL_LogMessage
+- Name: SDL_LogMessage
+  SwiftPrivate: true
+# SDL_LogMessageV
+- Name: SDL_LogMessageV
+  SwiftPrivate: true
+# SDL_GetError
+- Name: SDL_GetError
+  SwiftPrivate: true
+# SDL_ClearError
+- Name: SDL_ClearError
+  SwiftPrivate: true
+# SDL_SetError
+- Name: SDL_SetError
+  SwiftPrivate: true
+# SDL_SetErrorV
+- Name: SDL_SetErrorV
+  SwiftPrivate: true
+# SDL_GetAudioPlaybackDevices
+- Name: SDL_GetAudioPlaybackDevices
+  SwiftPrivate: true
+# SDL_GetAudioRecordingDevices
+- Name: SDL_GetAudioRecordingDevices
+  SwiftPrivate: true
 # SDL_WasInit
 - Name: SDL_WasInit
   SwiftPrivate: true
@@ -144,6 +180,87 @@ Functions:
 - Name: SDL_RectToFRect
   SwiftPrivate: true
 Enumerators:
+# SDL_LogPriority
+- Name: SDL_LOG_PRIORITY_INVALID
+  SwiftName: invalid
+- Name: SDL_LOG_PRIORITY_TRACE
+  SwiftName: trace
+- Name: SDL_LOG_PRIORITY_VERBOSE
+  SwiftName: verbose
+- Name: SDL_LOG_PRIORITY_DEBUG
+  SwiftName: debug
+- Name: SDL_LOG_PRIORITY_INFO
+  SwiftName: info
+- Name: SDL_LOG_PRIORITY_WARN
+  SwiftName: warn
+- Name: SDL_LOG_PRIORITY_ERROR
+  SwiftName: error
+- Name: SDL_LOG_PRIORITY_CRITICAL
+  SwiftName: critical
+- Name: SDL_LOG_PRIORITY_COUNT
+  SwiftName: count
+# SDL_LogCategory
+- Name: SDL_LOG_CATEGORY_APPLICATION
+  SwiftName: application
+- Name: SDL_LOG_CATEGORY_ERROR
+  SwiftName: error
+- Name: SDL_LOG_CATEGORY_ASSERT
+  SwiftName: assert
+- Name: SDL_LOG_CATEGORY_SYSTEM
+  SwiftName: system
+- Name: SDL_LOG_CATEGORY_AUDIO
+  SwiftName: audio
+- Name: SDL_LOG_CATEGORY_VIDEO
+  SwiftName: video
+- Name: SDL_LOG_CATEGORY_RENDER
+  SwiftName: render
+- Name: SDL_LOG_CATEGORY_INPUT
+  SwiftName: input
+- Name: SDL_LOG_CATEGORY_TEST
+  SwiftName: test
+- Name: SDL_LOG_CATEGORY_GPU
+  SwiftName: gpu
+- Name: SDL_LOG_CATEGORY_RESERVED2
+  SwiftName: reserved2
+- Name: SDL_LOG_CATEGORY_RESERVED3
+  SwiftName: reserved3
+- Name: SDL_LOG_CATEGORY_RESERVED4
+  SwiftName: reserved4
+- Name: SDL_LOG_CATEGORY_RESERVED5
+  SwiftName: reserved5
+- Name: SDL_LOG_CATEGORY_RESERVED6
+  SwiftName: reserved6
+- Name: SDL_LOG_CATEGORY_RESERVED7
+  SwiftName: reserved7
+- Name: SDL_LOG_CATEGORY_RESERVED8
+  SwiftName: reserved8
+- Name: SDL_LOG_CATEGORY_RESERVED9
+  SwiftName: reserved9
+- Name: SDL_LOG_CATEGORY_RESERVED10
+  SwiftName: reserved10
+- Name: SDL_LOG_CATEGORY_CUSTOM
+  SwiftName: custom
+# SDL_HitTestResult
+- Name: SDL_HITTEST_NORMAL
+  SwiftName: normal
+- Name: SDL_HITTEST_DRAGGABLE
+  SwiftName: draggable
+- Name: SDL_HITTEST_RESIZE_TOPLEFT
+  SwiftName: resizeTopLeft
+- Name: SDL_HITTEST_RESIZE_TOP
+  SwiftName: resizeTop
+- Name: SDL_HITTEST_RESIZE_TOPRIGHT
+  SwiftName: resizeTopRight
+- Name: SDL_HITTEST_RESIZE_RIGHT
+  SwiftName: resizeRight
+- Name: SDL_HITTEST_RESIZE_BOTTOMRIGHT
+  SwiftName: resizeBottomRight
+- Name: SDL_HITTEST_RESIZE_BOTTOM
+  SwiftName: resizeBottom
+- Name: SDL_HITTEST_RESIZE_BOTTOMLEFT
+  SwiftName: resizeBottomLeft
+- Name: SDL_HITTEST_RESIZE_LEFT
+  SwiftName: resizeLeft
 # SDL_ColorPrimaries
 - Name: SDL_COLOR_PRIMARIES_UNKNOWN
   SwiftName: unknown
@@ -548,6 +665,12 @@ Enumerators:
   SwiftName: arrayF16
 - Name: SDL_PIXELTYPE_ARRAYF32
   SwiftName: arrayF32
+- Name: SDL_FLIP_NONE
+  SwiftName: none
+- Name: SDL_FLIP_HORIZONTAL
+  SwiftName: horizontal
+- Name: SDL_FLIP_VERTICAL
+  SwiftName: vertical
 # SDL_EventType
 - Name: SDL_EVENT_FIRST
   SwiftName: firstEvent

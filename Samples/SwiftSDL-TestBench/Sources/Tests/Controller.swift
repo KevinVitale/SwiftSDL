@@ -22,7 +22,7 @@ extension SDL.Test {
       configureHints()
       
       /* Enable input debug logging */
-      SDL_SetLogPriority(Int32(SDL_LOG_CATEGORY_INPUT.rawValue), SDL_LOG_PRIORITY_DEBUG);
+      SDL_SetLogPriority(Int32(SDL_LogCategory.input.rawValue), .debug);
 
       print("Initializing SDL (v\(SDL_Version()))...")
       try SDL_Init(.video, .joystick)

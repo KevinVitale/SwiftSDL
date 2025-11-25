@@ -16,6 +16,11 @@ extension SDL.Games {
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
+      SDL_SetLogLevel(.category(.application, priority: .trace))
+      SDL_Log(Self.libraryVersion)
+      
+      window.userData?["foo"] = "bar"
+      SDL_Log(window.userData?["foo"])
     }
     
     func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
@@ -25,6 +30,15 @@ extension SDL.Games {
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
       try scene?.handle(event)
+      switch event.eventType {
+        case .mouseButtonUp where event.button.clicks == 1: window.userData?["rnd"] = nil
+        case .mouseButtonDown where event.button.clicks == 1: window.userData?["rnd"] = self.deltaTime
+        default: ()
+      }
+      
+      if event.button.clicks == 1 {
+        print(event.motion.position(as: Float.self))
+      }
     }
     
     func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {

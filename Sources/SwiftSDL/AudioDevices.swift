@@ -5,8 +5,8 @@ public enum AudioDevices {
     
     fileprivate var getFunc: @Sendable (UnsafeMutablePointer<Int32>?) -> UnsafeMutablePointer<SDL_AudioDeviceID>? {
       switch self {
-        case .playback: return SDL_GetAudioPlaybackDevices
-        case .recording: return SDL_GetAudioRecordingDevices
+        case .playback: return __SDL_GetAudioPlaybackDevices
+        case .recording: return __SDL_GetAudioRecordingDevices
       }
     }
   }
@@ -125,4 +125,3 @@ public enum AudioDriver: CustomDebugStringConvertible {
     return .name(driver)
   }
 }
-

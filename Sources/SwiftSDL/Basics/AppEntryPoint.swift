@@ -214,6 +214,7 @@ final class __GameLoopInterval {
 extension GameLoop {
   public static var name: String { "\(Self.self)" }
   public static var version: String { "" }
+  public static var libraryVersion: SDL_Version { .current }
   public static var identifier: String { "" }
   public static var windowProperties: [SDL_WindowProperty] {
     [

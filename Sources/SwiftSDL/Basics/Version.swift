@@ -14,11 +14,21 @@ public struct SDL_Version: RawRepresentable, CustomDebugStringConvertible, @unch
   public var major: Int32 { rawValue / 1000000 }
   public var minor: Int32 { (rawValue / 1000) % 1000 }
   public var micro: Int32 { rawValue % 1000 }
+  public var revision: String { String(cString: SDL_GetRevision()) }
+  public var commit: String {
+    String(
+      (revision
+        .components(separatedBy: "-")
+        .last ?? "")
+      .dropFirst()
+      .dropLast(2)
+    )
+  }
   
   public let rawValue: Int32
   
   public var debugDescription: String {
-    "\(major).\(minor).\(micro)"
+    "\(major).\(minor).\(micro) (\(commit))"
   }
   
   public func at(least version: SDL_Version) -> Bool {
