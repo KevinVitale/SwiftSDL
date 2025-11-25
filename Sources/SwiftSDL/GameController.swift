@@ -237,7 +237,6 @@ public enum GameController: Hashable {
   @discardableResult
   public func gamepad(activate sensor: SDL_SensorType) -> Bool {
     guard !gamepad(enables: sensor) else { return true }
-    print("Activating: \(sensor)")
     return SDL_SetGamepadSensorEnabled(gamepad, sensor, true)
   }
   
@@ -335,7 +334,6 @@ public enum GameController: Hashable {
       return
     }
 
-    print("Opening \(SDL_IsGamepad(id) ? "#\(id) gamepad..." : "#\(id) joystick...")")
     let OpenFunc = SDL_IsGamepad(id) ? SDL_OpenGamepad : SDL_OpenJoystick
     
     guard OpenFunc(id) != nil else {
@@ -352,16 +350,13 @@ public enum GameController: Hashable {
     }
     
     if SDL_IsJoystickVirtual(id) {
-      print("Detaching virtual joystick...")
       SDL_DetachVirtualJoystick(id)
     }
     
     if SDL_IsGamepad(id) {
-      print("Closing gamepad:", gamepadName)
       SDL_CloseGamepad(gamepad)
     }
     else {
-      print("Closing joystick:", joystickName)
       SDL_CloseJoystick(joystick)
     }
     

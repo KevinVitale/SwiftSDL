@@ -122,7 +122,6 @@ public enum CameraID: Decodable, CustomDebugStringConvertible {
     switch self {
       case .open: return .success(self)
       default:
-        print("Opening:", self.id, try! self.name.get())
         if var spec = spec {
           guard let pointer = SDL_OpenCamera(id, &spec) else {
             return .failure(.error)

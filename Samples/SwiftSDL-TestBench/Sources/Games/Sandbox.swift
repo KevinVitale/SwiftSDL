@@ -15,7 +15,10 @@ extension SDL.Games {
     private var scene: SurfaceScene!
     
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
+      try SDL_Init(.gamepad)
       scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
+      
+      SDL_SetLogLevel(.category(.input, priority: .trace))
       SDL_SetLogLevel(.category(.application, priority: .trace))
       SDL_Log(Self.libraryVersion)
       
@@ -37,7 +40,7 @@ extension SDL.Games {
       }
       
       if event.button.clicks == 1 {
-        print(event.motion.position(as: Float.self))
+        SDL_Log(event.motion.position(as: Float.self))
       }
     }
     
@@ -47,11 +50,6 @@ extension SDL.Games {
     
     func did(connect gameController: inout GameController) throws(SDL_Error) {
       try gameController.open()
-      print("Added:", gameController, gameController.joystickName, gameController.gamepadName)
-    }
-    
-    func will(remove gameController: GameController) {
-      print("Closing:", gameController, gameController.joystickName, gameController.gamepadName)
     }
   }
 }
