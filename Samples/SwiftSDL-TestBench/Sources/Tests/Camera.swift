@@ -64,9 +64,9 @@ extension SDL.Test {
     func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {
       switch event.eventType {
         case .cameraDeviceApproved:
-          print("Camera approved!")
+          SDL_Log("Camera approved!")
         case .cameraDeviceDenied:
-          print("Camera denied")
+          SDL_Log("Camera denied")
         default: break
       }
     }
@@ -86,25 +86,27 @@ extension SDL.Test {
     private func _renderDrawing(_ window: any Window) throws(SDL_Error) {
       if self.renderer == nil {
         do { self.renderer = try window.renderer.get() }
-        catch { print(error) }
+        catch { SDL_Log(error) }
       }
       
       if self.renderer == nil {
         do { self.renderer = try window.createRenderer() }
-        catch { print(error) }
+        catch { SDL_Log(error) }
       }
       
       let outputSize = try renderer.outputSize(as: Float.self)
       try camera?.stream(to: &texture, renderer: renderer)
-      var dstRect: SDL_FRect = [0, 0, outputSize.x, outputSize.y]
-      try renderer(SDL_RenderTexture, texture?.pointer, nil, .some(&dstRect))
+      if let texture = texture {
+        var dstRect: SDL_FRect = [0, 0, outputSize.x, outputSize.y]
+        try renderer(SDL_RenderTexture, texture.pointer, nil, .some(&dstRect))
+      }
       try renderer.present()
     }
     
     private func _printCameraInfoMatchingOriginalTestBench() throws(SDL_Error) {
       let cameras = try Cameras.connected.get()
       let pluralText = cameras.count == 1 ? "" : "s"
-      print("Saw \(cameras.count) camera device\(pluralText).")
+      SDL_Log("Saw \(cameras.count) camera device\(pluralText).")
       for (idx, camera) in cameras.enumerated() {
         var posText = ""
         switch camera.position {
@@ -113,16 +115,16 @@ extension SDL.Test {
           default: break
         }
         let camName = try camera.name.get()
-        print("  - Camera #\(idx): \(posText) \(camName)")
+        SDL_Log("  - Camera #\(idx): \(posText) \(camName)")
       }
     }
     
     private func _printCameraSpecsMatchingOriginalTestBench(_ specs: [SDL_CameraSpec]) {
-      print("Available formats:")
+      SDL_Log("Available formats:")
       for spec in specs {
         let pixelFormat = SDL_GetPixelFormatName(spec.format)!
         let pixelFormatName = String(cString: pixelFormat)
-        print("    \(spec.width)x\(spec.height) \(spec.framesPerSecond) FPS \(pixelFormatName)")
+        SDL_Log("    \(spec.width)x\(spec.height) \(spec.framesPerSecond) FPS \(pixelFormatName)")
       }
     }
   }
