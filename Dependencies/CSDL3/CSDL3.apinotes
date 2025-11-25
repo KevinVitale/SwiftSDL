@@ -23,19 +23,26 @@ Tags:
 # SDL_AppResult
 - Name: SDL_AppResult
   EnumKind: NSEnum
+# SDL_PropertyType
 - Name: SDL_PropertyType
   EnumKind: NSEnum
+# SDL_BlendOperation
 - Name: SDL_BlendOperation
   EnumKind: NSEnum
-- Name: SDL_Colorspace
-  EnumKind: NSEnum
+# SDL_BlendFactor
 - Name: SDL_BlendFactor
   EnumKind: NSEnum
+# SDL_EventType
 - Name: SDL_EventType
   EnumKind: NSEnum
+# SDL_EventAction
 - Name: SDL_EventAction
   EnumKind: NSEnum
+# SDL_RendererLogicalPresentation
 - Name: SDL_RendererLogicalPresentation
+  EnumKind: NSEnum
+# SDL_BitmapOrder
+- Name: SDL_BitmapOrder
   EnumKind: NSEnum
 # SDL_SystemTheme
 - Name: SDL_SystemTheme
@@ -49,7 +56,70 @@ Tags:
 # SDL_GLAttr
 - Name: SDL_GLAttr
   EnumKind: NSEnum
+# SDL_PixelFormat
+- Name: SDL_PixelFormat
+  EnumKind: NSEnum
+# SDL_PackedOrder
+- Name: SDL_PackedOrder
+  EnumKind: NSEnum
+# SDL_ArrayOrder
+- Name: SDL_ArrayOrder
+  EnumKind: NSEnum
+# SDL_PackedLayout
+- Name: SDL_PackedLayout
+  EnumKind: NSEnum
+# SDL_PixelType
+- Name: SDL_PixelType
+  EnumKind: NSEnum
+# SDL_ColorRange
+- Name: SDL_ColorRange
+  EnumKind: NSEnum
+# SDL_ColorType
+- Name: SDL_ColorType
+  EnumKind: NSEnum
+# SDL_ColorPrimaries
+- Name: SDL_ColorPrimaries
+  EnumKind: NSEnum
+# SDL_Color
+- Name: SDL_Color
+  EnumKind: NSEnum
+# SDL_TransferCharacteristics
+- Name: SDL_TransferCharacteristics
+  EnumKind: NSEnum
+# SDL_MatrixCoefficients
+- Name: SDL_MatrixCoefficients
+  EnumKind: NSEnum
+# SDL_ChromaLocation
+- Name: SDL_ChromaLocation
+  EnumKind: NSEnum
+# SDL_Colorspace
+- Name: SDL_Colorspace
+  EnumKind: NSEnum
 Functions:
+# SDL_WasInit
+- Name: SDL_WasInit
+  SwiftPrivate: true
+# SDL_PixelFormatDetails
+- Name: SDL_GetPixelFormatDetails
+  SwiftPrivate: true
+- Name: SDL_GetPixelFormatForMasks
+  SwiftPrivate: true
+# SDL_PixelFormat
+- Name: SDL_GetMasksForPixelFormat
+  SwiftPrivate: true
+# SDL_Display
+- Name: SDL_GetDisplayBounds
+  SwiftPrivate: true
+- Name: SDL_GetDisplayUsableBounds
+  SwiftPrivate: true
+- Name: SDL_GetNaturalDisplayOrientation
+  SwiftPrivate: true
+- Name: SDL_GetCurrentDisplayOrientation
+  SwiftPrivate: true
+- Name: SDL_GetDisplayContentScale
+  SwiftPrivate: true
+- Name: SDL_GetFullscreenDisplayModes
+  SwiftPrivate: true
 # SDL_PropertiesID
 - Name: SDL_GetGlobalProperties
   SwiftPrivate: true
@@ -74,6 +144,188 @@ Functions:
 - Name: SDL_RectToFRect
   SwiftPrivate: true
 Enumerators:
+# SDL_ColorPrimaries
+- Name: SDL_COLOR_PRIMARIES_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_COLOR_PRIMARIES_BT709
+  SwiftName: bt709
+- Name: SDL_COLOR_PRIMARIES_UNSPECIFIED
+  SwiftName: unspecified
+- Name: SDL_COLOR_PRIMARIES_BT470M
+  SwiftName: bt470m
+- Name: SDL_COLOR_PRIMARIES_BT470BG
+  SwiftName: bt470bg
+- Name: SDL_COLOR_PRIMARIES_BT601
+  SwiftName: bt601
+- Name: SDL_COLOR_PRIMARIES_SMPTE240
+  SwiftName: smpte240
+- Name: SDL_COLOR_PRIMARIES_GENERIC_FILM
+  SwiftName: genericFilm
+- Name: SDL_COLOR_PRIMARIES_BT2020
+  SwiftName: bt2020
+- Name: SDL_COLOR_PRIMARIES_XYZ
+  SwiftName: xyz
+- Name: SDL_COLOR_PRIMARIES_SMPTE431
+  SwiftName: smpte431
+- Name: SDL_COLOR_PRIMARIES_SMPTE432
+  SwiftName: smpte432
+- Name: SDL_COLOR_PRIMARIES_EBU3213
+  SwiftName: ebu3213
+- Name: SDL_COLOR_PRIMARIES_CUSTOM
+  SwiftName: custom
+# SDL_TransferCharacteristics
+- Name: SDL_TRANSFER_CHARACTERISTICS_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_TRANSFER_CHARACTERISTICS_BT709
+  SwiftName: bt709
+- Name: SDL_TRANSFER_CHARACTERISTICS_UNSPECIFIED
+  SwiftName: unspecified
+- Name: SDL_TRANSFER_CHARACTERISTICS_GAMMA22
+  SwiftName: gamma22
+- Name: SDL_TRANSFER_CHARACTERISTICS_GAMMA28
+  SwiftName: gamma28
+- Name: SDL_TRANSFER_CHARACTERISTICS_BT601
+  SwiftName: bt601
+- Name: SDL_TRANSFER_CHARACTERISTICS_SMPTE240
+  SwiftName: smpte240
+- Name: SDL_TRANSFER_CHARACTERISTICS_LINEAR
+  SwiftName: linear
+- Name: SDL_TRANSFER_CHARACTERISTICS_LOG100
+  SwiftName: log100
+- Name: SDL_TRANSFER_CHARACTERISTICS_LOG100_SQRT10
+  SwiftName: log100sqrt10
+- Name: SDL_TRANSFER_CHARACTERISTICS_IEC61966
+  SwiftName: iec61966
+- Name: SDL_TRANSFER_CHARACTERISTICS_BT1361
+  SwiftName: bt1361
+- Name: SDL_TRANSFER_CHARACTERISTICS_SRGB
+  SwiftName: srgb
+- Name: SDL_TRANSFER_CHARACTERISTICS_BT2020_10BIT
+  SwiftName: bt2020_10bit
+- Name: SDL_TRANSFER_CHARACTERISTICS_BT2020_12BIT
+  SwiftName: bt2020_12bit
+- Name: SDL_TRANSFER_CHARACTERISTICS_PQ
+  SwiftName: pq
+- Name: SDL_TRANSFER_CHARACTERISTICS_SMPTE428
+  SwiftName: smpte428
+- Name: SDL_TRANSFER_CHARACTERISTICS_HLG
+  SwiftName: hlg
+- Name: SDL_TRANSFER_CHARACTERISTICS_CUSTOM
+  SwiftName: custom
+# SDL_MatrixCoefficients
+- Name: SDL_MATRIX_COEFFICIENTS_IDENTITY
+  SwiftName: identity
+- Name: SDL_MATRIX_COEFFICIENTS_BT709
+  SwiftName: bt709
+- Name: SDL_MATRIX_COEFFICIENTS_UNSPECIFIED
+  SwiftName: unspecified
+- Name: SDL_MATRIX_COEFFICIENTS_FCC
+  SwiftName: fcc
+- Name: SDL_MATRIX_COEFFICIENTS_BT470BG
+  SwiftName: bt470bg
+- Name: SDL_MATRIX_COEFFICIENTS_BT601
+  SwiftName: bt601
+- Name: SDL_MATRIX_COEFFICIENTS_SMPTE240
+  SwiftName: smpte240
+- Name: SDL_MATRIX_COEFFICIENTS_YCGCO
+  SwiftName: ycgcO
+- Name: SDL_MATRIX_COEFFICIENTS_BT2020_NCL
+  SwiftName: bt2020ncl
+- Name: SDL_MATRIX_COEFFICIENTS_BT2020_CL
+  SwiftName: bt2020cl
+- Name: SDL_MATRIX_COEFFICIENTS_SMPTE2085
+  SwiftName: smpte2085
+- Name: SDL_MATRIX_COEFFICIENTS_CHROMA_DERIVED_NCL
+  SwiftName: chromaDerivedNcl
+- Name: SDL_MATRIX_COEFFICIENTS_CHROMA_DERIVED_CL
+  SwiftName: chromaDerivedCl
+- Name: SDL_MATRIX_COEFFICIENTS_ICTCP
+  SwiftName: ictcp
+- Name: SDL_MATRIX_COEFFICIENTS_CUSTOM
+  SwiftName: custom
+# SDL_ChromaLocation
+- Name: SDL_CHROMA_LOCATION_NONE
+  SwiftName: none
+- Name: SDL_CHROMA_LOCATION_LEFT
+  SwiftName: left
+- Name: SDL_CHROMA_LOCATION_CENTER
+  SwiftName: center
+- Name: SDL_CHROMA_LOCATION_TOPLEFT
+  SwiftName: topLeft
+# SDL_ColorRange
+- Name: SDL_COLOR_RANGE_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_COLOR_RANGE_LIMITED
+  SwiftName: limited
+- Name: SDL_COLOR_RANGE_FULL
+  SwiftName: full
+# SDL_ColorType
+- Name: SDL_COLOR_TYPE_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_COLOR_TYPE_RGB
+  SwiftName: rgb
+- Name: SDL_COLOR_TYPE_YCBCR
+  SwiftName: ycbcr
+# SDL_ArrayOrder
+- Name: SDL_ARRAYORDER_NONE
+  SwiftName: none
+- Name: SDL_ARRAYORDER_RGB
+  SwiftName: rgb
+- Name: SDL_ARRAYORDER_RGBA
+  SwiftName: rgba
+- Name: SDL_ARRAYORDER_ARGB
+  SwiftName: argb
+- Name: SDL_ARRAYORDER_BGR
+  SwiftName: bgr
+- Name: SDL_ARRAYORDER_BGRA
+  SwiftName: bgra
+- Name: SDL_ARRAYORDER_ABGR
+  SwiftName: abgr
+# SDL_PackedLayout
+- Name: SDL_PACKEDLAYOUT_NONE
+  SwiftName: none
+- Name: SDL_PACKEDLAYOUT_332
+  SwiftName: _332
+- Name: SDL_PACKEDLAYOUT_4444
+  SwiftName: _4444
+- Name: SDL_PACKEDLAYOUT_1555
+  SwiftName: _1555
+- Name: SDL_PACKEDLAYOUT_5551
+  SwiftName: _5551
+- Name: SDL_PACKEDLAYOUT_565
+  SwiftName: _565
+- Name: SDL_PACKEDLAYOUT_8888
+  SwiftName: _8888
+- Name: SDL_PACKEDLAYOUT_2101010
+  SwiftName: _2101010
+- Name: SDL_PACKEDLAYOUT_1010102
+  SwiftName: _1010102
+# SDL_BitmapOrder
+- Name: SDL_BITMAPORDER_NONE
+  SwiftName: none
+- Name: SDL_BITMAPORDER_4321
+  SwiftName: highToLow
+- Name: SDL_BITMAPORDER_1234
+  SwiftName: lowToHigh
+# SDL_PackedOrder
+- Name: SDL_PACKEDORDER_NONE
+  SwiftName: none
+- Name: SDL_PACKEDORDER_XRGB
+  SwiftName: xrgb
+- Name: SDL_PACKEDORDER_RGBX
+  SwiftName: rgbx
+- Name: SDL_PACKEDORDER_ARGB
+  SwiftName: argb
+- Name: SDL_PACKEDORDER_RGBA
+  SwiftName: rgba
+- Name: SDL_PACKEDORDER_XBGR
+  SwiftName: xbgr
+- Name: SDL_PACKEDORDER_BGRX
+  SwiftName: bgrx
+- Name: SDL_PACKEDORDER_ABGR
+  SwiftName: abgr
+- Name: SDL_PACKEDORDER_BGRA
+  SwiftName: bgra
 # SDL_AudioFormat
 - Name: SDL_AUDIO_UNKNOWN
   SwiftName: unknown
@@ -269,6 +521,33 @@ Enumerators:
   SwiftName: floatBuffers
 - Name: SDL_GL_EGL_PLATFORM
   SwiftName: eglPlatform
+# SDL_PixelType
+- Name: SDL_PIXELTYPE_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_PIXELTYPE_INDEX1
+  SwiftName: index1
+- Name: SDL_PIXELTYPE_INDEX2
+  SwiftName: index2
+- Name: SDL_PIXELTYPE_INDEX4
+  SwiftName: index4
+- Name: SDL_PIXELTYPE_INDEX8
+  SwiftName: index8
+- Name: SDL_PIXELTYPE_PACKED8
+  SwiftName: packed8
+- Name: SDL_PIXELTYPE_PACKED16
+  SwiftName: packed16
+- Name: SDL_PIXELTYPE_PACKED32
+  SwiftName: packed32
+- Name: SDL_PIXELTYPE_ARRAYU8
+  SwiftName: arrayU8
+- Name: SDL_PIXELTYPE_ARRAYU16
+  SwiftName: arrayU16
+- Name: SDL_PIXELTYPE_ARRAYU32
+  SwiftName: arrayU32
+- Name: SDL_PIXELTYPE_ARRAYF16
+  SwiftName: arrayF16
+- Name: SDL_PIXELTYPE_ARRAYF32
+  SwiftName: arrayF32
 # SDL_EventType
 - Name: SDL_EVENT_FIRST
   SwiftName: firstEvent
@@ -509,3 +788,151 @@ Enumerators:
   SwiftName: peekEvent
 - Name: SDL_GETEVENT
   SwiftName: getEvent
+
+# SDL_PixelFormat
+- Name: SDL_PIXELFORMAT_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_PIXELFORMAT_INDEX1LSB
+  SwiftName: index1LSB
+- Name: SDL_PIXELFORMAT_INDEX1MSB
+  SwiftName: index1MSB
+- Name: SDL_PIXELFORMAT_INDEX2LSB
+  SwiftName: index2LSB
+- Name: SDL_PIXELFORMAT_INDEX2MSB
+  SwiftName: index2MSB
+- Name: SDL_PIXELFORMAT_INDEX4LSB
+  SwiftName: index4LSB
+- Name: SDL_PIXELFORMAT_INDEX4MSB
+  SwiftName: index4MSB
+- Name: SDL_PIXELFORMAT_INDEX8
+  SwiftName: index8
+- Name: SDL_PIXELFORMAT_RGB332
+  SwiftName: rgb332
+- Name: SDL_PIXELFORMAT_XRGB4444
+  SwiftName: xrgb4444
+- Name: SDL_PIXELFORMAT_XBGR4444
+  SwiftName: xbgr4444
+- Name: SDL_PIXELFORMAT_XRGB1555
+  SwiftName: xrgb1555
+- Name: SDL_PIXELFORMAT_XBGR1555
+  SwiftName: xbgr1555
+- Name: SDL_PIXELFORMAT_ARGB4444
+  SwiftName: argb4444
+- Name: SDL_PIXELFORMAT_RGBA4444
+  SwiftName: rgba4444
+- Name: SDL_PIXELFORMAT_ABGR4444
+  SwiftName: abgr4444
+- Name: SDL_PIXELFORMAT_BGRA4444
+  SwiftName: bgra4444
+- Name: SDL_PIXELFORMAT_ARGB1555
+  SwiftName: argb1555
+- Name: SDL_PIXELFORMAT_RGBA5551
+  SwiftName: rgba5551
+- Name: SDL_PIXELFORMAT_ABGR1555
+  SwiftName: abgr1555
+- Name: SDL_PIXELFORMAT_BGRA5551
+  SwiftName: bgra5551
+- Name: SDL_PIXELFORMAT_RGB565
+  SwiftName: rgb565
+- Name: SDL_PIXELFORMAT_BGR565
+  SwiftName: bgr565
+- Name: SDL_PIXELFORMAT_RGB24
+  SwiftName: rgb24
+- Name: SDL_PIXELFORMAT_BGR24
+  SwiftName: bgr24
+- Name: SDL_PIXELFORMAT_XRGB8888
+  SwiftName: xrgb8888
+- Name: SDL_PIXELFORMAT_RGBX8888
+  SwiftName: rgbx8888
+- Name: SDL_PIXELFORMAT_XBGR8888
+  SwiftName: xbgr8888
+- Name: SDL_PIXELFORMAT_BGRX8888
+  SwiftName: bgrx8888
+- Name: SDL_PIXELFORMAT_ARGB8888
+  SwiftName: argb8888
+- Name: SDL_PIXELFORMAT_RGBA8888
+  SwiftName: rgba8888
+- Name: SDL_PIXELFORMAT_ABGR8888
+  SwiftName: abgr8888
+- Name: SDL_PIXELFORMAT_BGRA8888
+  SwiftName: bgra8888
+- Name: SDL_PIXELFORMAT_XRGB2101010
+  SwiftName: xrgb2101010
+- Name: SDL_PIXELFORMAT_XBGR2101010
+  SwiftName: xbgr2101010
+- Name: SDL_PIXELFORMAT_ARGB2101010
+  SwiftName: argb2101010
+- Name: SDL_PIXELFORMAT_ABGR2101010
+  SwiftName: abgr2101010
+- Name: SDL_PIXELFORMAT_RGB48
+  SwiftName: rgb48
+- Name: SDL_PIXELFORMAT_BGR48
+  SwiftName: bgr48
+- Name: SDL_PIXELFORMAT_RGBA64
+  SwiftName: rgba64
+- Name: SDL_PIXELFORMAT_ARGB64
+  SwiftName: argb64
+- Name: SDL_PIXELFORMAT_BGRA64
+  SwiftName: bgra64
+- Name: SDL_PIXELFORMAT_ABGR64
+  SwiftName: abgr64
+- Name: SDL_PIXELFORMAT_RGB48_FLOAT
+  SwiftName: bgr48float
+- Name: SDL_PIXELFORMAT_BGR48_FLOAT
+  SwiftName: bgr48float
+- Name: SDL_PIXELFORMAT_RGBA64_FLOAT
+  SwiftName: rgba64float
+- Name: SDL_PIXELFORMAT_ARGB64_FLOAT
+  SwiftName: argb64float
+- Name: SDL_PIXELFORMAT_BGRA64_FLOAT
+  SwiftName: bgra64float
+- Name: SDL_PIXELFORMAT_ABGR64_FLOAT
+  SwiftName: abgr64float
+- Name: SDL_PIXELFORMAT_RGB96_FLOAT
+  SwiftName: rgb96float
+- Name: SDL_PIXELFORMAT_BGR96_FLOAT
+  SwiftName: bgr96float
+- Name: SDL_PIXELFORMAT_RGBA128_FLOAT
+  SwiftName: rgba128float
+- Name: SDL_PIXELFORMAT_ARGB128_FLOAT
+  SwiftName: argb128float
+- Name: SDL_PIXELFORMAT_BGRA128_FLOAT
+  SwiftName: bgra128float
+- Name: SDL_PIXELFORMAT_ABGR128_FLOAT
+  SwiftName: abgr128float
+- Name: SDL_PIXELFORMAT_YV12
+  SwiftName: yv12
+- Name: SDL_PIXELFORMAT_IYUV
+  SwiftName: iyuv
+- Name: SDL_PIXELFORMAT_YUY2
+  SwiftName: yuy2
+- Name: SDL_PIXELFORMAT_UYVY
+  SwiftName: uyvy
+- Name: SDL_PIXELFORMAT_YVYU
+  SwiftName: yvyu
+- Name: SDL_PIXELFORMAT_NV12
+  SwiftName: nv12
+- Name: SDL_PIXELFORMAT_NV21
+  SwiftName: nv21
+- Name: SDL_PIXELFORMAT_P010
+  SwiftName: p010
+- Name: SDL_PIXELFORMAT_EXTERNAL_OES
+  SwiftName: externalOES
+- Name: SDL_PIXELFORMAT_MJPG
+  SwiftName: mjpg
+- Name: SDL_PIXELFORMAT_RGBA32
+  SwiftName: rgba32
+- Name: SDL_PIXELFORMAT_ARGB32
+  SwiftName: argb32
+- Name: SDL_PIXELFORMAT_BGRA32
+  SwiftName: bgra32
+- Name: SDL_PIXELFORMAT_ABGR32
+  SwiftName: abgr32
+- Name: SDL_PIXELFORMAT_RGBX32
+  SwiftName: rgbx32
+- Name: SDL_PIXELFORMAT_XRGB32
+  SwiftName: xrgb32
+- Name: SDL_PIXELFORMAT_BGRX32
+  SwiftName: bgrx32
+- Name: SDL_PIXELFORMAT_XBGR32
+  SwiftName: xbgr32

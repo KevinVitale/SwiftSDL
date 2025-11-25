@@ -12,7 +12,7 @@ extension Surface {
   }
   
   public subscript<T>(dynamicMember keyPath: KeyPath<SDL_PixelFormatDetails, T>) -> T? {
-    guard let details = SDL_GetPixelFormatDetails(self.format) else {
+    guard let details = __SDL_GetPixelFormatDetails(self.format) else {
       return nil
     }
     
@@ -111,8 +111,3 @@ public func SDL_Load(
   return SDL_Object(pointer, tag: "surface", destroy: SDL_DestroySurface)
 }
 
-extension SDL_PixelFormat {
-  public var order: SDL_BitmapOrder {
-    SDL_BitmapOrder(rawValue: (rawValue >> 20) & 0x0F)
-  }
-}

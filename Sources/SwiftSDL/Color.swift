@@ -61,3 +61,6 @@ extension SDL_Color: @retroactive Codable {
     .init(r: r, g: g, b: b, a: a)
   }
 }
+
+extension SDL_Palette {
+}

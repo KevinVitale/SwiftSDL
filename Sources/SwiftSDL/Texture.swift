@@ -188,7 +188,7 @@ extension Renderer {
     if transparent, let bpp = surface.bits_per_pixel, let pixels = surface.pixels {
       if (try? surface.palette.get()) != nil {
         let mask: UInt8 = (1 << bpp) - 1
-        if surface.format.order == SDL_BITMAPORDER_4321 {
+        if surface.format.bitmapOrder == .highToLow {
           let key = pixels.load(as: UInt8.self) & mask
           try surface(SDL_SetSurfaceColorKey, true, UInt32(key))
         }

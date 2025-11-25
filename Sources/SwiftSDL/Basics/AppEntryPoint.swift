@@ -498,3 +498,13 @@ public func SDL_Init(_ flags: [SDL_InitFlags]) throws(SDL_Error) {
   }
 }
 
+public func SDL_WasInit() -> [SDL_InitFlags] {
+  let wasInit = __SDL_WasInit(0)
+  return SDL_InitFlags.allCases.filter {
+    return (wasInit & $0.rawValue) != 0
+  }
+}
+
+public func SDL_WasInit(_ flags: SDL_InitFlags...) -> Bool {
+  Set(SDL_WasInit()).intersection(Set(flags)).count == flags.count
+}

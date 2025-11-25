@@ -141,3 +141,13 @@ public func SDL_BufferPointer<Value>(_ allocate: (UnsafeMutablePointer<Int32>) -
   let bufferPtr = UnsafeMutableBufferPointer.init(start: pointer, count: Int(count))
   return Array(bufferPtr)
 }
+
+public func SDL_BufferPointerWithID<ID, Value>(id: ID, _ allocate: (ID, UnsafeMutablePointer<Int32>) -> UnsafeMutablePointer<UnsafeMutablePointer<Value>?>?) throws(SDL_Error) -> [Value] {
+  var count: Int32 = 0
+  guard let pointer = allocate(id, &count) else {
+    throw .error
+  }
+  defer { SDL_free(pointer) }
+  let bufferPtr = UnsafeMutableBufferPointer.init(start: pointer, count: Int(count))
+  return Array(bufferPtr).compactMap { $0?.pointee }
+}
