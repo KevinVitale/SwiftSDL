@@ -14,16 +14,15 @@ extension SDL.Games {
     
     private var scene: SurfaceScene!
     
+    func willInitWindow() throws(SDL_Error) {
+    }
+    
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
       try SDL_Init(.gamepad)
       scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
       
-      SDL_SetLogLevel(.category(.input, priority: .trace))
-      SDL_SetLogLevel(.category(.application, priority: .trace))
-      SDL_Log(Self.libraryVersion)
-      
-      window.userData?["foo"] = "bar"
-      SDL_Log(window.userData?["foo"])
+      SDL_SetLogLevel(.category(.video, priority: .trace))
+      SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "software")
     }
     
     func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {

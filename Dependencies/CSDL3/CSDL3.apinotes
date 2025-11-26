@@ -108,6 +108,9 @@ Tags:
 - Name: SDL_LogCategory
   EnumKind: NSEnum
 Functions:
+# SDL_AddHintCallback
+- Name: SDL_AddHintCallback
+  SwiftPrivate: true
 # SDL_LogMessage
 - Name: SDL_LogMessage
   SwiftPrivate: true

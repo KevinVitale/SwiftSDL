@@ -26,6 +26,14 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   var options: GameOptions { get }
   
   /**
+   Called **immediately before** the application initializes (e.g., calls `SDL_Init)`.
+   
+   The default implementation does nothing. Use this to set hints, load configurations, or even initialize
+   other non-_video_ SDL subsysytems.
+   */
+  func willInit() throws(SDL_Error)
+  
+  /**
    Called once to initialize SDL and create the game's main window.
    
    - note: A default implementation is provided which automatically initializes SDL's _video_ subsystem,
@@ -45,7 +53,7 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
    and initialize any required SDL subsystems yourself. Overriding introduces significant responsibility and complexity; use caution.
    */
   func onInit() throws(SDL_Error) -> (any Window)
-  
+
   /**
    Called **immediately after** the application's `window` is created and ready. After this function
    returns, the game's event-loop is started.
@@ -106,7 +114,7 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   func onShutdown(window: (any Window)?, failure: GameLoopFailure)
   
   /**
-   Called **immediately before** the application quits (and calls `SDL_Quit)`.
+   Called **immediately before** the application quits (e.g., calls `SDL_Quit)`.
    */
   func willQuit()
   
@@ -225,7 +233,10 @@ extension GameLoop {
 }
 
 extension GameLoop {
+  public func willInit() throws(SDL_Error) { }
+  
   public func onInit() throws(SDL_Error) -> (any Window) {
+    try willInit()
     try SDL_Init(.video)
     
     var windowProperties = Self.windowProperties
