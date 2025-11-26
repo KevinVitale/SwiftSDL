@@ -238,20 +238,6 @@ public enum CameraDriver: CustomDebugStringConvertible {
   }
 }
 
-public enum SDL_CameraPermissionState: Int32, CustomDebugStringConvertible {
-  case approved
-  case denied
-  case unknown
-  
-  public var debugDescription: String {
-    switch self {
-      case .approved: return "approved"
-      case .denied: return "denied"
-      case .unknown: return "unknown"
-    }
-  }
-}
-
 extension SDL_CameraSpec: @retroactive Equatable, @retroactive CustomDebugStringConvertible{
   public static func == (lhs: SDL_CameraSpec, rhs: SDL_CameraSpec) -> Bool {
     lhs.colorspace.rawValue == rhs.colorspace.rawValue &&
