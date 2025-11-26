@@ -282,26 +282,3 @@ extension SDL_CameraSpec: @retroactive CustomDebugStringConvertible {
     Double(framerate_denominator) / Double(framerate_numerator)
   }
 }
-
-extension SDL_CameraPosition: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
-  public static let unknown = SDL_CAMERA_POSITION_UNKNOWN
-  public static let frontFacing = SDL_CAMERA_POSITION_FRONT_FACING
-  public static let backFacing = SDL_CAMERA_POSITION_BACK_FACING
-  
-  public static var allCases: [Self] {
-    [
-      .unknown,
-      .backFacing,
-      .frontFacing
-    ]
-  }
-  
-  public var debugDescription: String {
-    switch self {
-      case .unknown: return "unknown"
-      case .backFacing: return "backFacing"
-      case .frontFacing: return "frontFacint"
-      default: return "Unknown SDL_CameraPosition: \(self)"
-    }
-  }
-}

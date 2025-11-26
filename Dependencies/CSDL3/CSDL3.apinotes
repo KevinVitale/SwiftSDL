@@ -107,6 +107,9 @@ Tags:
 # SDL_LogCategory
 - Name: SDL_LogCategory
   EnumKind: NSEnum
+# SDL_CameraPosition
+- Name: SDL_CameraPosition
+  EnumKind: NSEnum
 Functions:
 # SDL_AddHintCallback
 - Name: SDL_AddHintCallback
@@ -183,6 +186,13 @@ Functions:
 - Name: SDL_RectToFRect
   SwiftPrivate: true
 Enumerators:
+# SDL_CameraPosition
+- Name: SDL_CAMERA_POSITION_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_CAMERA_POSITION_FRONT_FACING
+  SwiftName: frontFacing
+- Name: SDL_CAMERA_POSITION_BACK_FACING
+  SwiftName: backFacing
 # SDL_LogPriority
 - Name: SDL_LOG_PRIORITY_INVALID
   SwiftName: invalid
