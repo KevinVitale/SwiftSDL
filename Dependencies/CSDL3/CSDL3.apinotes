@@ -110,6 +110,21 @@ Tags:
 # SDL_CameraPosition
 - Name: SDL_CameraPosition
   EnumKind: NSEnum
+# SDL_GamepadType
+- Name: SDL_GamepadType
+  EnumKind: NSEnum
+# SDL_GamepadButton
+- Name: SDL_GamepadButton
+  EnumKind: NSEnum
+# SDL_GamepadButtonLabel
+- Name: SDL_GamepadButtonLabel
+  EnumKind: NSEnum
+# SDL_GamepadAxis
+- Name: SDL_GamepadAxis
+  EnumKind: NSEnum
+# SDL_GamepadBindingType
+- Name: SDL_GamepadBindingType
+  EnumKind: NSEnum
 Functions:
 # SDL_AddHintCallback
 - Name: SDL_AddHintCallback
@@ -186,6 +201,138 @@ Functions:
 - Name: SDL_RectToFRect
   SwiftPrivate: true
 Enumerators:
+# SDL_GamepadType
+- Name: SDL_GAMEPAD_TYPE_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_GAMEPAD_TYPE_STANDARD
+  SwiftName: standard
+- Name: SDL_GAMEPAD_TYPE_XBOX360
+  SwiftName: xbox360
+- Name: SDL_GAMEPAD_TYPE_XBOXONE
+  SwiftName: xboxOne
+- Name: SDL_GAMEPAD_TYPE_PS3
+  SwiftName: ps3
+- Name: SDL_GAMEPAD_TYPE_PS4
+  SwiftName: ps4
+- Name: SDL_GAMEPAD_TYPE_PS5
+  SwiftName: ps5
+- Name: SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO
+  SwiftName: switchPro
+- Name: SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT
+  SwiftName: joyconLeft
+- Name: SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT
+  SwiftName: joyconRight
+- Name: SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR
+  SwiftName: joyconPair
+- Name: SDL_GAMEPAD_TYPE_COUNT
+  SwiftName: typeCount
+# SDL_GamepadButton
+- Name: SDL_GAMEPAD_BUTTON_INVALID
+  SwiftName: invalid
+- Name: SDL_GAMEPAD_BUTTON_SOUTH
+  SwiftName: south
+- Name: SDL_GAMEPAD_BUTTON_EAST
+  SwiftName: east
+- Name: SDL_GAMEPAD_BUTTON_WEST
+  SwiftName: west
+- Name: SDL_GAMEPAD_BUTTON_NORTH
+  SwiftName: north
+- Name: SDL_GAMEPAD_BUTTON_BACK
+  SwiftName: back
+- Name: SDL_GAMEPAD_BUTTON_GUIDE
+  SwiftName: guide
+- Name: SDL_GAMEPAD_BUTTON_START
+  SwiftName: start
+- Name: SDL_GAMEPAD_BUTTON_LEFT_STICK
+  SwiftName: leftStick
+- Name: SDL_GAMEPAD_BUTTON_RIGHT_STICK
+  SwiftName: rightStick
+- Name: SDL_GAMEPAD_BUTTON_LEFT_SHOULDER
+  SwiftName: leftShoulder
+- Name: SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER
+  SwiftName: rightShoulder
+- Name: SDL_GAMEPAD_BUTTON_DPAD_UP
+  SwiftName: up
+- Name: SDL_GAMEPAD_BUTTON_DPAD_DOWN
+  SwiftName: down
+- Name: SDL_GAMEPAD_BUTTON_DPAD_LEFT
+  SwiftName: left
+- Name: SDL_GAMEPAD_BUTTON_DPAD_RIGHT
+  SwiftName: right
+- Name: SDL_GAMEPAD_BUTTON_MISC1
+  SwiftName: misc1
+- Name: SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1
+  SwiftName: rightPaddle1
+- Name: SDL_GAMEPAD_BUTTON_LEFT_PADDLE1
+  SwiftName: leftPaddle1
+- Name: SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2
+  SwiftName: rightPaddle2
+- Name: SDL_GAMEPAD_BUTTON_LEFT_PADDLE2
+  SwiftName: leftPaddle2
+- Name: SDL_GAMEPAD_BUTTON_TOUCHPAD
+  SwiftName: touchpad
+- Name: SDL_GAMEPAD_BUTTON_MISC2
+  SwiftName: misc2
+- Name: SDL_GAMEPAD_BUTTON_MISC3
+  SwiftName: misc3
+- Name: SDL_GAMEPAD_BUTTON_MISC4
+  SwiftName: misc4
+- Name: SDL_GAMEPAD_BUTTON_MISC5
+  SwiftName: misc5
+- Name: SDL_GAMEPAD_BUTTON_MISC6
+  SwiftName: misc6
+- Name: SDL_GAMEPAD_BUTTON_COUNT
+  SwiftName: buttonCount
+# SDL_GamepadButtonLabel
+- Name: SDL_GAMEPAD_BUTTON_LABEL_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_GAMEPAD_BUTTON_LABEL_A
+  SwiftName: a
+- Name: SDL_GAMEPAD_BUTTON_LABEL_B
+  SwiftName: b
+- Name: SDL_GAMEPAD_BUTTON_LABEL_X
+  SwiftName: x
+- Name: SDL_GAMEPAD_BUTTON_LABEL_Y
+  SwiftName: y
+- Name: SDL_GAMEPAD_BUTTON_LABEL_CROSS
+  SwiftName: cross
+- Name: SDL_GAMEPAD_BUTTON_LABEL_CIRCLE
+  SwiftName: circle
+- Name: SDL_GAMEPAD_BUTTON_LABEL_SQUARE
+  SwiftName: square
+- Name: SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE
+  SwiftName: triangle
+# SDL_GamepadAxis
+- Name: SDL_GAMEPAD_AXIS_INVALID
+  SwiftName: invalid
+- Name: SDL_GAMEPAD_AXIS_LEFTX
+  SwiftName: leftX
+- Name: SDL_GAMEPAD_AXIS_LEFTY
+  SwiftName: leftY
+- Name: SDL_GAMEPAD_AXIS_RIGHTX
+  SwiftName: rightX
+- Name: SDL_GAMEPAD_AXIS_RIGHTY
+  SwiftName: rightY
+- Name: SDL_GAMEPAD_AXIS_LEFT_TRIGGER
+  SwiftName: leftTrigger
+- Name: SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
+  SwiftName: rightTrigger
+- Name: SDL_GAMEPAD_AXIS_COUNT
+  SwiftName: axisCount
+# SDL_GamepadBindingType
+- Name: SDL_GAMEPAD_BINDTYPE_NONE
+  SwiftName: none
+- Name: SDL_GAMEPAD_BINDTYPE_BUTTON
+  SwiftName: button
+- Name: SDL_GAMEPAD_BINDTYPE_AXIS
+  SwiftName: axis
+- Name: SDL_GAMEPAD_BINDTYPE_HAT
+  SwiftName: hat
+
+
+
+
+
 # SDL_CameraPosition
 - Name: SDL_CAMERA_POSITION_UNKNOWN
   SwiftName: unknown
