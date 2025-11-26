@@ -252,7 +252,7 @@ public enum SDL_CameraPermissionState: Int32, CustomDebugStringConvertible {
   }
 }
 
-extension SDL_CameraSpec: @retroactive Equatable {
+extension SDL_CameraSpec: @retroactive Equatable, @retroactive CustomDebugStringConvertible{
   public static func == (lhs: SDL_CameraSpec, rhs: SDL_CameraSpec) -> Bool {
     lhs.colorspace.rawValue == rhs.colorspace.rawValue &&
     lhs.format.rawValue == rhs.format.rawValue &&
@@ -261,12 +261,10 @@ extension SDL_CameraSpec: @retroactive Equatable {
     lhs.framerate_numerator == rhs.framerate_numerator &&
     lhs.framerate_denominator == rhs.framerate_denominator
   }
-}
-
-extension SDL_CameraSpec: @retroactive CustomDebugStringConvertible {
+  
   public var debugDescription: String {
     """
-    Pixel Format: \(format.rawValue)
+    Pixel Format: \(format)
     Colorspace:   \(colorspace.rawValue)
     Size:         \(width), \(height)
     FPS:          \(framesPerSecond)
