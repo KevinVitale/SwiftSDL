@@ -136,7 +136,7 @@ extension Window {
     
     if let renderer = try? renderer.get() {
       if try renderer.vsync.get() == 0, options.renderVsync != .disabled {
-        print("Attempting to set vsync to \"\(options.renderVsync)\"")
+        SDL_Log("Attempting to set vsync to \"\(options.renderVsync)\"")
         try renderer.set(vsync: options.renderVsync.rawValue)
       }
       
@@ -151,7 +151,7 @@ extension Window {
         logicalSize = try self.size(as: SDL_Size.self)
       }
       
-      print("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y); presentation: \(logicalPresentation)")
+      SDL_Log("Attempting to set logical size to: \(logicalSize.x)x\(logicalSize.y); presentation: \(logicalPresentation)")
       try renderer.set(logicalSize: [logicalSize.x, logicalSize.y], presentation: logicalPresentation)
     }
     
@@ -159,8 +159,7 @@ extension Window {
   }
 }
 
-extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument {
-}
+extension SDL_RendererLogicalPresentation: @retroactive ExpressibleByArgument { }
 
 extension SDL_Point: @retroactive ExpressibleByArgument {
   public init?(argument: String) {

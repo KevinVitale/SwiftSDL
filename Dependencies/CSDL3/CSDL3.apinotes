@@ -8,9 +8,13 @@ Typedefs:
   SwiftPrivate: true
 - Name: SDL_PropertiesID
   Availability: nonswift
+- Name: SDL_Joystick
+  Availability: nonswift
 - Name: SDL_BlendMode
   Availability: nonswift
 - Name: SDL_InitFlags
+  Availability: nonswift
+- Name: SDL_Gamepad
   Availability: nonswift
 - Name: SDL_Window
   Availability: nonswift
@@ -110,6 +114,9 @@ Tags:
 # SDL_CameraPosition
 - Name: SDL_CameraPosition
   EnumKind: NSEnum
+# SDL_PowerState
+- Name: SDL_PowerState
+  EnumKind: NSEnum
 # SDL_GamepadType
 - Name: SDL_GamepadType
   EnumKind: NSEnum
@@ -124,6 +131,15 @@ Tags:
   EnumKind: NSEnum
 # SDL_GamepadBindingType
 - Name: SDL_GamepadBindingType
+  EnumKind: NSEnum
+# SDL_JoystickType
+- Name: SDL_JoystickType
+  EnumKind: NSEnum
+# SDL_JoystickConnectionState
+- Name: SDL_JoystickConnectionState
+  EnumKind: NSEnum
+# SDL_SensorType
+- Name: SDL_SensorType
   EnumKind: NSEnum
 Functions:
 # SDL_AddHintCallback
@@ -328,11 +344,70 @@ Enumerators:
   SwiftName: axis
 - Name: SDL_GAMEPAD_BINDTYPE_HAT
   SwiftName: hat
-
-
-
-
-
+# SDL_JoystickType
+- Name: SDL_JOYSTICK_TYPE_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_JOYSTICK_TYPE_GAMEPAD
+  SwiftName: gamepad
+- Name: SDL_JOYSTICK_TYPE_WHEEL
+  SwiftName: wheel
+- Name: SDL_JOYSTICK_TYPE_ARCADE_STICK
+  SwiftName: arcadeStick
+- Name: SDL_JOYSTICK_TYPE_FLIGHT_STICK
+  SwiftName: flightStick
+- Name: SDL_JOYSTICK_TYPE_DANCE_PAD
+  SwiftName: dancePad
+- Name: SDL_JOYSTICK_TYPE_GUITAR
+  SwiftName: guitar
+- Name: SDL_JOYSTICK_TYPE_DRUM_KIT
+  SwiftName: drumKit
+- Name: SDL_JOYSTICK_TYPE_ARCADE_PAD
+  SwiftName: arcadePad
+- Name: SDL_JOYSTICK_TYPE_THROTTLE
+  SwiftName: throttle
+- Name: SDL_JOYSTICK_TYPE_COUNT
+  SwiftName: typeCount
+# SDL_JoystickConnectionState
+- Name: SDL_JOYSTICK_CONNECTION_INVALID
+  SwiftName: invalid
+- Name: SDL_JOYSTICK_CONNECTION_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_JOYSTICK_CONNECTION_WIRED
+  SwiftName: wired
+- Name: SDL_JOYSTICK_CONNECTION_WIRELESS
+  SwiftName: wireless
+# SDL_SensorType
+- Name: SDL_SENSOR_INVALID
+  SwiftName: invalid
+- Name: SDL_SENSOR_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_SENSOR_ACCEL
+  SwiftName: accelerometer
+- Name: SDL_SENSOR_GYRO
+  SwiftName: gyroscope
+- Name: SDL_SENSOR_ACCEL_L
+  SwiftName: accelerometerLeft
+- Name: SDL_SENSOR_GYRO_L
+  SwiftName: gyroscopeLeft
+- Name: SDL_SENSOR_ACCEL_R
+  SwiftName: accelerometerRight
+- Name: SDL_SENSOR_GYRO_R
+  SwiftName: gryoscopeRight
+- Name: SDL_SENSOR_COUNT
+  SwiftName: count
+# SDL_PowerState
+- Name: SDL_POWERSTATE_ERROR
+  SwiftName: error
+- Name: SDL_POWERSTATE_UNKNOWN
+  SwiftName: unknown
+- Name: SDL_POWERSTATE_ON_BATTERY
+  SwiftName: onBattery
+- Name: SDL_POWERSTATE_NO_BATTERY
+  SwiftName: noBattery
+- Name: SDL_POWERSTATE_CHARGING
+  SwiftName: charging
+- Name: SDL_POWERSTATE_CHARGED
+  SwiftName: charged
 # SDL_CameraPosition
 - Name: SDL_CAMERA_POSITION_UNKNOWN
   SwiftName: unknown
@@ -1071,7 +1146,6 @@ Enumerators:
   SwiftName: peekEvent
 - Name: SDL_GETEVENT
   SwiftName: getEvent
-
 # SDL_PixelFormat
 - Name: SDL_PIXELFORMAT_UNKNOWN
   SwiftName: unknown

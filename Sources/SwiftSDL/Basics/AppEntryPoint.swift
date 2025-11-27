@@ -118,57 +118,17 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
    */
   func willQuit()
   
-  func did(connect gameController: inout GameController) throws(SDL_Error)
-  func will(remove gameController: GameController)
+  func did(connect gameController: inout Gamepad) throws(SDL_Error)
+  func will(remove gameController: Gamepad)
   
   /// Time since the last frame (in seconds).
   @available(*, deprecated)
   var deltaTime: Double { get }
 }
 
-/**
- The only special error type that indicates the phase of the game loop
- in which any runtime errors occur. Sent to `onShutdown(_:_:)`.
- */
-public enum GameLoopFailure: Error, Sendable {
-  case onInit(SDL_Error)
-  case onIterate(SDL_Error)
-  case onEvent(SDL_Error)
-  case none
-  
-  public var error: SDL_Error? {
-    switch self {
-      case .onInit(let error): return error
-      case .onIterate(let error): return error
-      case .onEvent(let error): return error
-      case .none: return nil
-    }
-  }
-}
-
-private final class __GameLoopFailure: SDL_PropertyTypeValue, Sendable {
-  fileprivate enum CallbackState: String {
-    case onInit
-    case onIterate
-    case onEvent
-    case none
-  }
-  
-  let error: SDL_Error
-  let state: CallbackState
-  
-  init(error: SDL_Error, state: CallbackState) {
-    self.error = error
-    self.state = state
-  }
-  
-  var gameLoopFailure: GameLoopFailure {
-    .none
-  }
-}
-
 fileprivate let __gameLoopInstanceString = "SDL.kit.global.gameLoop.instance"
 fileprivate let __gameLoopFailureString = "SDL.kit.global.gameLoop.failure"
+fileprivate let __gameLoopStepString = "SDL.kit.global.gameLoop.step"
 fileprivate let __gameWindowString = "SDL.kit.global.gameLoop.window"
 
 fileprivate func __SetGlobalProperty(_ property: String, to value: (any SDL_PropertyTypeValue)) throws(SDL_Error) {
@@ -195,27 +155,34 @@ fileprivate func __GetGameWindow() throws(SDL_Error) -> (any Window) {
   return window
 }
 
-final class __GameLoopInterval {
-  private(set) var tick: Double
-  private(set) var delta: Double
-  
-  private init(tick: Double = .nan, delta: Double = .nan) {
-    self.tick = tick
-    self.delta = delta
+fileprivate func __GetGameLoopStep() throws(SDL_Error) -> GameLoopStep {
+  guard let stepPtr = try SDL_PropertiesID.global()[__gameLoopStepString] as? UnsafeMutableRawPointer else {
+    let step = GameLoopStep()
+    try! __SetGameLoopStep(step)
+    return step
   }
+  let step = (Unmanaged<AnyObject>.fromOpaque(stepPtr).takeUnretainedValue()) as! GameLoopStep
+  return step
+}
+
+fileprivate func __SetGameLoopStep(_ step: GameLoopStep = .init()) throws(SDL_Error) {
+  (try SDL_PropertiesID.global())[__gameLoopStepString] = step
+}
+
+fileprivate final class GameLoopStep: SDL_PropertyTypeValue {
+  private var previous: Double = .nan
+  fileprivate(set) var delta: Double = .nan
   
-  nonisolated(unsafe) static fileprivate let shared = __GameLoopInterval()
-  
-  // https://gist.github.com/xeekworx/4ed45c039ea1676ddef1c2d9f921973d
-  func iterate(at now: Double = Double(SDL_GetPerformanceCounter()) / Double(SDL_GetPerformanceFrequency())) {
-    var previous = tick
-    
+  fileprivate func callAsFunction(at now: Double = Double(SDL_GetPerformanceCounter()) / Double(SDL_GetPerformanceFrequency())) throws(SDL_Error) {
+    var previous = self.previous
     if previous.isNaN {
       previous = now
     }
     
-    delta = now - previous
-    tick = now
+    self.delta = now - previous
+    self.previous = now
+    
+    try __SetGameLoopStep(self)
   }
 }
 
@@ -230,14 +197,20 @@ extension GameLoop {
       .width(1024), .height(640),
     ]
   }
-}
-
-extension GameLoop {
-  public func willInit() throws(SDL_Error) { }
   
+  fileprivate var step: GameLoopStep { try! __GetGameLoopStep() }
+
+  /**
+   
+   */
+  public func willInit() throws(SDL_Error) { /*no-op*/ }
+  
+  /**
+   
+   */
   public func onInit() throws(SDL_Error) -> (any Window) {
+    try SDL_Init(.video, .joystick, .gamepad)
     try willInit()
-    try SDL_Init(.video)
     
     var windowProperties = Self.windowProperties
     windowProperties.append(.transparent(options.windowTransparent))
@@ -245,7 +218,10 @@ extension GameLoop {
     return try SDL_Object(with: windowProperties)
   }
   
-  public func willQuit() { }
+  /**
+   
+   */
+  public func willQuit() { /*no-op*/ }
 }
 
 extension GameLoop {
@@ -254,7 +230,7 @@ extension GameLoop {
     try __SetGlobalProperty(__gameLoopInstanceString, to: self)
 
     SDL_RunApp(CommandLine.argc, CommandLine.unsafeArgv, { argc, argv in
-      SDL_EnterAppMainCallbacks(argc, argv, { state, argc, argv in
+      SDL_EnterAppMainCallbacks(argc, argv, { _, argc, argv in
         /* onInit */
         do {
           // Get 'this' instance and create a 'window' for it.
@@ -276,12 +252,12 @@ extension GameLoop {
           (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
-      }, /* onIterate */ { state in
+      }, /* onIterate */ { _ in
         do {
           let gameLoop = try __GetGameLoop()
           let gameWindow = try __GetGameWindow()
           
-          __GameLoopInterval.shared.iterate()
+          try gameLoop.step()
           try gameLoop.onUpdate(window: gameWindow)
 
           return .continue
@@ -290,13 +266,12 @@ extension GameLoop {
           (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
-      }, /* onEvent */ { state, event in
+      }, /* onEvent */ { _, event in
         guard let event = event?.pointee else {
           return .failure
         }
         
         do {
-          
           let gameLoop = try __GetGameLoop()
           let gameWindow = try __GetGameWindow()
 
@@ -309,18 +284,19 @@ extension GameLoop {
               case .joystickAdded:   fallthrough
               case .joystickRemoved: fallthrough
               case .gamepadAdded:    fallthrough
-              case .gamepadRemoved:
-                let gameControllers = GameControllers
-                GameControllers = try SDL_BufferPointer(SDL_GetJoysticks).map(\.gameController)
+              case .gamepadRemoved:  ()
+                let gameControllers = __GameControllers
+                __GameControllers = try Gamepad.connected.get()
                 
-                let difference = GameControllers
+                let difference = __GameControllers
                   .difference(from: gameControllers, by: { existing, new in existing.id == new.id })
                   .inferringMoves()
                 
                 try difference
                   .forEach {
                     switch($0) {
-                      case .insert(_, var gameController, _):
+                      case .insert(_, let gameController, _):
+                        var gameController = gameController
                         try gameLoop.did(connect: &gameController)
                         
                       case .remove(_, var gameController, _):
@@ -328,11 +304,10 @@ extension GameLoop {
                         gameController.close()
                     }
                   }
-                
               default: ()
             }
           }
-          
+
           try gameLoop.onEvent(window: gameWindow, event)
           return .continue
         } catch {
@@ -340,22 +315,25 @@ extension GameLoop {
           (try? __SetGlobalProperty(__gameLoopFailureString, to: gameLoopFailure))
           return .failure
         }
-      }, /* onQuit */ { state, _ in
-        let gameLoop = try? __GetGameLoop()
-        let gameWindow = try? __GetGameWindow()
+      }, /* onQuit */ { _, result in
         let failure = try? __GetGameLoopFailure()
+        let gameLoop = try? __GetGameLoop()
+        let gameWindow = failure == nil ? try? __GetGameWindow() : nil
         
         switch failure {
           case .none: break
-          case .some(let failure): debugPrint(failure.error)
+          case .some(let failure): SDL_Log(failure.error)
         }
         
-        gameLoop?.onShutdown(window: gameWindow, failure: (failure?.gameLoopFailure ?? .none))
+        gameLoop?.onShutdown(
+          window: gameWindow,
+          failure: (failure?.gameLoopFailure ?? .none)
+        )
         
-        for var gameController in GameControllers {
+        for var gameController in __GameControllers {
           gameController.close()
         }
-        GameControllers = []
+        __GameControllers = []
         
         gameLoop?.willQuit()
       })
@@ -367,19 +345,19 @@ extension GameLoop {
 }
 
 nonisolated(unsafe)
-internal var GameControllers: [GameController] = []
+internal var __GameControllers: [Gamepad] = []
 
 extension GameLoop {
-  public var gameControllers: [GameController] {
-    GameControllers
+  public var gameControllers: [Gamepad] {
+    __GameControllers
   }
   
   public var deltaTime: Double {
-    __GameLoopInterval.shared.delta
+    (try? __GetGameLoopStep())?.delta ?? .nan
   }
   
-  public func did(connect gameController: inout GameController) throws(SDL_Error) { /* no-op */ }
-  public func will(remove gameController: GameController) { /* no-op */ }
+  public func did(connect gameController: inout Gamepad) throws(SDL_Error) { /* no-op */ }
+  public func will(remove gameController: Gamepad) { /* no-op */ }
 }
 
 public struct SDL_AppMetadata: Sendable {
@@ -423,7 +401,7 @@ public struct SDL_AppMetadata: Sendable {
     }
     set {
       if !SDL_SetAppMetadataProperty(property.stringValue, newValue) {
-        debugPrint(SDL_Error.error)
+        SDL_Log(SDL_Error.error)
       }
     }
   }

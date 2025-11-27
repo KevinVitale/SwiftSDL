@@ -109,6 +109,18 @@ extension Int64: SDL_PropertyTypeValue {
   }
 }
 
+extension UInt32: SDL_PropertyTypeValue {
+  public var wrappedValue: Self { self }
+  
+  public func set(_ property: String, on properties: SDL_PropertiesID) throws(SDL_Error) {
+    SDL_SetNumberProperty(properties.id, property, Sint64(wrappedValue))
+  }
+  
+  fileprivate init(_ property: String, on properties: SDL_PropertiesID) throws(SDL_Error) {
+    self = Self(SDL_GetNumberProperty(properties.id, property, .min))
+  }
+}
+
 extension Float: SDL_PropertyTypeValue {
   public var wrappedValue: Self { self }
   

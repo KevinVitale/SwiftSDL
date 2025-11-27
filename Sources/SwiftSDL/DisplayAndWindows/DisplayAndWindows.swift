@@ -1,9 +1,11 @@
+// MARK: - Protocol
 public protocol Window: SDL_ObjectProtocol, SDL_PropertyTypeValue where Pointer == OpaquePointer {
   init(with properties: [SDL_WindowProperty]) throws(SDL_Error)
 }
 
 extension SDL_Object<OpaquePointer>: Window { }
 
+// MARK: - Create Window
 extension Window where Self == SDL_Object<OpaquePointer> {
   public init(with properties: [SDL_WindowProperty]) throws(SDL_Error) {
     try self.init(with: try SDL_PropertiesID(properties: properties))
@@ -18,9 +20,15 @@ extension Window where Self == SDL_Object<OpaquePointer> {
   }
 }
 
+// MARK: - Computed Properties
 extension Window {
-  public var id: Result<SDL_WindowID, SDL_Error> { resultOf(__SDL_GetWindowID) }
-  public var title: Result<String, SDL_Error> { self .resultOf(__SDL_GetWindowTitle).map(String.init(cString:)) }
+  public var id: Result<SDL_WindowID, SDL_Error> {
+    resultOf(__SDL_GetWindowID)
+  }
+  
+  public var title: Result<String, SDL_Error> {
+    self .resultOf(__SDL_GetWindowTitle).map(String.init(cString:))
+  }
   
   /**
    Get the properties associated with a window.
@@ -32,9 +40,7 @@ extension Window {
           .mapError { $0 as! SDL_Error }
       }
   }
-}
-
-extension Window {
+  
   public var surface: Result<any Surface, SDL_Error> {
     self
       .resultOf(SDL_GetWindowSurface)
@@ -48,6 +54,7 @@ extension Window {
   }
 }
 
+// MARK: - Flags
 extension Window {
   public func `is`(_ flag: SDL_WindowFlags) -> Bool { flags & flag.rawValue != 0 }
   public func isNot(_ flag: SDL_WindowFlags) -> Bool { !`is`(flag) }

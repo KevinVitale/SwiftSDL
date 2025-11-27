@@ -18,19 +18,11 @@ extension SDL.Test {
     private var renderer: (any Renderer)!
     private var scene: GamepadScene!
     
-    func onInit() throws(SDL_Error) -> any Window {
+    func willInit() throws(SDL_Error) {
       configureHints()
       
       /* Enable input debug logging */
       SDL_SetLogPriority(Int32(SDL_LogCategory.input.rawValue), .debug);
-
-      print("Initializing SDL (v\(SDL_Version()))...")
-      try SDL_Init(.video, .joystick)
-      
-      defer { print("Initializing complete!") }
-
-      /* Create window */
-      return try createWindow()
     }
     
     func onReady(window: any Window) throws(SDL_Error) {
@@ -58,12 +50,13 @@ extension SDL.Test {
       renderer = nil
     }
     
-    func did(connect gameController: inout GameController) throws(SDL_Error) {
+    func did(connect gameController: inout Gamepad) throws(SDL_Error) {
+      print(#function)
       try gameController.open()
       scene?.gameController = gameController
     }
     
-    func will(remove gameController: GameController) {
+    func will(remove gameController: Gamepad) {
       scene?.gameController = self.gameControllers.last ?? .invalid
     }
     
@@ -168,11 +161,11 @@ extension SDL.Test.Controller {
   final class GamepadScene: GameScene<any Renderer>, @unchecked Sendable {
     enum Label {
       case waitingToConnect
-      case vendorID(GameController)
-      case productID(GameController)
-      case controllerID(GameController)
+      case vendorID(Gamepad)
+      case productID(Gamepad)
+      case controllerID(Gamepad)
       
-      var gameController: GameController {
+      var gameController: Gamepad {
         switch self {
           case .waitingToConnect: return .invalid
           case .vendorID(let gameController): return gameController
@@ -210,7 +203,7 @@ extension SDL.Test.Controller {
     }
     
     var textures: [ImageFiles : any Texture] = [:]
-    var gameController: GameController = .invalid
+    var gameController: Gamepad = .invalid
 
     private subscript(_ image: ImageFiles) -> TextureNode? {
       guard let node = child(matching: image.rawValue) as? TextureNode else {
@@ -236,13 +229,13 @@ extension SDL.Test.Controller {
       return node
     }
 
-    public subscript(_ gamepad: GamepadImageNode.Gamepad) -> GamepadImageNode? {
+    public subscript(_ gamepad: GamepadImageNode.GamepadImageState) -> GamepadImageNode? {
       guard let node = child(matching: gamepad.label) as? GamepadImageNode else {
         let node = GamepadImageNode(gamepad, textures: textures)
         self.addChild(node)
         return node
       }
-      node.gamepad = gamepad
+      node.gamepadImageState = gamepad
       return node
     }
       
@@ -294,8 +287,11 @@ extension SDL.Test.Controller {
       self[.back(gameController)]?.isHidden = showFront
       
       switch event.eventType {
-        case .keyDown:
+        case .keyDown where event.key.repeat == false:
           if event.key.key == SDLK_A {
+            try Joystick.attach(name: "Virtual Controller")
+            
+          /*
             try SDL_AttachVirtualJoystick(
               type: .gamepad,
               name: "Virtual Controller",
@@ -305,8 +301,9 @@ extension SDL.Test.Controller {
                 .init(type: .gyroscope, rate: 0),
               ]
             )
+           */
           }
-          else if event.key.key == SDLK_D, gameController.isVirtual {
+          else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(gameController.id) {
             var gameController = self.gameController
             gameController.close()
           }
@@ -318,12 +315,12 @@ extension SDL.Test.Controller {
 
 extension SDL.Test.Controller {
   final class GamepadImageNode: SpriteNode<any Renderer> {
-    enum Gamepad {
-      case front(GameController)
-      case back(GameController)
+    enum GamepadImageState {
+      case front(Gamepad)
+      case back(Gamepad)
       case invalid
       
-      var gameController: GameController {
+      var gameController: Gamepad {
         switch self {
           case .front(let gameController): return gameController
           case .back(let gameController): return gameController
@@ -339,10 +336,10 @@ extension SDL.Test.Controller {
         }
       }
       
-      private func name(for gameController: GameController) -> String {
+      private func name(for gameController: Gamepad) -> String {
         let joystickID = gameController.id
-        let isGamepad = gameController.isGamepad
-        let isVirtual = gameController.isVirtual
+        let isGamepad = SDL_IsGamepad(gameController.id)
+        let isVirtual = SDL_IsJoystickVirtual(gameController.id)
         
         var text = ""
         
@@ -372,7 +369,7 @@ extension SDL.Test.Controller {
       }
     }
     
-    var gamepad: Gamepad = .invalid
+    var gamepadImageState: GamepadImageState = .invalid
     
     private weak var frontImage: (any Texture)?
     private weak var backImage: (any Texture)?
@@ -383,8 +380,8 @@ extension SDL.Test.Controller {
     
     private let pressedColor: SDL_Color = SDL_Color(r: 10, g: 255, b: 21, a: 255)
 
-    required init(_ gamepad: Gamepad, textures: [ImageFiles : any Texture]) {
-      self.gamepad = gamepad
+    required init(_ gamepad: GamepadImageState, textures: [ImageFiles : any Texture]) {
+      self.gamepadImageState = gamepad
       self.frontImage = textures[.gamepadFront]
       self.backImage = textures[.gamepadBack]
       self.abxy = textures[.faceABXY]
@@ -407,18 +404,18 @@ extension SDL.Test.Controller {
     }
     
     override func draw(_ graphics: any Renderer) throws(SDL_Error) {
-      switch gamepad {
+      switch gamepadImageState {
         case .front(let gameController) where gameController != .invalid:
           let texturePosition = self.position
           let textureSize = (try frontImage?.size(as: Float.self)) ?? .zero
           try graphics.draw(texture: frontImage, at: texturePosition(as: SDL_FPoint.self))
 
-          let title = gamepad.title
+          let title = gamepadImageState.title
           let titleSize = title.debugTextSize(as: Float.self) / 2
           let titlePosition = texturePosition - [0, 28] + [textureSize.x / 2, 0] - [titleSize.x, 0]
           try graphics.debug(text: title, position: titlePosition, scale: scale)
 
-          if gameController.isVirtual {
+          if SDL_IsJoystickVirtual(gameController.id) {
             let subtitle = "Click on the gamepad image below to generate input"
             let textPosition = position - [-56, 16]
             try graphics.debug(text: subtitle, position: textPosition, scale: scale)
@@ -465,13 +462,13 @@ extension SDL.Test.Controller {
 extension SDL.Test.Controller {
   final class GamepadListNode: SpriteNode<any Renderer> {
     enum List {
-      case buttons(GameController)
-      case axes(GameController)
-      case hats(GameController)
-      case all(GameController)
+      case buttons(Gamepad)
+      case axes(Gamepad)
+      case hats(Gamepad)
+      case all(Gamepad)
       case empty
       
-      var gameController: GameController {
+      var gameController: Gamepad {
         switch self {
           case .buttons(let gameController): return gameController
           case .axes(let gameController): return gameController
@@ -492,7 +489,7 @@ extension SDL.Test.Controller {
       
       var title: String {
         switch self {
-          case .all(let gameController): return gameController.isVirtual ? "Virtual Controller" : gameController.gamepadType.debugDescription
+          case .all(let gameController): return SDL_IsJoystickVirtual(gameController.id) ? "Virtual Controller" : SDL_GamepadType(rawValue: gameController.id).debugDescription
           case .buttons: return "BUTTONS"
           case .hats: return "HATS"
           case .axes: return "AXES"

@@ -21,7 +21,7 @@ extension SDL.Games {
     private var sprites: [SpriteAnimation<AnyAnimation>] = []
     
     private var gameState         : GameState = .uninitialized
-    private var gameController    : GameController = .invalid
+    private var gameController    : Gamepad = .invalid
     private var gameTextures      : [ImageAsset : any Texture] = [:]
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
@@ -61,12 +61,12 @@ extension SDL.Games {
       self.gameState = .uninitialized
     }
     
-    func did(connect gameController: inout GameController) throws(SDL_Error) {
+    func did(connect gameController: inout Gamepad) throws(SDL_Error) {
       try gameController.open()
       self.gameController = gameController
     }
     
-    func will(remove gameController: GameController) {
+    func will(remove gameController: Gamepad) {
       self.gameController = self.gameControllers.last ?? .invalid
     }
     
