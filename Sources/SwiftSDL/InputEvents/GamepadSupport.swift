@@ -33,7 +33,9 @@ extension SDL_GamepadType: @retroactive CaseIterable, @retroactive CustomDebugSt
   }
 }
 
-extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible, @retroactive Hashable {
+extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible, @retroactive Hashable, @retroactive Comparable, @retroactive Strideable {
+  public typealias Stride = RawValue
+  
   public var debugDescription: String {
     switch self {
       case .invalid: return "Invalid Button"
@@ -63,7 +65,7 @@ extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebug
       case .misc4: return "Misc4"
       case .misc5: return "Misc5"
       case .misc6: return "Misc6"
-      case .buttonCount: return "\(Self.buttonCount.rawValue)"
+      case .buttonCount: return "Button Count"
       @unknown default: return "Invalid Button"
     }
   }
@@ -98,7 +100,22 @@ extension SDL_GamepadButton: @retroactive CaseIterable, @retroactive CustomDebug
       .misc6
     ]
   }
+  
+  public static func < (lhs: SDL_GamepadButton, rhs: SDL_GamepadButton) -> Bool {
+    lhs.rawValue < rhs.rawValue
+  }
+  
+  public func advanced(by n: RawValue) -> SDL_GamepadButton {
+    let rawValue = rawValue.advanced(by: Int(n))
+    return Self(rawValue: Int32(rawValue)) ?? .invalid
+  }
+  
+  public func distance(to other: SDL_GamepadButton) -> RawValue {
+    let distanceTo = Int32(rawValue.distance(to: other.rawValue))
+    return distanceTo
+  }
 }
+
 
 extension SDL_GamepadButtonLabel: @retroactive CaseIterable, @retroactive CustomDebugStringConvertible {
   public var debugDescription: String {

@@ -33,13 +33,12 @@ extension SDL.Test {
     ], help: "Render geometry with a texture"
     ) var useTexture: Bool = false
 
-    private var renderer: (any Renderer)! = nil
     private var icon: (any Texture)! = nil
     private var trianglePos: Point<Int32> = .zero
     private var triangleAngle: Float = .zero
 
     func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      renderer = try window.createRenderer()
+      let renderer = try window.createRenderer(retain: true)
       let icon = try renderer.texture(from: try Load(bitmap: "icon.bmp"))
       try icon.set(blendMode: blendMode)
       
@@ -47,7 +46,7 @@ extension SDL.Test {
     }
     
     func onUpdate(window: any Window) throws(SwiftSDL.SDL_Error) {
-      try renderer
+      try window.renderer.get()
         // Clears the framebuffer
         .clear(color: .init(r: 0xA0, g: 0xA0, b: 0xA0, a: 0xFF))
         // Use the 'blendMode' option passed in at runtime
@@ -93,7 +92,7 @@ extension SDL.Test {
     
     func onShutdown(window: (any SwiftSDL.Window)?, failure: GameLoopFailure) {
       icon = nil
-      renderer = nil
+      window?.renderer.destroy()
     }
     
     private func _loadTexture(_ renderer: any Renderer) throws(SDL_Error) {

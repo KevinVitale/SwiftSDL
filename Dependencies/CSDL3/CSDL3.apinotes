@@ -1,4 +1,5 @@
 Name: CSDL3
+SwiftInferImportAsMember: true
 Typedefs:
 - Name: SDL_AudioStream
   Availability: nonswift
@@ -142,6 +143,12 @@ Tags:
 - Name: SDL_SensorType
   EnumKind: NSEnum
 Functions:
+# SDL_CreateRendererWithProperties
+# FIXME: Disabled until further notice
+- Name: SDL_CreateRendererWithProperties
+  SwiftPrivate: true
+- Name: SDL_CreateRenderer
+  SwiftPrivate: true
 # SDL_AddHintCallback
 - Name: SDL_AddHintCallback
   SwiftPrivate: true
@@ -215,6 +222,9 @@ Functions:
   SwiftPrivate: true
 # SDL_Rect
 - Name: SDL_RectToFRect
+  SwiftPrivate: true
+# SDL_GetRenderDriver
+- Name: SDL_GetRenderDriver
   SwiftPrivate: true
 Enumerators:
 # SDL_GamepadType

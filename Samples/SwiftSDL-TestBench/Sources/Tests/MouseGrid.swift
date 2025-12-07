@@ -25,16 +25,12 @@ extension SDL.Test {
     @Option
     var circleRadius: Float = 10
     
-    
-    private var renderer: (any Renderer)!
     private var mousePos: Point<Float> = .zero
     
     func onReady(window: any Window) throws(SwiftSDL.SDL_Error) {
-      try SDL_Init(.gamepad)
-      
       let windowSize = try window.size(as: Float.self)
-      self.renderer = try window
-        .createRenderer()
+      try window
+        .createRenderer(retain: true)
         .set(
           logicalSize: windowSize,
           presentation: .stretch
@@ -42,12 +38,13 @@ extension SDL.Test {
     }
     
     func onUpdate(window: any Window) throws(SwiftSDL.SDL_Error) {
+      let renderer = try window.renderer.get()
       let logicalSize = try renderer.logicalSize.get()
       let cellSize: Size<Float> = (SDL_Size(logicalSize) / gridSize).to(Float.self)
 
       try renderer
         .clear(color: .gray)
-        .pass(to: { renderer in
+        .pass(to: { renderer throws(SDL_Error) in
           for col in 0..<self.gridSize.x {
             for row in 0..<self.gridSize.y {
               let xPos = Float(col) * cellSize.x
@@ -93,7 +90,7 @@ extension SDL.Test {
     
     func onEvent(window: any Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
       var event = event
-      try renderer(SDL_ConvertEventToRenderCoordinates, .some(&event))
+      try (try window.renderer.get())(SDL_ConvertEventToRenderCoordinates, .some(&event))
       switch event.eventType {
         case .mouseMotion:
           self.mousePos = event.motion.position(as: Float.self)
@@ -102,7 +99,7 @@ extension SDL.Test {
     }
     
     func onShutdown(window: (any Window)?, failure: GameLoopFailure) {
-      self.renderer = nil
+      window?.renderer.destroy()
     }
   }
 }

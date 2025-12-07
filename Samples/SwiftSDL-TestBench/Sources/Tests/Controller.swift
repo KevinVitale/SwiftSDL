@@ -15,49 +15,52 @@ extension SDL.Test {
     
     static let name: String = "SDL Test: Controller"
     
-    private var renderer: (any Renderer)!
     private var scene: GamepadScene!
     
     func willInit() throws(SDL_Error) {
       configureHints()
       
       /* Enable input debug logging */
-      SDL_SetLogPriority(Int32(SDL_LogCategory.input.rawValue), .debug);
+      SDL_SetLogLevel(.category(.video, priority: .debug))
     }
     
     func onReady(window: any Window) throws(SDL_Error) {
-      print("Creating renderer...")
-      self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
+      SDL_Log("Creating renderer...")
+      SDL_Log(SDL_GetRenderDriver())
       
-      print("Creating scene...")
+      let renderer = try window.createRenderer(retain: true)
+      
+      SDL_Log("Creating scene...")
       let sceneSize     = try renderer.outputSize(as: Float.self)
       let sceneTextures = try ImageFiles.createTextures(renderer)
       self.scene = try createScene(size: sceneSize, bgColor: .white, textures: sceneTextures)
     }
     
     func onUpdate(window: any Window) throws(SDL_Error) {
-      try renderer.draw(scene: scene, updateAt: Uint64(deltaTime) / 100)
+      try window
+        .renderer.get()
+        .draw(scene: scene, updateAt: Uint64(deltaTime) / 100)
     }
     
     func onEvent(window: any Window, _ event: SDL_Event) throws(SDL_Error) {
       var event = event
-      try renderer(SDL_ConvertEventToRenderCoordinates, .some(&event))
-      try scene.handle(event)
+      try (try window.renderer.get())(SDL_ConvertEventToRenderCoordinates, .some(&event))
+      try? scene.handle(event)
     }
     
     func onShutdown(window: (any Window)?, failure: GameLoopFailure) {
       try? scene?.shutdown()
-      renderer = nil
+      window?.renderer.destroy()
     }
     
-    func did(connect gameController: inout Gamepad) throws(SDL_Error) {
-      print(#function)
-      try gameController.open()
-      scene?.gameController = gameController
+    func did(add gamepad: inout Gamepad) throws(SDL_Error) {
+      try gamepad.open()
+      scene?.gameController = gamepad
     }
     
-    func will(remove gameController: Gamepad) {
-      scene?.gameController = self.gameControllers.last ?? .invalid
+    func did(remove connected: [Gamepad]) throws(SDL_Error) {
+      scene?.gameController = connected.last ?? .invalid
+      try scene?.gameController.open()
     }
     
     private func configureHints() {
@@ -304,8 +307,12 @@ extension SDL.Test.Controller {
            */
           }
           else if event.key.key == SDLK_D, SDL_IsJoystickVirtual(gameController.id) {
+            try self.gameController.close()
+            print(self.gameController, try Gamepad.connected.get())
+            /*
             var gameController = self.gameController
-            gameController.close()
+            try gameController.close()
+             */
           }
         default: ()
       }
@@ -424,7 +431,7 @@ extension SDL.Test.Controller {
           for gamepadButton in SDL_GamepadButton.allCases {
             let texturePosition = position - [25, 25] + gamepadButton.position
             
-            switch gameController.gamepad(isPressed: gamepadButton) {
+            switch gameController[isPressed: gamepadButton] {
               case true:
                 try graphics.draw(
                   texture: try highlight?.set(colorMod: pressedColor),
@@ -435,7 +442,7 @@ extension SDL.Test.Controller {
             }
           }
 
-          switch gameController.gamepad(labelFor: .south) {
+          switch gameController.label(for: .south) {
             case .a:
               let texturePosition = position + [363, 118]
               try graphics.draw(texture: abxy, at: texturePosition(as: SDL_FPoint.self))
@@ -530,14 +537,14 @@ extension SDL.Test.Controller {
       switch list {
         case .buttons(let gameController) where gameController != .invalid:
           try graphics.debug(text: list.title, position: position, scale: scale)
-          for button in gameController.joystickButtons() {
+          for button in SDL_GamepadButton.allCases {
             let text = String("\(button):").padded(width: 3)
-            let position = position + [0, 12] + [0, 14 * Float(button)]
+            let position = position + [0, 12] + [0, 14 * Float(button.rawValue)]
             try graphics.debug(text: text, position: position, scale: scale)
             
             let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
             
-            switch gameController.joystick(isPressed: button) {
+            switch gameController[isPressed: button] {
               case true: try smallButtonTexture?.set(colorMod: pressedColor)
               case false: try smallButtonTexture?.set(colorMod: .white)
             }
@@ -547,7 +554,7 @@ extension SDL.Test.Controller {
           
         case .axes(let gameController) where gameController != .invalid:
           try graphics.debug(text: list.title, position: position, scale: scale)
-          for axis in gameController.joystickAxes() {
+          for axis in Array(try gameController.axes.get()) {
             let text = String("\(axis):").padded(width: 3)
             let position = position + [-8, 12] + [0, 14 * Float(axis)]
             try graphics.debug(text: text, position: position, scale: scale)
@@ -558,7 +565,7 @@ extension SDL.Test.Controller {
               4, 12
             ], color: SDL_Color(r: 200, g: 200, b: 200, a: 255))
             
-            let value = gameController.joystick(axis: axis)
+            let value = (try gameController[axis: axis].get().map(\.1)).first ?? 0
 
             let leftArrowPosition = position + [26, -2]
             let leftArrowColorMod = value == (Int16.min + 1) ? pressedColor : .white
@@ -590,7 +597,7 @@ extension SDL.Test.Controller {
           
         case .hats(let gameController) where gameController != .invalid:
           try graphics.debug(text: list.title, position: position, scale: scale)
-          let count = gameController.joystickHats()
+          let count = try gameController.hats.get()
           try graphics.debug(text: "\(count)", position: position + [0, 24], scale: scale)
           
         case .all(let gameController) where gameController != .invalid:
@@ -605,7 +612,7 @@ extension SDL.Test.Controller {
             
             let texturePosition = position + [2, -10] + text.debugTextSize(as: Float.self)
             
-            switch gameController.gamepad(isPressed: gamepadButton) {
+            switch gameController[isPressed: gamepadButton] {
               case true: try smallButtonTexture?.set(colorMod: pressedColor)
               case false: try smallButtonTexture?.set(colorMod: .white)
             }

@@ -37,7 +37,7 @@ extension Renderer {
     let renderScale = try self.scale.get()
     return try self
       .set(scale: node.scale)
-      .pass(to: { try node.draw($0) })
+      .pass(to: { renderer throws(SDL_Error) in try node.draw(renderer) })
       .set(scale: renderScale)
    }
 }

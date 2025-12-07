@@ -16,11 +16,9 @@ extension SDL.Games {
     private var renderContext : RenderContext = .invalid
     private var gameState     : GameState = .uninitialized
     private var gameTextures  : [ImageAsset : any Texture] = [:]
-    private var gameController: Gamepad = .invalid
+    private var gamepad: Gamepad = .invalid
     
-    func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      try SDL_Init(.gamepad)
-      
+    func onReady(window: any Window) throws(SDL_Error) {
       let windowSize = try window.size(as: Float.self)
       let renderer = try window
         .createRenderer()
@@ -29,6 +27,7 @@ extension SDL.Games {
           presentation: .overscan
         )
       
+      SDL_Log(try renderer.properties.get()[.name])
       self.renderContext = .valid(renderer)
     }
     
@@ -42,19 +41,17 @@ extension SDL.Games {
       
       switch event.eventType {
         case .gamepadButtonDown:
-          if gameController.gamepad(isPressed: .south) ||
-             gameController.gamepad(isPressed: .east)
-          {
+          if gamepad[isPressed: .south, .east] {
             try self.gameState.flap()
           }
           
-          if gameController.gamepad(isPressed: .start) {
+          if gamepad[isPressed: .start] {
             self.gameState.pause()
           }
 
         case .keyDown where event.key.repeat == false: ()
           switch event.key.key {
-            case SDLK_ESCAPE: self.gameState.pause()
+            case SDLK_ESCAPE    : self.gameState.pause()
             case SDLK_RETURN    : fallthrough
             case SDLK_A...SDLK_Z: fallthrough
             case SDLK_SPACE     : try self.gameState.flap()
@@ -68,14 +65,15 @@ extension SDL.Games {
       self.renderContext = .invalid
     }
     
-    func did(connect gameController: inout Gamepad) throws(SDL_Error) {
+    func did(add gamepad: inout Gamepad) throws(SDL_Error) {
       self.gameState.pause()
-      try gameController.open()
-      self.gameController = gameController
+      try gamepad.open()
+      self.gamepad = gamepad
     }
     
-    func will(remove gameController: Gamepad) {
-      self.gameController = self.gameControllers.last ?? .invalid
+    func did(remove connected: [Gamepad]) throws(SDL_Error) {
+      self.gamepad = connected.last ?? .invalid
+      try self.gamepad.open()
     }
     
     fileprivate subscript(_ image: ImageAsset) -> (any Texture)? {
@@ -270,7 +268,7 @@ extension SDL.Games.FlappyBird {
       switch self {
         case .ready: return { renderer, game in
           let center = try renderer.logicalSize.get().to(Float.self) / 2
-          let text = game.gameController != .invalid ? "A or B button to begin" : "Press ANY key to begin"
+          let text = game.gamepad != .invalid ? "A or B button to begin" : "Press ANY key to begin"
           let textScale: Size<Float> = [1.5, 1.5]
           let textSize = text.debugTextSize(as: Float.self)
           try renderer.debug(

@@ -1,6 +1,8 @@
 // MARK: - SDL_Joystick -
 public protocol SDL_Joystick: Identifiable, Equatable, Hashable where ID == SDL_JoystickID {
   associatedtype `Type`
+  associatedtype Button: Comparable, Strideable
+  
   typealias Pointer = OpaquePointer
   
   // MARK: - Invalid
@@ -183,16 +185,13 @@ public protocol SDL_Joystick: Identifiable, Equatable, Hashable where ID == SDL_
    - seealso: `SDL_GetNumJoystickButtons`
    - seealso: `SDL_GetJoystickPlayerIndexForID`
    */
-  var buttons: Result<Range<Int32>, SDL_Error> { get }
+  var buttons: Result<Range<Button>, SDL_Error> { get }
   
   /**
-   - seealso: `SDL_GetJoystickBall`
+   - seealso: `SDL_GetJoystickButton`
    */
-  subscript<T: BinaryInteger>(buttons indices: T...) -> Result<[(Int32, Bool)], SDL_Error> where T: Sendable { get }
-  subscript<T: RangeExpression>(buttons indices: T) -> Result<[(Int32, Bool)], SDL_Error> where T.Bound == Int32 { get }
-  subscript<T: RangeExpression>(buttons indices: Result<T, SDL_Error>) -> Result<[(Int32, Bool)], SDL_Error> where T.Bound == Int32 { get }
-  func buttons(_ indices: [Int32]) -> Result<[(Int32, Bool)], SDL_Error>
-  
+  subscript(buttons buttons: [Button]) -> Result<[(Button, Bool)], SDL_Error> { get }
+
   /**
    - seealso: `SDL_GetNumJoystickHats`
    */
@@ -241,7 +240,26 @@ public protocol SDL_Joystick: Identifiable, Equatable, Hashable where ID == SDL_
    */
 }
 
-extension SDL_Joystick {
+extension SDL_Joystick where Button.Stride: SignedInteger {
+  public subscript(buttons buttons: Button...) -> Result<[(Button, Bool)], SDL_Error> {
+    self[buttons: buttons]
+  }
+  
+  public subscript<T: RangeExpression>(buttons: Result<T, SDL_Error>) -> Result<[(Button, Bool)], SDL_Error> where T.Bound == Button {
+    buttons.flatMap { buttons in
+      self.buttons.flatMap { this in
+        self[buttons: Array(buttons.relative(to: this))]
+      }
+    }
+  }
+
+  public subscript(isPressed buttons: Button...) -> Bool {
+    (try? (self[buttons: buttons].map {
+      $0.reduce(false) { $0 || $1.1 }
+    })
+    .get()) ?? false
+  }
+
   @discardableResult
   @inlinable
   public func callAsFunction<Value, each Argument>(_ block: (ID, repeat each Argument) -> Value?, _ argument: repeat each Argument) throws(SDL_Error) -> Value {
@@ -675,28 +693,10 @@ public enum Joystick: SDL_Joystick {
       .resultOf(SDL_GetNumJoystickButtons)
       .map { 0..<$0 }
   }
-  
-  public subscript<T: BinaryInteger>(buttons indices: T...) -> Result<[(Int32, Bool)], SDL_Error> where T: Sendable {
-    self.buttons(indices.map(Int32.init))
-  }
-  
-  public subscript<T: RangeExpression>(buttons indices: T) -> Result<[(Int32, Bool)], SDL_Error> where T.Bound == Int32 {
-    self.buttons(indices)
-  }
 
-  public subscript<T: RangeExpression>(buttons indices: Result<T, SDL_Error>) -> Result<[(Int32, Bool)], SDL_Error> where T.Bound == Int32 {
-    indices.flatMap { self.buttons($0) }
-  }
-
-  public func buttons<T: RangeExpression>(_ indices: T) -> Result<[(Int32, Bool)], SDL_Error> where T.Bound == Int32 {
-    buttons.flatMap {
-      self.buttons(Array(indices.relative(to: $0)))
-    }
-  }
-
-  public func buttons(_ indices: [Int32]) -> Result<[(Int32, Bool)], SDL_Error> {
+  public subscript(buttons buttons: [Int32]) -> Result<[(Int32, Bool)], SDL_Error> {
     return self.pointer.map { pointer in
-      indices.map { button in
+      buttons.map { button in
         (button, SDL_GetJoystickButton(pointer, button))
       }
     }

@@ -2,7 +2,8 @@ extension Window {
   public var displayMode: Result<Any, SDL_Error> {
     fatalError()
   }
-  
+
+  /*
   @discardableResult
   public func createRenderer() throws(SDL_Error) -> any Renderer {
     try self.createRenderer(with: [(String, value: Bool)]())
@@ -20,6 +21,7 @@ extension Window {
       .map({ SDL_Object($0, tag: "window renderer", destroy: SDL_DestroyRenderer) })
       .get()
   }
+   */
   
   @discardableResult
   public func createGPUDevice(with flags: [SDL_GPUShaderFormat] = Array(SDL_GPUShaderFormat.allCases[1...]), debugMode: Bool = false, named driver: String? = nil) throws(SDL_Error) -> some GPUDevice {
@@ -54,22 +56,6 @@ extension Window {
   @discardableResult
   public func set(position: SDL_Point) throws(SDL_Error) -> some Window {
     try self(SDL_SetWindowPosition, position.x, position.y)
-  }
-
-  @discardableResult
-  /** Sets the window's title.
-   
-   - parameters:
-   - title: The window's new title
-   
-   - warning: `callAsFunction` does not work as expected;
-   Use this method instead to invoke the C-function explicitly.
-   */
-  public func set(title: String) throws(SDL_Error) -> some Window {
-    guard __SDL_SetWindowTitle(pointer, title.cString(using: .utf8)) else {
-      throw .error
-    }
-    return self
   }
 
   @discardableResult

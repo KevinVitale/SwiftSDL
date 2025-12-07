@@ -9,18 +9,19 @@ extension SDL.Games {
     )
     
     static let name: String = "Kevin's Personal Sandbox"
-
+    
     @OptionGroup var options: Options
     
     private var scene: SurfaceScene!
+    private var gamepad: Gamepad = .invalid
     
-    func onReady(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
-      scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
-      SDL_SetLogLevel(.category(.application, priority: .critical))
-      SDL_SetLogLevel(.category(.input, priority: .critical))
-
-      SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "software")
+    func willInit() throws(SDL_Error) {
+      SDL_SetHint(SDL_HINT_TRACKPAD_IS_TOUCH_ONLY, "1")
       SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1")
+    }
+    
+    func onReady(window: any SwiftSDL.Window) throws(SDL_Error) {
+      scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
     }
     
     func onUpdate(window: any SwiftSDL.Window) throws(SwiftSDL.SDL_Error) {
@@ -38,69 +39,12 @@ extension SDL.Games {
         default: ()
       }
       
-      if (0x600..<0x800).contains(event.type) {
-        do {
-          var joystick = try Joystick.locate(fromID: event.jdevice.which).get()
-          if joystick.isGamepad {
-            switch event.eventType {
-              case .joystickAdded:
-                try joystick.open()
-                /*
-                 print(try joystick.playerIndex.get())
-                 print(try joystick.GUIDInfo.get())
-                 print(try joystick.name.get())
-                 print(try joystick.properties.get())
-                 print(try joystick.serial.get())
-                 print(try joystick.type.get())
-                 print(try joystick.vendor.get())
-                 print(try joystick[balls: joystick.balls].get())
-                 */
-                try joystick.rumble(0..<UInt16.max, duration: 500)
-              case .joystickRemoved: try joystick.close()
-              case .joystickButtonUp: print(try joystick[buttons: joystick.buttons].get())
-              case .joystickButtonDown:
-                print(try joystick[buttons: joystick.buttons].get())
-                try joystick.set(playerIndex: (0..<4).randomElement()!)
-                print(try joystick.playerIndex.get())
-                try joystick.triggers(0..<UInt16.max, duration: 500)
-              case .joystickAxisMotion:
-                print(try joystick[axis: joystick.axes].get())
-              default: break
-            }
-          }
-          else {
-            var gamepad = try _Gamepad.locate(fromID: event.gdevice.which).get()
-            switch event.eventType {
-              case .gamepadAdded:
-                try gamepad.open()
-                /*
-                 print(try joystick.playerIndex.get())
-                 print(try joystick.GUIDInfo.get())
-                 print(try joystick.name.get())
-                 print(try joystick.properties.get())
-                 print(try joystick.serial.get())
-                 print(try joystick.type.get())
-                 print(try joystick.vendor.get())
-                 print(try joystick[balls: joystick.balls].get())
-                 */
-                try gamepad.rumble(0..<UInt16.max, duration: 500)
-              case .gamepadRemoved: try gamepad.close()
-              case .gamepadButtonUp: print(try gamepad[buttons: gamepad.buttons].get())
-              case .gamepadButtonDown:
-                print(try gamepad[buttons: gamepad.buttons].get())
-                try gamepad.set(playerIndex: (0..<4).randomElement()!)
-                print(try gamepad.playerIndex.get())
-                try gamepad.triggers(0..<UInt16.max, duration: 500)
-              case .gamepadAxisMotion:
-                print(try gamepad[axis: gamepad.axes].get())
-              default: break
-            }
-          }
-          
-        }
-        catch {
-          print(error)
-        }
+      switch (event.eventType, gamepad) {
+        case (.gamepadButtonUp, _):
+          try gamepad.rumble(UInt16.zero..<UInt16.zero, duration: 0)
+        case (.gamepadButtonDown, let gamepad):
+          try gamepad.rumble(UInt16.min..<UInt16.max, duration: .max)
+        default: break
       }
       
       if event.button.clicks == 1 {
@@ -112,8 +56,12 @@ extension SDL.Games {
       try? scene?.shutdown()
     }
     
-    func did(connect gameController: inout Gamepad) throws(SDL_Error) {
-      // try gameController.open()
+    func did(add gamepad: inout Gamepad) throws(SDL_Error) {
+      guard !gamepad.isVirtual else {
+        return
+      }
+      try gamepad.open()
+      self.gamepad = gamepad
     }
   }
 }

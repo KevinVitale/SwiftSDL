@@ -61,13 +61,14 @@ extension SDL.Games {
       self.gameState = .uninitialized
     }
     
-    func did(connect gameController: inout Gamepad) throws(SDL_Error) {
-      try gameController.open()
-      self.gameController = gameController
+    func did(add gamepad: inout Gamepad) throws(SDL_Error) {
+      try gamepad.open()
+      self.gameController = gamepad
     }
     
-    func will(remove gameController: Gamepad) {
-      self.gameController = self.gameControllers.last ?? .invalid
+    func did(remove connected: [Gamepad]) throws(SDL_Error) {
+      self.gameController = connected.last ?? .invalid
+      try self.gameController.open()
     }
     
     fileprivate subscript(_ image: ImageAsset) -> (any Texture)? {

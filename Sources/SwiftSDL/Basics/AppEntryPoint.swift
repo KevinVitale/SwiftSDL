@@ -12,7 +12,7 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
   static var identifier: String { get }
   
   /// The default window properties for creating the main window.
-  static var windowProperties: [SDL_WindowProperty] { get }
+  static var windowProperties: [SDL_WindowCreateProperty] { get }
   
   /** Runtime options that customize a game's behavior and presentation.
    
@@ -118,8 +118,8 @@ public protocol GameLoop: AnyObject, ParsableCommand, SDL_PropertyTypeValue {
    */
   func willQuit()
   
-  func did(connect gameController: inout Gamepad) throws(SDL_Error)
-  func will(remove gameController: Gamepad)
+  func did(add gamepad: inout Gamepad) throws(SDL_Error)
+  func did(remove connected: [Gamepad]) throws(SDL_Error)
   
   /// Time since the last frame (in seconds).
   @available(*, deprecated)
@@ -191,7 +191,7 @@ extension GameLoop {
   public static var version: String { "" }
   public static var libraryVersion: SDL_Version { .current }
   public static var identifier: String { "" }
-  public static var windowProperties: [SDL_WindowProperty] {
+  public static var windowProperties: [SDL_WindowCreateProperty] {
     [
       .windowTitle("\(Self.name)"),
       .width(1024), .height(640),
@@ -281,34 +281,18 @@ extension GameLoop {
           
           if (0x600..<0x800).contains(event.type) {
             switch event.eventType {
-              case .joystickAdded:   fallthrough
-              case .joystickRemoved: fallthrough
-              case .gamepadAdded:    fallthrough
-              case .gamepadRemoved:  ()
-                let gameControllers = __GameControllers
-                __GameControllers = try Gamepad.connected.get()
-                
-                let difference = __GameControllers
-                  .difference(from: gameControllers, by: { existing, new in existing.id == new.id })
-                  .inferringMoves()
-                
-                try difference
-                  .forEach {
-                    switch($0) {
-                      case .insert(_, let gameController, _):
-                        var gameController = gameController
-                        try gameLoop.did(connect: &gameController)
-                        
-                      case .remove(_, var gameController, _):
-                        gameLoop.will(remove: gameController)
-                        gameController.close()
-                    }
-                  }
-              default: ()
+              case .gamepadAdded:
+                var gamepad = try Gamepad.locate(fromID: event.gdevice.which).get()
+                try gameLoop.did(add: &gamepad)
+              case .gamepadRemoved:
+                let gamepads = try Gamepad.connected.get()
+                try gameLoop.did(remove: gamepads)
+              default: break
             }
           }
 
           try gameLoop.onEvent(window: gameWindow, event)
+          
           return .continue
         } catch {
           let gameLoopFailure = __GameLoopFailure(error: error as! SDL_Error, state: .onEvent)
@@ -330,11 +314,10 @@ extension GameLoop {
           failure: (failure?.gameLoopFailure ?? .none)
         )
         
-        for var gameController in __GameControllers {
-          gameController.close()
+        for var joystick in (try? Joystick.connected.get()) ?? [] {
+          try? joystick.close()
         }
-        __GameControllers = []
-        
+
         gameLoop?.willQuit()
       })
       
@@ -344,20 +327,13 @@ extension GameLoop {
   }
 }
 
-nonisolated(unsafe)
-internal var __GameControllers: [Gamepad] = []
-
 extension GameLoop {
-  public var gameControllers: [Gamepad] {
-    __GameControllers
-  }
-  
   public var deltaTime: Double {
     (try? __GetGameLoopStep())?.delta ?? .nan
   }
   
-  public func did(connect gameController: inout Gamepad) throws(SDL_Error) { /* no-op */ }
-  public func will(remove gameController: Gamepad) { /* no-op */ }
+  public func did(add gamepad: inout Gamepad) throws(SDL_Error) { /* no-op */ }
+  public func did(remove connected: [Gamepad]) throws(SDL_Error) { /* no-op */ }
 }
 
 public struct SDL_AppMetadata: Sendable {

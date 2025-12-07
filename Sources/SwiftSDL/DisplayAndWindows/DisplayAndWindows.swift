@@ -1,13 +1,13 @@
 // MARK: - Protocol
 public protocol Window: SDL_ObjectProtocol, SDL_PropertyTypeValue where Pointer == OpaquePointer {
-  init(with properties: [SDL_WindowProperty]) throws(SDL_Error)
+  init(with properties: [SDL_WindowCreateProperty]) throws(SDL_Error)
 }
 
 extension SDL_Object<OpaquePointer>: Window { }
 
 // MARK: - Create Window
 extension Window where Self == SDL_Object<OpaquePointer> {
-  public init(with properties: [SDL_WindowProperty]) throws(SDL_Error) {
+  public init(with properties: [SDL_WindowCreateProperty]) throws(SDL_Error) {
     try self.init(with: try SDL_PropertiesID(properties: properties))
   }
   
@@ -27,17 +27,39 @@ extension Window {
   }
   
   public var title: Result<String, SDL_Error> {
-    self .resultOf(__SDL_GetWindowTitle).map(String.init(cString:))
+    self
+      .resultOf(__SDL_GetWindowTitle)
+      .map(String.init(cString:))
   }
   
+  @discardableResult
+  /** Sets the window's title.
+   
+   - parameters:
+   - title: The window's new title
+   
+   - warning: `callAsFunction` does not work as expected;
+   Use this method instead to invoke the C-function explicitly.
+   */
+  public func set(title: String) throws(SDL_Error) -> some Window {
+    guard __SDL_SetWindowTitle(pointer, title.cString(using: .utf8)) else {
+      throw .error
+    }
+    return self
+  }
+
   /**
    Get the properties associated with a window.
+   
+   - seealso: `SDL_GetWindowProperties`
    */
   public var properties: Result<SDL_PropertiesID, SDL_Error> {
     self.resultOf(__SDL_GetWindowProperties)
       .flatMap { propertyID in
-        Result { try SDL_PropertiesID(id: propertyID) }
-          .mapError { $0 as! SDL_Error }
+        Result { () throws(SDL_Error) in
+          guard propertyID != 0 else { throw .error }
+          return try SDL_PropertiesID(id: propertyID)
+        }
       }
   }
   
@@ -59,6 +81,25 @@ extension Window {
   public func `is`(_ flag: SDL_WindowFlags) -> Bool { flags & flag.rawValue != 0 }
   public func isNot(_ flag: SDL_WindowFlags) -> Bool { !`is`(flag) }
   var flags: UInt64 { try! self(SDL_GetWindowFlags) }
+}
+
+// MARK: - Property Subscript
+extension Window {
+  public subscript<T: SDL_PropertyTypeValue>(property: SDL_WindowProperty) -> T? {
+    (try? self.properties.get())?[property.wrappedValue] as? T
+  }
+}
+
+extension SDL_PropertiesID {
+  public subscript(property: SDL_WindowProperty) -> (any SDL_PropertyTypeValue)? {
+    self[property.wrappedValue]
+  }
+}
+
+extension Result where Success == SDL_PropertiesID, Failure == SDL_Error {
+  public subscript(property: SDL_WindowProperty) -> Result<(any SDL_PropertyTypeValue)?, Failure> {
+    map { $0[property.wrappedValue] }
+  }
 }
 
 /// Required because `libsdl` wraps all these values with a `SDL_UINT64_C` C-macro
@@ -156,17 +197,18 @@ extension SDL_Point {
 }
 
 extension SDL_PropertiesID {
-  public convenience init(id: ID? = nil, properties: SDL_WindowProperty...) throws(SDL_Error) {
+  public convenience init(id: ID? = nil, properties: SDL_WindowCreateProperty...) throws(SDL_Error) {
     try self.init(id: id, properties: properties)
     
   }
-  public convenience init(id: ID? = nil, properties: [SDL_WindowProperty]) throws(SDL_Error) {
+  
+  public convenience init(id: ID? = nil, properties: [SDL_WindowCreateProperty]) throws(SDL_Error) {
     try self.init(id: id,  properties: properties.map { ($0.property, $0.wrappedValue) })
   }
 }
 
 @propertyWrapper
-public enum SDL_WindowProperty {
+public enum SDL_WindowCreateProperty {
   case alwaysOnTop(Bool)
   case borderless(Bool)
   case constrainPopup(Bool)
@@ -280,6 +322,85 @@ public enum SDL_WindowProperty {
       case .win32WindowHandle(let value): return value
       case .wind32PixelFormat(let value): return value
       case .x11Window(let value): return value
+    }
+  }
+}
+
+@propertyWrapper
+public enum SDL_WindowProperty {
+  case shape
+  case hdrEnabled
+  case sdrWhiteLevel
+  case hdrHeadroom
+  case androidWindow
+  case androidSurface
+  case uikitWindow
+  case uikitMetalViewTag
+  case uikitOpenGLFramebuffer
+  case uikitOpenGLRenderBuffer
+  case uikitOpenGLResolveFramebuffer
+  case kmsdrmDeviceIndex
+  case kmsdrmFD
+  case kmsdrmGBMDevice
+  case cocoaWindow
+  case cocoaMetalView
+  case openVROverlay
+  case vivanteDisplay
+  case vintanteWindow
+  case vivanteSurface
+  case win32Window
+  case win32HDC
+  case win32Instance
+  case waylandDisplay
+  case waylandSurface
+  case waylandViewport
+  case waylandEGLWindow
+  case waylandXDGSurface
+  case waylandXDGToplevel
+  case waylandXDGToplevelExportHandle
+  case waylandXDGPopup
+  case waylandXDGPositioner
+  case x11Display
+  case x11Screen
+  case x11Window
+  
+  public var wrappedValue: String {
+    switch self {
+      case .shape: return SDL_PROP_WINDOW_SHAPE_POINTER
+      case .hdrEnabled: return SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN
+      case .sdrWhiteLevel: return SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT
+      case .hdrHeadroom: return SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT
+      case .androidWindow: return SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER
+      case .androidSurface: return SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER
+      case .uikitWindow: return SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER
+      case .uikitMetalViewTag: return SDL_PROP_WINDOW_UIKIT_METAL_VIEW_TAG_NUMBER
+      case .uikitOpenGLFramebuffer: return SDL_PROP_WINDOW_UIKIT_OPENGL_FRAMEBUFFER_NUMBER
+      case .uikitOpenGLRenderBuffer: return SDL_PROP_WINDOW_UIKIT_OPENGL_RENDERBUFFER_NUMBER
+      case .uikitOpenGLResolveFramebuffer: return SDL_PROP_WINDOW_UIKIT_OPENGL_RESOLVE_FRAMEBUFFER_NUMBER
+      case .kmsdrmDeviceIndex: return SDL_PROP_WINDOW_KMSDRM_DEVICE_INDEX_NUMBER
+      case .kmsdrmFD: return SDL_PROP_WINDOW_KMSDRM_DRM_FD_NUMBER
+      case .kmsdrmGBMDevice: return SDL_PROP_WINDOW_KMSDRM_GBM_DEVICE_POINTER
+      case .cocoaWindow: return SDL_PROP_WINDOW_COCOA_WINDOW_POINTER
+      case .cocoaMetalView: return SDL_PROP_WINDOW_COCOA_METAL_VIEW_TAG_NUMBER
+      case .openVROverlay: return SDL_PROP_WINDOW_OPENVR_OVERLAY_ID
+      case .vivanteDisplay: return SDL_PROP_WINDOW_VIVANTE_DISPLAY_POINTER
+      case .vintanteWindow: return SDL_PROP_WINDOW_VIVANTE_WINDOW_POINTER
+      case .vivanteSurface: return SDL_PROP_WINDOW_VIVANTE_SURFACE_POINTER
+      case .win32Window: return SDL_PROP_WINDOW_WIN32_HWND_POINTER
+      case .win32HDC: return SDL_PROP_WINDOW_WIN32_HDC_POINTER
+      case .win32Instance: return SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER
+      case .waylandDisplay: return SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER
+      case .waylandSurface: return SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER
+      case .waylandViewport: return SDL_PROP_WINDOW_WAYLAND_VIEWPORT_POINTER
+      case .waylandEGLWindow: return SDL_PROP_WINDOW_WAYLAND_EGL_WINDOW_POINTER
+      case .waylandXDGSurface: return SDL_PROP_WINDOW_WAYLAND_XDG_SURFACE_POINTER
+      case .waylandXDGToplevel: return SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_POINTER
+      case .waylandXDGToplevelExportHandle: return SDL_PROP_WINDOW_WAYLAND_XDG_TOPLEVEL_EXPORT_HANDLE_STRING
+      case .waylandXDGPopup: return SDL_PROP_WINDOW_WAYLAND_XDG_POPUP_POINTER
+      case .waylandXDGPositioner: return SDL_PROP_WINDOW_WAYLAND_XDG_POSITIONER_POINTER
+      case .x11Display: return SDL_PROP_WINDOW_X11_DISPLAY_POINTER
+      case .x11Screen: return SDL_PROP_WINDOW_X11_SCREEN_NUMBER
+      case .x11Window: return SDL_PROP_WINDOW_X11_WINDOW_NUMBER
     }
   }
 }
