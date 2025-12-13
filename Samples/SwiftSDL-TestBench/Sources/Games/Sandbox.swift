@@ -21,6 +21,8 @@ extension SDL.Games {
     }
     
     func onReady(window: any SwiftSDL.Window) throws(SDL_Error) {
+      let rect = SDL_Rect()
+      rect.isEmpty
       scene = SurfaceScene(size: try window.size(as: Float.self), bgColor: .gray)
     }
     
@@ -31,6 +33,7 @@ extension SDL.Games {
     
     func onEvent(window: any SwiftSDL.Window, _ event: SDL_Event) throws(SwiftSDL.SDL_Error) {
       try scene?.handle(event)
+      #if os(macOS)
       switch event.eventType {
         case .mouseButtonUp where event.button.clicks == 1: window.userData?["rnd"] = nil
         case .mouseButtonUp where event.button.clicks == 2:
@@ -38,6 +41,7 @@ extension SDL.Games {
         case .mouseButtonDown where event.button.clicks == 1: window.userData?["rnd"] = self.deltaTime
         default: ()
       }
+      #endif
       
       switch (event.eventType, gamepad) {
         case (.gamepadButtonUp, _):

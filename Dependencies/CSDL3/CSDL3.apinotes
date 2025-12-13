@@ -143,6 +143,8 @@ Tags:
 - Name: SDL_SensorType
   EnumKind: NSEnum
 Functions:
+- Name: SDL_RectEmpty
+  SwiftName: 'getter:SDL_Rect.isEmpty(self:)'
 # SDL_CreateRendererWithProperties
 # FIXME: Disabled until further notice
 - Name: SDL_CreateRendererWithProperties
