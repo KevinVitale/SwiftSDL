@@ -209,8 +209,8 @@ extension GameLoop {
    
    */
   public func onInit() throws(SDL_Error) -> (any Window) {
-    try SDL_Init(.video, .joystick, .gamepad)
     try willInit()
+    try SDL_Init(.video, .joystick, .gamepad)
     
     var windowProperties = Self.windowProperties
     windowProperties.append(.transparent(options.windowTransparent))

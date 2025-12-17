@@ -28,7 +28,7 @@ extension SDL.Test {
       SDL_Log("Creating renderer...")
       SDL_Log(SDL_GetRenderDriver())
       
-      let renderer = try window.createRenderer(retain: true)
+      let renderer = try window.createRenderer(properties: [],  retain: true)
       
       SDL_Log("Creating scene...")
       let sceneSize     = try renderer.outputSize(as: Float.self)

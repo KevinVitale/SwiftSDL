@@ -25,6 +25,21 @@ extension Window {
     }
     return SDL_Object(renderer, tag: "renderer (retain: \(retain))", destroy: retain ? { _ in  } : SDL_DestroyRenderer)
   }
+  
+  public func createRenderer(properties: SDL_RendererCreateProperty..., retain: Bool = false) throws(SDL_Error) -> any Renderer {
+    try self.createRenderer(properties: properties, retain: retain)
+  }
+  
+  public func createRenderer(properties: [SDL_RendererCreateProperty], retain: Bool = false) throws(SDL_Error) -> any Renderer {
+    let pointer = UnsafeMutableRawPointer(self.pointer)
+    let properties = try SDL_PropertiesID.init(properties: properties + [.window(pointer)])
+    
+    guard let renderer = __SDL_CreateRendererWithProperties(properties.id) else {
+      throw .error
+    }
+    
+    return SDL_Object(renderer, tag: "renderer (retain: \(retain))", destroy: retain ? { _ in  } : SDL_DestroyRenderer)
+  }
 }
 
 // MARK: - Driver Query
@@ -161,9 +176,6 @@ extension Renderer {
 }
 
 
-// MARK: - Renderer Create Properties
-// FIXME: "SDL_RendererCreateWithProperties" not working
-/*
 extension SDL_PropertiesID {
   public convenience init(id: ID? = nil, properties: SDL_RendererCreateProperty...) throws(SDL_Error) {
     try self.init(id: id, properties: properties)
@@ -173,11 +185,9 @@ extension SDL_PropertiesID {
     try self.init(id: id,  properties: properties.map { ($0.property, $0.wrappedValue) })
   }
 }
- */
 
 // MARK: RendererCreateProperty Struct
 @propertyWrapper
-@available(*, unavailable, message: "Currently not working")
 public enum SDL_RendererCreateProperty {
   case name(String)
   case window(UnsafeMutableRawPointer)
