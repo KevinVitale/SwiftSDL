@@ -21,7 +21,7 @@ extension CommandBuffer {
     , passes: SwapchainRenderPassCallback
     , bindAndDraw: ((_ tag: String, _ renderPass: any RenderPass) throws -> Void) = { _, _ in }
   ) throws(SDL_Error) -> Self {
-    var swapchainTexture: OpaquePointer! = nil
+    var swapchainTexture: OpaquePointer? = nil
     var width: UInt32 = 0, height: UInt32 = 0
     try self(
       SDL_WaitAndAcquireGPUSwapchainTexture
@@ -30,7 +30,14 @@ extension CommandBuffer {
       , .some(&width)
       , .some(&height)
     )
-    
+
+    // A successful acquire can still yield no texture (minimized or occluded
+    // window — SDL_gpu.c guards this exact state). Skip rendering; the caller
+    // still submits the command buffer, which remains valid.
+    guard let swapchainTexture else {
+      return self
+    }
+
     do {
       for (tag, colorTargetInfos, depthStencilTargetInfo) in try passes(swapchainTexture, .init(x: width, y: height)) {
         let renderPass = try SDL_BeginGPURenderPass(
