@@ -315,11 +315,12 @@ extension Renderer {
   public func points(_ points: [SDL_FPoint], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
     guard !points.isEmpty else { return self }
     let color = try color.get()
+    defer { try? self.set(color: color) }
     try self.set(color: fillColor)
     guard points.withUnsafeBufferPointer({ SDL_RenderPoints(pointer, $0.baseAddress, Int32($0.count)) }) else {
       throw .error
     }
-    return try self.set(color: color)
+    return self
   }
   
   @discardableResult
@@ -341,11 +342,12 @@ extension Renderer {
   public func lines(_ lines: [SDL_FPoint], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
     guard !lines.isEmpty else { return self }
     let color = try color.get()
+    defer { try? self.set(color: color) }
     try self.set(color: fillColor)
     guard lines.withUnsafeBufferPointer({ SDL_RenderLines(pointer, $0.baseAddress, Int32($0.count)) }) else {
       throw .error
     }
-    return try self.set(color: color)
+    return self
   }
 
   @discardableResult
@@ -367,11 +369,12 @@ extension Renderer {
   public func fill(rects: [SDL_FRect], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
     guard !rects.isEmpty else { return self }
     let color = try color.get()
+    defer { try? self.set(color: color) }
     try self.set(color: fillColor)
     guard rects.withUnsafeBufferPointer({ SDL_RenderFillRects(pointer, $0.baseAddress, Int32($0.count)) }) else {
       throw .error
     }
-    return try self.set(color: color)
+    return self
   }
   
   @discardableResult
@@ -392,18 +395,21 @@ extension Renderer {
   public func debug(text: String, position: Point<Float>, color fillColor: SDL_Color = .black, scale: Size<Float> = .one) throws(SDL_Error) -> Self {
     let renderColor = try self.color.get()
     let renderScale = try self.scale.get()
-    
+    defer {
+      // Restore even when drawing throws; a failed restore must not mask the draw error.
+      try? self.set(color: renderColor)
+      try? self.set(scale: renderScale)
+    }
+
     try self
       .set(color: fillColor)
       .set(scale: scale)
-    
+
     guard SDL_RenderDebugText(pointer, position.x, position.y, text) else {
       throw .error
     }
-    
-    return try self
-      .set(color: renderColor)
-      .set(scale: renderScale)
+
+    return self
   }
 }
 

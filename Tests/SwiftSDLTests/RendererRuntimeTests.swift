@@ -108,8 +108,10 @@ import SwiftSDL
     }
 
     /// Task 5 (GREEN pin, happy path) — debug text restores draw color and
-    /// scale on success. The error path is validated structurally (defer-based
-    /// restore); see task 5's description.
+    /// scale on success. The error path is guaranteed structurally: restore
+    /// happens in a `defer` in debug(text:) and the draw helpers, so it runs
+    /// on every exit path (no deterministic failure lever exists to test it
+    /// black-box on a valid software renderer).
     @Test func debugTextRestoresColorAndScale() throws {
       let canvas = try makeCanvas()
       try canvas.renderer.set(color: .blue)
