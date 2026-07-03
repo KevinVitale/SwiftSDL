@@ -4,11 +4,15 @@ public protocol Renderer: SDLObjectProtocol, Sendable where Pointer == OpaquePoi
 extension SDLObject<OpaquePointer>: Renderer { }
 
 // MARK: - Create Renderer
-public func SDL_CreateRenderer<P: PropertyValue>(with properties: (String, value: P)..., window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
+public func SDL_CreateRenderer(window: any Window) throws(SDL_Error) -> some Renderer {
+  try SDL_CreateRenderer(with: [(String, value: Bool)](), window: window)
+}
+
+public func SDL_CreateRenderer<P: PropertyValue>(with properties: (String, value: P)..., window: (any Window)? = nil) throws(SDL_Error) -> some Renderer {
   try SDL_CreateRenderer(with: properties, window: window)
 }
 
-public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, value: P)], window: (some Window)? = nil) throws(SDL_Error) -> some Renderer {
+public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, value: P)], window: (any Window)? = nil) throws(SDL_Error) -> some Renderer {
   let rendererProperties = SDL_CreateProperties()
   defer { rendererProperties.destroy() }
   

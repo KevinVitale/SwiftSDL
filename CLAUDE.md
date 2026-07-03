@@ -24,7 +24,6 @@ swift run sdl test sprite --help   # list GameOptions runtime flags (window size
 - SDL is process-global state — every suite that touches SDL at runtime nests under the `.serialized` `SDLRuntimeTests` umbrella. Pure-math tests (e.g. geometry) stay outside and run in parallel.
 - Crash-prone behavior runs as Swift Testing **exit tests** (`#expect(processExitsWith:)`), so a segfault or `fatalError` reads as a failed expectation instead of killing the run.
 - Some tests are **deliberately red**: they encode known-but-unfixed bugs TDD-style. Each such test's doc comment says so and describes the fix it awaits — never make a red test pass by weakening its expectations. A fully green suite means those bugs are fixed.
-- One suite is compile-time-gated behind `swift test -Xswiftc -DSWIFTSDL_TASK2_FIXED` because the API it exercises currently doesn't compile.
 
 The `SwiftSDL-TestBench` executable remains the end-to-end verification tool — run the relevant bench command and observe the window it opens.
 
