@@ -307,15 +307,13 @@ extension Renderer {
 
   @discardableResult
   public func points(_ points: [SDL_FPoint], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
+    guard !points.isEmpty else { return self }
     let color = try color.get()
-    return try self
-      .set(color: fillColor)
-      .callAsFunction(
-        SDL_RenderPoints,
-        points.withUnsafeBufferPointer(\.baseAddress),
-        Int32(points.count)
-      )
-      .set(color: color)
+    try self.set(color: fillColor)
+    guard points.withUnsafeBufferPointer({ SDL_RenderPoints(pointer, $0.baseAddress, Int32($0.count)) }) else {
+      throw .error
+    }
+    return try self.set(color: color)
   }
   
   @discardableResult
@@ -335,15 +333,13 @@ extension Renderer {
   
   @discardableResult
   public func lines(_ lines: [SDL_FPoint], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
+    guard !lines.isEmpty else { return self }
     let color = try color.get()
-    return try self
-      .set(color: fillColor)
-      .callAsFunction(
-        SDL_RenderLines,
-        lines.withUnsafeBufferPointer(\.baseAddress),
-        Int32(lines.count)
-      )
-      .set(color: color)
+    try self.set(color: fillColor)
+    guard lines.withUnsafeBufferPointer({ SDL_RenderLines(pointer, $0.baseAddress, Int32($0.count)) }) else {
+      throw .error
+    }
+    return try self.set(color: color)
   }
 
   @discardableResult
@@ -363,15 +359,13 @@ extension Renderer {
 
   @discardableResult
   public func fill(rects: [SDL_FRect], color fillColor: SDL_Color) throws(SDL_Error) -> Self {
+    guard !rects.isEmpty else { return self }
     let color = try color.get()
-    return try self
-      .set(color: fillColor)
-      .callAsFunction(
-        SDL_RenderFillRects,
-        rects.withUnsafeBufferPointer(\.baseAddress),
-        Int32(rects.count)
-      )
-      .set(color: color)
+    try self.set(color: fillColor)
+    guard rects.withUnsafeBufferPointer({ SDL_RenderFillRects(pointer, $0.baseAddress, Int32($0.count)) }) else {
+      throw .error
+    }
+    return try self.set(color: color)
   }
   
   @discardableResult

@@ -74,6 +74,19 @@ import SwiftSDL
       #expect(try pixel(at: 40, 40, of: canvas.surface) == (r: 0, g: 0, b: 0, a: 255))
     }
 
+    /// GREEN pin — pixel-verified lines (added with task 3's refactor;
+    /// `lines` previously had no pixel coverage).
+    @Test func linesDrawPixels() throws {
+      let canvas = try makeCanvas()
+      try canvas.renderer
+        .clear(color: .black)
+        .lines([SDL_FPoint(x: 2, y: 3), SDL_FPoint(x: 6, y: 3)], color: .white)
+        .present()
+      #expect(try pixel(at: 2, 3, of: canvas.surface) == (r: 255, g: 255, b: 255, a: 255))
+      #expect(try pixel(at: 4, 3, of: canvas.surface) == (r: 255, g: 255, b: 255, a: 255))
+      #expect(try pixel(at: 4, 4, of: canvas.surface) == (r: 0, g: 0, b: 0, a: 255))
+    }
+
     /// GREEN pin — pixel-verified points.
     @Test func pointsDrawPixels() throws {
       let canvas = try makeCanvas()
