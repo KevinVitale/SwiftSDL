@@ -68,12 +68,15 @@ extension Surface {
   
   @discardableResult
   public func fill(rects: [SDL_Rect], color: SDL_Color) throws(SDL_Error) -> Self {
-    try self(
-      SDL_FillSurfaceRects,
-      rects.withUnsafeBufferPointer(\.baseAddress),
-      Int32(rects.count),
-      try map(color: color)
-    )
+    guard !rects.isEmpty else { return self }
+    let mappedColor = try map(color: color)
+    let surfacePointer = pointer
+    guard rects.withUnsafeBufferPointer({
+      SDL_FillSurfaceRects(surfacePointer, $0.baseAddress, Int32($0.count), mappedColor)
+    }) else {
+      throw .error
+    }
+    return self
   }
 }
 

@@ -41,6 +41,45 @@ import SwiftSDL
     }
   }
 
+  @Suite struct Surfaces {
+    /// GREEN pin — pixel-verified surface fill; guards the pointer-scoping
+    /// refactor of Surface.fill(rects:) and pins empty-list no-op behavior.
+    @Test func fillRectsDrawsPixels() throws {
+      guard let surfacePointer = SDL_CreateSurface(16, 16, SDL_PIXELFORMAT_RGBA8888) else {
+        throw SDL_Error.error
+      }
+      let surface: any Surface = SDLObject(surfacePointer, destroy: SDL_DestroySurface)
+      try surface.clear(color: .black)
+      try surface.fill(rects: SDL_Rect(x: 2, y: 2, w: 4, h: 4), color: .red)
+      #expect(try pixel(at: 3, 3, of: surface) == (r: 255, g: 0, b: 0, a: 255))
+      #expect(try pixel(at: 10, 10, of: surface) == (r: 0, g: 0, b: 0, a: 255))
+      #expect(throws: Never.self) { try surface.fill(rects: [SDL_Rect](), color: .red) }
+    }
+  }
+
+  @Suite struct VirtualJoysticks {
+    init() throws {
+      try #require(SDLTestSupport.videoReady, "dummy video driver failed to initialize")
+      try #require(SDL_InitSubSystem(SDL_INIT_JOYSTICK), "joystick subsystem failed to initialize")
+    }
+
+    /// The attached device's name must round-trip through SDL — pins the
+    /// desc's name/touchpads/sensors pointers being valid at attach time
+    /// (the name was previously a dead String-to-pointer temporary).
+    @Test func virtualJoystickNameRoundTrips() throws {
+      let id = try SDL_AttachVirtualJoystick(
+        type: .gamepad,
+        name: "SwiftSDL Test Pad",
+        touchpads: [SDL_VirtualJoystickTouchpadDesc(nfingers: 2, padding: (0, 0, 0))],
+        sensors: [SDL_VirtualJoystickSensorDesc(type: SDL_SENSOR_ACCEL, rate: 0)]
+      )
+      defer { _ = SDL_DetachVirtualJoystick(id) }
+
+      let namePointer = try #require(SDL_GetJoystickNameForID(id))
+      #expect(String(cString: namePointer) == "SwiftSDL Test Pad")
+    }
+  }
+
   @Suite struct Drawing {
     init() throws {
       try #require(SDLTestSupport.videoReady, "dummy video driver failed to initialize")

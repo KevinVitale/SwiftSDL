@@ -20,33 +20,42 @@ public func SDL_AttachVirtualJoystick(
   setSensorsEnabled: ((SDL_VirtualJoystickDesc.UserData.DataType, Bool) -> Bool)? = nil,
   cleanup: ((SDL_VirtualJoystickDesc.UserData.DataType) -> Void)? = nil
 ) throws(SDL_Error) -> SDL_JoystickID {
-  var desc = SDL_VirtualJoystickDesc(
-    type: type,
-    vendorID: vendorID,
-    productID: productID,
-    ballsCount: ballsCount,
-    hatsCount: hatsCount,
-    buttons: buttons,
-    axises: axises,
-    name: name,
-    touchpads: touchpads,
-    sensors: sensors,
-    userdata: userdata,
-    update: update,
-    setPlayerIndex: setPlayerIndex,
-    rumble: rumble,
-    rumbleTriggers: rumbleTriggers,
-    setLED: setLED,
-    sendEffect: sendEffect,
-    setSensorsEnabled: setSensorsEnabled,
-    cleanup: cleanup
-  )
-  
-  let virtualID = SDL_AttachVirtualJoystick(&desc)
+  // Every pointer stored in the desc (name, touchpads, sensors) must stay
+  // valid through SDL_AttachVirtualJoystick, which deep-copies them — so the
+  // desc is built and consumed inside the scopes that own those pointers.
+  let virtualID: SDL_JoystickID = name.withCString { namePointer in
+    touchpads.withUnsafeBufferPointer { touchpadBuffer in
+      sensors.withUnsafeBufferPointer { sensorBuffer in
+        var desc = SDL_VirtualJoystickDesc(
+          type: type,
+          vendorID: vendorID,
+          productID: productID,
+          ballsCount: ballsCount,
+          hatsCount: hatsCount,
+          buttons: buttons,
+          axises: axises,
+          name: namePointer,
+          touchpads: touchpadBuffer,
+          sensors: sensorBuffer,
+          userdata: userdata,
+          update: update,
+          setPlayerIndex: setPlayerIndex,
+          rumble: rumble,
+          rumbleTriggers: rumbleTriggers,
+          setLED: setLED,
+          sendEffect: sendEffect,
+          setSensorsEnabled: setSensorsEnabled,
+          cleanup: cleanup
+        )
+        return SDL_AttachVirtualJoystick(&desc)
+      }
+    }
+  }
+
   guard virtualID != .zero else {
     throw .error
   }
-  
+
   return virtualID
 }
 

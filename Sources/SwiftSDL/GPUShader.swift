@@ -55,24 +55,30 @@ public func SDL_Load(
   let codePtr = code.bindMemory(to: UInt8.self, capacity: codeSize)
   let codeBuf = UnsafeBufferPointer(start: codePtr, count: codeSize)
   
-  /// This variable **must** be allocated on the stack, otherwise `SDL_CreateGPUShader`
-  /// will fail with `ERROR: Creating MTLFunction failed`.
+  /// The entrypoint C-string must remain valid through SDL_CreateGPUShader,
+  /// so the create call happens inside its buffer's scope. (An escaped
+  /// pointer here previously surfaced as "Creating MTLFunction failed" —
+  /// Metal looking up a garbage entrypoint name.)
   let entrypointBytes = entrypoint.utf8CString
-  
-  var shaderInfo =  SDL_GPUShaderCreateInfo(
-    code_size: codeSize
-    , code: codeBuf.baseAddress
-    , entrypoint: entrypointBytes.withUnsafeBufferPointer(\.baseAddress)
-    , format: format.rawValue
-    , stage: stage
-    , num_samplers: samplerCount
-    , num_storage_textures: storageTextureCount
-    , num_storage_buffers: storageBufferCount
-    , num_uniform_buffers: uniformBufferCount
-    , props: propertyID
-  )
-  
-  let pointer = try gpuDevice(SDL_CreateGPUShader, .some(&shaderInfo))
+  let devicePointer = gpuDevice.pointer
+  let shaderPointer: OpaquePointer? = entrypointBytes.withUnsafeBufferPointer { entryBuffer in
+    var shaderInfo = SDL_GPUShaderCreateInfo(
+      code_size: codeSize
+      , code: codeBuf.baseAddress
+      , entrypoint: entryBuffer.baseAddress
+      , format: format.rawValue
+      , stage: stage
+      , num_samplers: samplerCount
+      , num_storage_textures: storageTextureCount
+      , num_storage_buffers: storageBufferCount
+      , num_uniform_buffers: uniformBufferCount
+      , props: propertyID
+    )
+    return SDL_CreateGPUShader(devicePointer, &shaderInfo)
+  }
+  guard let pointer = shaderPointer else {
+    throw .error
+  }
   return SDLObject(pointer, tag: .custom("\(file + fileExt)"), destroy: { [weak gpuDevice] in
     (try? gpuDevice?(SDL_ReleaseGPUShader, $0))
   })

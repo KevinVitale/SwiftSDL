@@ -145,14 +145,13 @@ extension SDL.Test {
         verts[2].tex_coord.y = 1.0;
       }
       
-      try renderer(
-        SDL_RenderGeometry,
-        icon.pointer,
-        verts.withUnsafeBufferPointer(\.baseAddress),
-        3,
-        nil,
-        0
-      )
+      let rendererPointer = renderer.pointer
+      let drawn = verts.withUnsafeBufferPointer {
+        SDL_RenderGeometry(rendererPointer, icon.pointer, $0.baseAddress, 3, nil, 0)
+      }
+      guard drawn else {
+        throw .error
+      }
     }
   }
 }

@@ -45,8 +45,8 @@ extension SDL_VirtualJoystickDesc {
     buttons: [SDL_GamepadButton],
     axises: [SDL_GamepadAxis],
     name: UnsafePointer<CChar>,
-    touchpads: [SDL_VirtualJoystickTouchpadDesc],
-    sensors: [SDL_VirtualJoystickSensorDesc],
+    touchpads: UnsafeBufferPointer<SDL_VirtualJoystickTouchpadDesc>,
+    sensors: UnsafeBufferPointer<SDL_VirtualJoystickSensorDesc>,
     userdata: UserData.DataType = .init(),
     update: ((UserData.DataType) -> Void)? = nil,
     setPlayerIndex: ((UserData.DataType, Int32) -> Void)? = nil,
@@ -57,8 +57,6 @@ extension SDL_VirtualJoystickDesc {
     setSensorsEnabled: ((UserData.DataType, Bool) -> Bool)? = nil,
     cleanup: ((UserData.DataType) -> Void)? = nil
   ) {
-    let touchpads = touchpads
-    let sensors = sensors
     let userData = UserData(
       userdata,
       update: update,
@@ -86,9 +84,9 @@ extension SDL_VirtualJoystickDesc {
       padding2: (.zero, .zero),
       button_mask: UInt32(buttons.reduce(0) { $0 | $1.rawValue }),
       axis_mask: UInt32(axises.reduce(0) { $0 | $1.rawValue }),
-      name: withUnsafePointer(to: name, \.pointee),
-      touchpads: touchpads.withUnsafeBufferPointer(\.baseAddress),
-      sensors: sensors.withUnsafeBufferPointer(\.baseAddress),
+      name: name,
+      touchpads: touchpads.baseAddress,
+      sensors: sensors.baseAddress,
       userdata: Unmanaged.passRetained(userData).toOpaque(),
       Update: SDL_VirtualJoystickUpdate,
       SetPlayerIndex: SDL_VirtualJoystickSetPlayerIndex,
