@@ -57,9 +57,4 @@ extension GPUDevice {
   public func release(shader: any GPUShader) throws(SDL_Error) {
     try self(SDL_ReleaseGPUShader, shader.pointer)
   }
-  
-  public func render(_ commandBuffer: some CommandBuffer, pass: (OpaquePointer) throws -> Void) throws(SDL_Error) -> some GPUDevice {
-    SDL_BeginGPURenderPass(commandBuffer.pointer, nil , 0 , nil )
-    return self
-  }
 }
