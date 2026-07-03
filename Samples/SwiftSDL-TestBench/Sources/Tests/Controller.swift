@@ -35,7 +35,7 @@ extension SDL.Test {
     
     func onReady(window: any Window) throws(SDL_Error) {
       print("Creating renderer...")
-      self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_VSYNC_NUMBER, 1))
+      self.renderer = try window.createRenderer(with: (SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER, 1))
       
       print("Creating scene...")
       let sceneSize     = try renderer.outputSize(as: Float.self)
