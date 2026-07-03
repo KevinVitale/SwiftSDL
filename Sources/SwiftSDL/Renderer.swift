@@ -18,11 +18,13 @@ public func SDL_CreateRenderer<P: PropertyValue>(with properties: [(String, valu
     }
   }
   
-  if var windowPointer = window?.pointer {
-    rendererProperties.set(
+  if let windowPointer = window?.pointer {
+    guard rendererProperties.set(
       SDL_PROP_RENDERER_CREATE_WINDOW_POINTER,
-      value: withUnsafeMutableBytes(of: &windowPointer, \.baseAddress)
-    )
+      value: UnsafeMutableRawPointer(windowPointer) as UnsafeMutableRawPointer?
+    ) else {
+      throw .error
+    }
   }
 
   guard let pointer = SDL_CreateRendererWithProperties(rendererProperties) else {
