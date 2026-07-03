@@ -81,21 +81,6 @@ extension SDL_GPUGraphicsPipelineCreateInfo {
   }
 }
 
-extension SDL_GPUGraphicsPipelineTargetInfo {
-  public init(
-    colorTargetDescriptions: inout [SDL_GPUColorTargetDescription]
-    , depthStencilFormat: SDL_GPUTextureFormat? = nil
-  ) {
-    self = .init()
-    if let depthStencilFormat = depthStencilFormat {
-      self.has_depth_stencil_target = true
-      self.depth_stencil_format = depthStencilFormat
-    }
-    self.num_color_targets = UInt32(colorTargetDescriptions.count)
-    self.color_target_descriptions = colorTargetDescriptions.withUnsafeBufferPointer(\.baseAddress)
-  }
-}
-
 extension SDL_GPUDepthStencilState {
   public init(
     enableDepthTest: Bool = false

@@ -114,7 +114,7 @@ extension SDL.Test.GPUExamples {
       let vertShader = try Load(shader: "RawTriangle.vert", device: gpuDevice)
       let fragShader = try Load(shader: "SolidColor.frag", device: gpuDevice)
       
-      var colorTargets: [SDL_GPUColorTargetDescription] = [
+      let colorTargets: [SDL_GPUColorTargetDescription] = [
         SDL_GPUColorTargetDescription(format: try gpuDevice(SDL_GetGPUSwapchainTextureFormat, window.pointer))
       ]
 
@@ -123,13 +123,12 @@ extension SDL.Test.GPUExamples {
         , fragmentShader: fragShader
         , primitiveType: .triangleList
         , rasterizerState: .init(fillMode: SDL_GPU_FILLMODE_FILL)
-        , targetInfo: .init(colorTargetDescriptions: &colorTargets)
       )
-      
-      self.fillPipeline = try gpuDevice(SDL_CreateGPUGraphicsPipeline, .some(&pipeline))
-      
+
+      self.fillPipeline = try gpuDevice.createGraphicsPipeline(pipeline, colorTargetDescriptions: colorTargets)
+
       pipeline.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_LINE
-      self.linePipeline = try gpuDevice(SDL_CreateGPUGraphicsPipeline, .some(&pipeline))
+      self.linePipeline = try gpuDevice.createGraphicsPipeline(pipeline, colorTargetDescriptions: colorTargets)
     }
     
     func update(_ context: SDL.Test.GPUExamples) throws(SDL_Error) {
@@ -178,17 +177,13 @@ extension SDL.Test.GPUExamples {
       let _ = try Load(shader: "TexturedQuad.vert", device: gpuDevice)
       let _ = try Load(shader: "DepthOutline.frag", device: gpuDevice, samplerCount: 2, uniformBufferCount: 1)
       
-      var colorTargets: [SDL_GPUColorTargetDescription] = [
-        SDL_GPUColorTargetDescription(format: SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM)
-      ]
-      
+      // Incomplete example: when finished, create the pipeline via
+      // gpuDevice.createGraphicsPipeline(_, colorTargetDescriptions:
+      // [.init(format: SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM)],
+      // depthStencilFormat: SDL_GPU_TEXTUREFORMAT_D16_UNORM).
       var _ = SDL_GPUGraphicsPipelineCreateInfo(
         primitiveType: .triangleList
         , rasterizerState: .init(fillMode: SDL_GPU_FILLMODE_FILL)
-        , targetInfo: .init(
-          colorTargetDescriptions: &colorTargets,
-          depthStencilFormat: SDL_GPU_TEXTUREFORMAT_D16_UNORM
-        )
         , depthStencilState: .init(
           enableDepthTest: true
           , enableDepthWrite: true
