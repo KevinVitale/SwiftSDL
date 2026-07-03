@@ -52,6 +52,11 @@ let package = Package(
         .product(name: "ArgumentParser", package: "swift-argument-parser")
       ]
     ),
+
+    .testTarget(
+      name: "SwiftSDLTests",
+      dependencies: ["SwiftSDL"]
+    ),
     
     .executableTarget(
       name: "SwiftSDL-TestBench",
