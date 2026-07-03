@@ -129,9 +129,9 @@ extension SDL_Rect: @retroactive SIMD {
   public typealias Scalar = SIMD4<Int32>.Scalar
   
   public var topLeft     : SDL_Point { [self[0], self[1]] }
-  public var topRight    : SDL_Point { [self[2], self[0]] }
-  public var bottomLeft  : SDL_Point { [self[0], self[3]] }
-  public var bottomRight : SDL_Point { [self[2], self[3]] }
+  public var topRight    : SDL_Point { [self[0] + self[2], self[1]] }
+  public var bottomLeft  : SDL_Point { [self[0], self[1] + self[3]] }
+  public var bottomRight : SDL_Point { [self[0] + self[2], self[1] + self[3]] }
 
   @discardableResult
   @inlinable
@@ -176,9 +176,9 @@ extension SDL_FRect: @retroactive SIMD {
   public typealias Scalar = SIMD4<Float>.Scalar
   
   public var topLeft     : SDL_FPoint { [self[0], self[1]] }
-  public var topRight    : SDL_FPoint { [self[2], self[0]] }
-  public var bottomLeft  : SDL_FPoint { [self[0], self[3]] }
-  public var bottomRight : SDL_FPoint { [self[2], self[3]] }
+  public var topRight    : SDL_FPoint { [self[0] + self[2], self[1]] }
+  public var bottomLeft  : SDL_FPoint { [self[0], self[1] + self[3]] }
+  public var bottomRight : SDL_FPoint { [self[0] + self[2], self[1] + self[3]] }
 
   @discardableResult
   @inlinable
@@ -246,12 +246,16 @@ extension SIMD2 where Scalar: BinaryFloatingPoint {
   }
 }
 
-extension SIMD4 {
+// Corner accessors treat SIMD4 as a rect laid out (x, y, w, h); the trailing
+// corners offset by the origin, so they require addable scalars.
+extension SIMD4 where Scalar: AdditiveArithmetic {
   public var topLeft     : SIMD2<Scalar> { [self[0], self[1]] }
-  public var topRight    : SIMD2<Scalar> { [self[2], self[0]] }
-  public var bottomLeft  : SIMD2<Scalar> { [self[0], self[3]] }
-  public var bottomRight : SIMD2<Scalar> { [self[2], self[3]] }
+  public var topRight    : SIMD2<Scalar> { [self[0] + self[2], self[1]] }
+  public var bottomLeft  : SIMD2<Scalar> { [self[0], self[1] + self[3]] }
+  public var bottomRight : SIMD2<Scalar> { [self[0] + self[2], self[1] + self[3]] }
+}
 
+extension SIMD4 {
   public func to<S: SIMDScalar>(_ type: S.Type) -> SIMD4<S> where S: FixedWidthInteger, Scalar: FixedWidthInteger {
     var s = SIMD4<S>()
     for i in indices {

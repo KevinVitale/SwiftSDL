@@ -1,11 +1,11 @@
 import Testing
 import SwiftSDL
 
-/// Task 7 — corner accessors must offset by the rect's origin.
+/// Corner accessors must offset by the rect's origin.
 ///
 /// Every assertion deliberately uses a non-origin rect: origin-anchored rects
-/// are exactly the coincidence that masks the current bug (the Sprite test
-/// bench renders "correctly" only because its rects start at 0,0).
+/// were exactly the coincidence that masked the original bug (the Sprite test
+/// bench rendered "correctly" only because its rects start at 0,0).
 ///
 /// Pure math — no SDL runtime needed, safe to run in parallel.
 @Suite struct RectCornerTests {
