@@ -38,7 +38,7 @@ extension SDL_GPUDepthStencilTargetInfo {
   public init(
   texture: OpaquePointer?
   , clearDepth: Float = 1
-  , clearStencil: UInt32 = 0
+  , clearStencil: UInt8 = 0
   , load_op: SDL_GPULoadOp = SDL_GPU_LOADOP_CLEAR
   , store_op: SDL_GPUStoreOp = SDL_GPU_STOREOP_DONT_CARE
   , stencil_load_op: SDL_GPULoadOp = SDL_GPU_LOADOP_DONT_CARE
@@ -47,6 +47,8 @@ extension SDL_GPUDepthStencilTargetInfo {
   ) {
     self = .init()
     self.texture = texture
+    self.clear_depth = clearDepth
+    self.clear_stencil = clearStencil
     self.load_op = load_op
     self.store_op = store_op
     self.stencil_load_op = stencil_load_op
@@ -104,6 +106,7 @@ extension SDL_GPUDepthStencilState {
     self.enable_depth_write = enableDepthWrite
     self.enable_stencil_test = enableStencilTest
     self.compare_op = compareOp
+    self.write_mask = writeMask
   }
 }
 
