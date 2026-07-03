@@ -7,13 +7,16 @@ public func SDL_BeginGPURenderPass(
   , colorTargetInfos: [SDL_GPUColorTargetInfo]
   , depthStencilTargetInfo: SDL_GPUDepthStencilTargetInfo? = nil
 ) throws(SDL_Error) -> some RenderPass {
-  var depthStencilTargetInfo = depthStencilTargetInfo
-  guard let pointer = SDL_BeginGPURenderPass(
-    commandBuffer.pointer
-    , colorTargetInfos.withUnsafeBufferPointer(\.baseAddress)
-    , UInt32(colorTargetInfos.count)
-    , depthStencilTargetInfo != nil ? .some(&depthStencilTargetInfo!) : nil
-  ) else {
+  let commandBufferPointer = commandBuffer.pointer
+  let pointer: OpaquePointer? = colorTargetInfos.withUnsafeBufferPointer { colorTargets in
+    guard let depthStencilTargetInfo else {
+      return SDL_BeginGPURenderPass(commandBufferPointer, colorTargets.baseAddress, UInt32(colorTargets.count), nil)
+    }
+    return withUnsafePointer(to: depthStencilTargetInfo) {
+      SDL_BeginGPURenderPass(commandBufferPointer, colorTargets.baseAddress, UInt32(colorTargets.count), $0)
+    }
+  }
+  guard let pointer else {
     throw .error
   }
   return SDLObject(pointer, tag: .custom("render pass"))
