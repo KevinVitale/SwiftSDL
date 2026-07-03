@@ -43,7 +43,7 @@ extension CommandBuffer {
       }
     }
     catch {
-      throw error as! SDL_Error
+      throw SDL_Error.wrap(error)
     }
     
     return self

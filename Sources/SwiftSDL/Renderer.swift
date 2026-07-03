@@ -166,17 +166,8 @@ extension Renderer {
       try callback?(self)
       return self
     }
-    catch let error as SDL_Error {
-      throw error
-    }
     catch {
-      // SDL_SetErrorV treats the message as a printf format string; escape '%'.
-      // (Not customWithArgs("%s", ...): Swift's String CVarArg encodes an
-      // NSString pointer for '%@', which C's '%s' would misread.)
-      let description = String(describing: error)
-        .split(separator: "%", omittingEmptySubsequences: false)
-        .joined(separator: "%%")
-      throw .custom(description)
+      throw .wrap(error)
     }
   }
 
