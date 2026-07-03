@@ -170,7 +170,13 @@ extension Renderer {
       throw error
     }
     catch {
-      fatalError("Unknown error type thrown: \(error). This should never happen.")
+      // SDL_SetErrorV treats the message as a printf format string; escape '%'.
+      // (Not customWithArgs("%s", ...): Swift's String CVarArg encodes an
+      // NSString pointer for '%@', which C's '%s' would misread.)
+      let description = String(describing: error)
+        .split(separator: "%", omittingEmptySubsequences: false)
+        .joined(separator: "%%")
+      throw .custom(description)
     }
   }
 
